@@ -49,5 +49,15 @@
   --color-danger-800: #92253c;
   --color-danger-900: #661828;
 
+  /* Footer color */
   --color-mirage: #1a1f36;
+
+  /* instruction colors */
+  --color-gradient-pink: #f2e7f7;
+  --color-gradient-blue: #e2eefb;
+  --background-image-gradient: linear-gradient(
+    -45deg,
+    var(--color-gradient-pink),
+    var(--color-gradient-blue)
+  );
 }
