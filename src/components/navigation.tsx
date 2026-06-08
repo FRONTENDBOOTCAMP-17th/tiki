@@ -179,18 +179,18 @@ export default function Navigation({
   return (
     <nav
       className={cn(
-        "w-full border-b border-gray-200 bg-white min-[744px]:hidden",
+        "w-full bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.08)] min-[744px]:hidden",
         className,
       )}
       {...props}
     >
-      <ul className="flex items-stretch justify-around mx-auto px-10 h-16 max-w-[1280px] list-none">
+      <ul className="flex items-stretch h-16 list-none w-full">
         {items.map((menu) => {
           const active = path === menu.href;
           const Icon = menu.icon;
 
           return (
-            <li key={menu.href} className="relative flex">
+            <li key={menu.href} className="relative flex flex-1">
               <Link href={menu.href} className={navItem({ active })}>
                 {active && (
                   <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[3px] rounded-[3px] bg-primary-700" />

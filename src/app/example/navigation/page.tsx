@@ -2,7 +2,7 @@ import Navigation from "@/components/navigation";
 
 export default function NavigationExamplePage() {
   return (
-    <main className="flex flex-col gap-8 p-10">
+    <main className="flex flex-col gap-8 py-10">
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">홈 navbar</h2>
         <Navigation current="/" />
