@@ -106,6 +106,46 @@ function UserIcon() {
   );
 }
 
+function SearchIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+      />
+    </svg>
+  );
+}
+
+function LoginIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+      />
+    </svg>
+  );
+}
+
 const menus = [
   { label: "홈", href: "/", icon: HomeIcon },
   { label: "카테고리", href: "/category", icon: GridIcon },
@@ -114,25 +154,38 @@ const menus = [
   { label: "마이", href: "/mypage", icon: UserIcon },
 ];
 
+const guestMenus = [
+  { label: "홈", href: "/", icon: HomeIcon },
+  { label: "카테고리", href: "/category", icon: GridIcon },
+  { label: "검색", href: "/search", icon: SearchIcon },
+  { label: "로그인", href: "/login", icon: LoginIcon },
+];
+
 interface NavigationProps extends ComponentPropsWithRef<"nav"> {
   current?: string;
+  loggedIn?: boolean;
 }
 
 export default function Navigation({
   current,
+  loggedIn = true,
   className,
   ...props
 }: NavigationProps) {
   const pathname = usePathname();
   const path = current ?? pathname;
+  const items = loggedIn ? menus : guestMenus;
 
   return (
     <nav
-      className={cn("w-full border-b border-gray-200 bg-white", className)}
+      className={cn(
+        "w-full border-b border-gray-200 bg-white min-[744px]:hidden",
+        className,
+      )}
       {...props}
     >
       <ul className="flex items-stretch justify-around mx-auto px-10 h-16 max-w-[1280px] list-none">
-        {menus.map((menu) => {
+        {items.map((menu) => {
           const active = path === menu.href;
           const Icon = menu.icon;
 
