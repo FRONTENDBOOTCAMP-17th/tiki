@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
   --color-primary: #cdb4db;
@@ -48,4 +48,6 @@
   --color-danger-700: #b9334e;
   --color-danger-800: #92253c;
   --color-danger-900: #661828;
+
+  --color-mirage: #1a1f36;
 }
