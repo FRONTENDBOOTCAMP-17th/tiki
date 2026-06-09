@@ -1,5 +1,5 @@
 import { useId, type ComponentPropsWithoutRef } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/cn';
 
 interface InputProps extends ComponentPropsWithoutRef<'input'> {
   label?: string;
