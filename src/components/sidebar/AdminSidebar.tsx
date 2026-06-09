@@ -1,14 +1,14 @@
 "use client";
 
-import { LayoutGrid, Plus, BarChart3, Wallet, LogOut } from "lucide-react";
+import { LayoutGrid, LogOut, Tags, CalendarDays, UserCog } from "lucide-react";
 import SidebarMenuItem from "./SidebarMenuItem";
 import type { SidebarItem } from "./types";
 
 const ADMIN_MENU: SidebarItem[] = [
   { label: "대시보드", href: "/admin", icon: LayoutGrid },
-  { label: "이벤트 관리", href: "/admin/events", icon: Plus },
-  { label: "회원 관리", href: "/admin/members", icon: BarChart3 },
-  { label: "카테고리 관리", href: "/admin/categories", icon: Wallet },
+  { label: "이벤트 관리", href: "/admin/events", icon: CalendarDays },
+  { label: "회원 관리", href: "/admin/members", icon: UserCog },
+  { label: "카테고리 관리", href: "/admin/categories", icon: Tags},
 ];
 
 export default function AdminSidebar() {

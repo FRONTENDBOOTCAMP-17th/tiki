@@ -1,12 +1,12 @@
 "use client";
 
-import { LayoutGrid, Calendar, Plus, Ticket, Receipt, Store, LogOut } from "lucide-react";
+import { LayoutGrid, Plus, Ticket, Receipt, Store, LogOut, CalendarDays } from "lucide-react";
 import SidebarMenuItem from "./SidebarMenuItem";
 import type { SidebarItem } from "./types";
 
 const SELLER_MENU: SidebarItem[] = [
   { label: "대시보드", href: "/seller", icon: LayoutGrid },
-  { label: "이벤트 관리", href: "/seller/events", icon: Calendar, badge: 0 },
+  { label: "이벤트 관리", href: "/seller/events", icon: CalendarDays, badge: 8 },
   { label: "새 이벤트 등록", href: "/seller/events/new", icon: Plus },
   { label: "예매 관리", href: "/seller/orders", icon: Ticket, badge: 2 },
 ];

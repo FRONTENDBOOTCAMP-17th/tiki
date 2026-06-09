@@ -25,8 +25,8 @@ export default function SidebarMenuItem({ label, href, icon: Icon, badge }: Side
       {!!badge && (
         <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-pink-500 px-1.5 text-xs font-medium text-white">
           {badge}
-      </span>
-    )}
+        </span>
+      )}
     </Link>
   );
 }
