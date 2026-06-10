@@ -14,13 +14,15 @@ export function Input({
   id,
   name,
   className,
-  ...props // type, placeholder, disabled, defaultValue 등 네이티브 속성 전부 흘려보냄
+  ...props
 }: InputProps) {
-  const inputId = id ?? name ?? useId();
-  const descId =
-  inputId && (error || helperText)
-    ? `${inputId}-desc`
-    : undefined;
+  const autoId = useId();
+    const inputId = id ?? name ?? autoId;
+
+    // error/helperText가 있을 때만 연결
+    const descId = error || helperText
+        ? `${inputId}-desc`
+        : undefined;
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -38,7 +40,7 @@ export function Input({
         className={cn(
           'h-11 w-full rounded-lg border bg-white px-3 text-sm text-gray-900 outline-none transition',
           'placeholder:text-gray-400',
-          'border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200', // TiKi 보라
+          'border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200',
           'disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400',
           error && 'border-red-400 focus:border-red-500 focus:ring-red-200', // 에러가 포커스보다 우선
           className,
