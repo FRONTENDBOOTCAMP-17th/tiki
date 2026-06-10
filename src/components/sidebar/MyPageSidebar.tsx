@@ -17,10 +17,11 @@ export default function MyPageSidebar() {
     <aside className="flex h-full w-64 flex-col rounded-2xl bg-white p-4">
       {/* 상단 큰 프로필 카드 (직접 작성) */}
       <div className="flex flex-col items-center gap-2 pb-4">
-        <div className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-300 to-blue-300" />
-        <p className="text-lg font-bold text-gray-900">멋사님</p>
-        <p className="text-sm text-gray-400">moetsa@gmail.com</p>
-        <span className="rounded-full bg-purple-100 px-3 py-0.5 text-xs font-medium text-purple-600">
+        <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary-300 to-secondary-300" />
+        <p className="text-lg font-bold text-gray-900">티키님</p>
+        <p className="text-sm text-gray-400">tiki@gmail.com</p>
+        {/* 가독성을 고려한 800번대 컬러 지정 */}
+        <span className="rounded-full bg-primary-100 px-3 py-0.5 text-xs font-medium text-primary-800">
           구매자
         </span>
       </div>
@@ -33,8 +34,8 @@ export default function MyPageSidebar() {
         ))}
       </nav>
 
-      {/* 로그아웃 (구매자 : 빨간색) */}
-      <button className="mt-1 flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-500 hover:text-red-600">
+      {/* 시스템 공통 danger 컬러 테마 반영 */}
+      <button className="mt-1 flex items-center gap-2 px-3 py-2 text-sm font-medium text-danger-500 hover:text-danger-600">
         <LogOut size={18} />
         로그아웃
       </button>
