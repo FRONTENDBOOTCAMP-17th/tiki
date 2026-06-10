@@ -1,5 +1,5 @@
-import Header from "@/components/header";
-import RoleHeader from "@/components/roleHeader";
+import Header from "@/components/Header";
+import RoleHeader from "@/components/RoleHeader";
 
 export default function HeaderExamplePage() {
   return (

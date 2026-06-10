@@ -1,6 +1,6 @@
 "use client";
 
-import Modal from "@/components/modal/modal";
+import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
 
 interface AlertModalProps {

@@ -6,7 +6,7 @@ import { ComponentPropsWithRef } from "react";
 import { cn } from "@/lib/cn";
 import Button from "@/components/Button";
 import { categoryItem } from "./Header.styles";
-import Logo from "@/components/logo";
+import Logo from "@/components/Logo";
 
 function SearchIcon() {
   return (

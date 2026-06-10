@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Modal from "@/components/modal/modal";
+import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
 import { cn } from "@/lib/cn";
 

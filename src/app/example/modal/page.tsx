@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import ConfirmModal from "@/components/modal/confirmModal";
-import AlertModal from "@/components/modal/alertModal";
+import ConfirmModal from "@/components/modal/ConfirmModal";
+import AlertModal from "@/components/modal/AlertModal";
 import Button from "@/components/Button";
-import FriendAddModal from "@/components/modal/friendAddModal";
-import NotifModal from "@/components/modal/notifModal";
-import OrderContent from "@/components/modal/orderContent";
-import NotifSend from "@/components/modal/notifSend";
+import FriendAddModal from "@/components/modal/FriendAddModal";
+import NotifModal from "@/components/modal/NotifModal";
+import OrderContent from "@/components/modal/OrderContent";
+import NotifSend from "@/components/modal/NotifSend";
 
 export default function ModalExamplePage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
