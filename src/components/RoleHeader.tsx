@@ -1,6 +1,6 @@
 import { ComponentPropsWithRef } from "react";
 import { cn } from "@/lib/cn";
-import Logo from "@/components/logo";
+import Logo from "@/components/Logo";
 
 interface RoleHeaderProps extends ComponentPropsWithRef<"header"> {
   role: "seller" | "admin";
