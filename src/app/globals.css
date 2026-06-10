@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
   --color-primary: #cdb4db;
@@ -61,8 +61,10 @@
     var(--color-gradient-pink),
     var(--color-gradient-blue)
   );
-}
 
+  /* Search */
+  --color-search-background-pink: #fef5ff;
+}
 @theme {
   --animate-slide-in-from-left: slide-in-from-left 0.5s ease-out;
   --animate-slide-in-from-right: slide-in-from-right 0.5s ease-out;
