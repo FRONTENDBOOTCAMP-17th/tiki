@@ -26,9 +26,6 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
-, "src/app/productDetail"  ],
-  "exclude": ["node_modules"]
+    ".next/types/**/*.ts" ],
+  "exclude": ["node_modules", "review"]
 }
