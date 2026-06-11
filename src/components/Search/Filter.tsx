@@ -1,41 +1,28 @@
-/**
- * Filter — 정렬 버튼들(칩) 컴포넌트
- *
- * 결과 목록은 그리지 않고 정렬 상태(sortKey/direction)와 클릭 핸들러(onSort)를
- * 받아 SORT_OPTIONS를 map으로 렌더링 상태/정렬 로직은 useSort에 있다.
- *
- * 사용 예 (page.tsx):
- *   const { sortKey, direction, sorted, changeSort } = useSort(items);
- *   <Filter sortKey={sortKey} direction={direction} onSort={changeSort} />
- *   // 결과(sorted)는 페이지에서 직접 그린다
- */
+"use client"; // useSortContext 훅을 쓰므로 클라이언트 컴포넌트
 
-import { ChevronUp, ChevronDown } from "lucide-react";
-import {
-  SORT_OPTIONS,
-  type Direction,
-  type SortKey,
-} from "@/components/Search/filterSort";
+import { ChevronUp, ChevronDown } from "lucide-react"; // 방향 표시 아이콘
+import { SORT_OPTIONS, type Direction } from "@/components/Search/filterSort"; // 정렬 옵션(단일 소스)
+import { useSortContext } from "@/components/Search/SortContext"; // 정렬 상태를 context에서 가져옴
 
-// ── 정렬 버튼  ──
+// ── 정렬 버튼 1개 (프리젠테이셔널 — 상태 없음) ──
 function FilterButton({
-  label,
-  active,
-  direction,
-  onClick,
+  label, // 버튼 글자
+  active, // 현재 선택된 기준인지
+  direction, // 화살표 방향
+  onClick, // 클릭 핸들러
 }: {
   label: string;
   active: boolean;
   direction: Direction;
   onClick: () => void;
 }) {
-  const isAsc = direction === "asc";
-  const Chevron = isAsc ? ChevronUp : ChevronDown;
+  const isAsc = direction === "asc"; // 오름차순 여부
+  const Chevron = isAsc ? ChevronUp : ChevronDown; // 방향에 맞는 아이콘 선택
 
   return (
     <button
       type="button"
-      onClick={onClick} //
+      onClick={onClick} // 받은 핸들러 그대로 연결
       className={`flex w-fit items-center font-bold gap-2 cursor-pointer border rounded-4xl px-5 py-2 ${
         active
           ? "border-accent-500 bg-search-background-pink text-accent-800" // 선택됨
@@ -44,31 +31,32 @@ function FilterButton({
     >
       <span>{label}</span>
       <Chevron
-        className={`w-5 h-5 ${active ? "" : "opacity-30"}`}
+        className={`w-5 h-5 ${active ? "" : "opacity-30"}`} // 비활성은 흐리게
         aria-label={isAsc ? "오름차순" : "내림차순"}
       />
     </button>
   );
 }
 
-type FilterProps = {
-  sortKey: SortKey;
-  direction: Direction;
-  onSort: (key: SortKey) => void;
-};
+// ── 정렬 버튼 묶음 ── props 없이 context만 소비한다
+export default function Filter() {
+  const { sortKey, direction, changeSort } = useSortContext(); // context에서 꺼냄
 
-export default function Filter({ sortKey, direction, onSort }: FilterProps) {
   return (
     <div className="flex gap-2">
-      {SORT_OPTIONS.map(({ key, label }) => (
-        <FilterButton
-          key={key}
-          label={label}
-          active={sortKey === key}
-          direction={sortKey === key ? direction : "desc"} // 비활성은 기본(아래)
-          onClick={() => onSort(key)}
-        />
-      ))}
+      {SORT_OPTIONS.map(
+        (
+          { key, label }, // 옵션 배열을 map으로 렌더 (반복 제거)
+        ) => (
+          <FilterButton
+            key={key}
+            label={label}
+            active={sortKey === key} // 현재 기준이면 활성
+            direction={sortKey === key ? direction : "desc"} // 비활성은 기본(아래)
+            onClick={() => changeSort(key)} // 핸들러를 컴포넌트 내부에서 연결
+          />
+        ),
+      )}
     </div>
   );
 }

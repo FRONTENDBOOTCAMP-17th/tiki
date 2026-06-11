@@ -3,12 +3,12 @@
  *
  * - SORT_OPTIONS : 어떤 기준으로 정렬할지 + 비교 방법(compare)을 정의한 단일 소스.
  *                  기준을 늘리려면 여기에 한 줄(+ compare)만 추가하면 된다.
+ *
  * - useSort      : 현재 정렬 상태(sortKey/direction)와 정렬된 결과(sorted),
  *                  클릭 처리(changeSort)를 캡슐화한 훅. UI는 이 값만 받아 그리면 됨.
  *                  (파일명은 filterSort지만 훅 함수는 "use" 접두사 필수라 useSort)
- *
- * 동작: 받아온 결과를 프론트에서 "순서만" 바꾼다 (서버 재요청 없음).
  */
+
 import { useMemo, useState } from "react";
 
 export type Direction = "asc" | "desc";
@@ -19,7 +19,7 @@ export type SortItem = {
   date: string; // ISO 문자열 ("2026-01-15")
 };
 
-// ── 정렬 옵션(단일 소스) ── key=식별자, label=버튼 글자, compare=오름차순 기준
+// ── 날짜,이름순 정렬 ── key=식별자, label=버튼 글자, compare=정렬 함수
 export const SORT_OPTIONS = [
   {
     key: "date",
@@ -41,13 +41,13 @@ export function useSort(items: SortItem[]) {
   const [sortKey, setSortKey] = useState<SortKey>(SORT_OPTIONS[0].key);
   const [direction, setDirection] = useState<Direction>("desc");
 
-  // 같은 기준 다시 클릭 → 방향 토글 / 다른 기준 → 그 기준으로 전환
+  // 같은 버튼 클릭시 화살표 방향 전환
   const changeSort = (key: SortKey) =>
     key === sortKey
       ? setDirection((d) => (d === "asc" ? "desc" : "asc"))
       : setSortKey(key);
 
-  // 받아온 items를 현재 기준/방향으로 정렬 (값이 안 바뀌면 재계산 안 함)
+  // 받아온 items를 현재 기준/방향으로 정렬
   const sorted = useMemo(() => {
     const { compare } = SORT_OPTIONS.find((o) => o.key === sortKey)!;
     const asc = [...items].sort(compare);
