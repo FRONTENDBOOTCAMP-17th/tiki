@@ -50,9 +50,9 @@ export default function OrderContent({
 
   return (
     <Modal open={open} onClose={onClose} position="sheet">
-      <div className="flex max-h-[80vh] flex-col gap-6 overflow-y-auto p-6">
-        <h2 className="text-lg font-bold text-gray-900">예매하기</h2>
+      <Modal.Header>예매하기</Modal.Header>
 
+      <Modal.Body className="gap-6">
         <div className="flex flex-col gap-3">
           <p className="text-sm font-semibold text-gray-700">
             1. 날짜 및 회차 선택
@@ -149,7 +149,9 @@ export default function OrderContent({
             </span>
           </div>
         </div>
+      </Modal.Body>
 
+      <Modal.Footer>
         <Button
           fullWidth
           disabled={!ready}
@@ -157,7 +159,7 @@ export default function OrderContent({
         >
           바로 예매
         </Button>
-      </div>
+      </Modal.Footer>
     </Modal>
   );
 }
