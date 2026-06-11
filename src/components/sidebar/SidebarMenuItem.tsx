@@ -13,7 +13,7 @@ export default function SidebarMenuItem({ label, href, icon: Icon, badge }: Side
       href={href}
       className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm transition-colors ${
         isActive
-          ? "bg-purple-100 font-semibold text-purple-700" // 활성: 연보라 배경
+          ? "bg-primary-100 font-semibold text-primary-800" // 가독성을 위해 800번대 컬러로 보완
           : "text-gray-700 hover:bg-gray-50" // 비활성
       }`}
     >
@@ -23,7 +23,7 @@ export default function SidebarMenuItem({ label, href, icon: Icon, badge }: Side
       </span>
       {/* badge가 1 이상일 때만 렌더 (0과 undefined는 안 뜸) */}
       {!!badge && (
-        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-pink-500 px-1.5 text-xs font-medium text-white">
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-500 px-1.5 text-xs font-medium text-white">
           {badge}
         </span>
       )}

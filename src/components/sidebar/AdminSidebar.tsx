@@ -15,7 +15,7 @@ export default function AdminSidebar() {
   return (
     <aside className="flex h-full w-64 flex-col justify-between rounded-2xl bg-white p-4">
       <div>
-        <h2 className="mb-4 px-3 text-lg font-bold text-purple-700">관리자님, 환영합니다</h2>
+        <h2 className="mb-4 px-3 text-lg font-bold text-primary-800">관리자님, 환영합니다</h2>
         <nav className="flex flex-col gap-1">
           {ADMIN_MENU.map((item) => (
             <SidebarMenuItem key={item.href} {...item} />
@@ -26,7 +26,7 @@ export default function AdminSidebar() {
       {/* 하단 프로필 + 로그아웃 (이 사이드바 안에서 직접 작성) */}
       <div className="border-t border-gray-100 pt-3">
         <div className="flex items-center gap-3 px-1 py-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-400 text-sm font-semibold text-white">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-500 text-sm font-semibold text-white">
             A
           </div>
           <div>
