@@ -27,4 +27,31 @@
 
 ## 📂 Folder Structure
 
+```plaintext
+├── public/                  # 정적 파일 (이미지, 아이콘 등)
+├── review/                  # 리뷰 및 가이드 문서, E2E 테스트 관련 기록
+├── src/                     # 소스 코드 메인 폴더 (Next.js App Router 기반)
+│   ├── app/                 # 라우팅 페이지 및 레이아웃 (layout.tsx, page.tsx 등)
+│   ├── components/          # 재사용 가능한 공통 컴포넌트
+│   ├── hooks/               # 커스텀 훅 관리 폴더
+│   ├── lib/                 # 유틸리티 함수, 외부 라이브러리 및 API 설정
+│   └── proxy.ts             # 프록시 서버 설정 파일
+├── eslint.config.mjs        # ESLint 린트 설정 코드
+├── next-env.d.ts            # Next.js TypeScript 타입 정의 파일
+├── next.config.ts           # Next.js 환경 설정 파일
+├── package-lock.json        # 의존성 잠금 파일 (패키지 버전 고정)
+├── package.json             # 프로젝트 의존성(라이브러리) 및 스크립트 관리
+├── postcss.config.mjs       # PostCSS 설정 (Tailwind CSS 스타일링 연동)
+├── tsconfig.json            # TypeScript 컴파일러 옵션 설정
+└── README.md                # 프로젝트 메인 가이드 문서
+```
+
 ## 🌿 Git Convention
+
+## ⚙️ 환경 변수 설정
+
+`.env.example`을 복사해 `.env.local`을 만들고 Supabase 값을 채움. (팀원은 공유받은 값 사용)
+
+```bash
+cp .env.example .env.local
+```
