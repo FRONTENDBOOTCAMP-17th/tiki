@@ -23,10 +23,10 @@ function FilterButton({
     <button
       type="button"
       onClick={onClick} // 받은 핸들러 그대로 연결
-      className={`flex w-fit items-center font-bold gap-2 cursor-pointer border rounded-4xl px-5 py-2 ${
+      className={`flex w-fit items-center font-medium gap-1.5 cursor-pointer border rounded-full px-4 py-1.5 text-sm transition-colors ${
         active
-          ? "border-accent-500 bg-search-background-pink text-accent-800" // 선택됨
-          : "border-gray-300 text-gray-600" // 안 선택됨
+          ? "border-accent-500 bg-search-background-pink text-accent-800"
+          : "border-gray-200 text-gray-500 bg-white"
       }`}
     >
       <span>{label}</span>
