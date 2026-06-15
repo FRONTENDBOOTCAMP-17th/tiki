@@ -8,7 +8,7 @@ export const toastVariants = cva(
         success: 'bg-[#E1F5EE] text-[#0F6E56]',
         error: 'bg-[#FCE6EF] text-[#B23A6E]',
         warning: 'bg-[#FAEEDA] text-[#854F0B]',
-        info: 'bg-[#E2EEFB] text-[#3A6BA5]]',
+        info: 'bg-[#E2EEFB] text-[#3A6BA5]',
       },
     },
     defaultVariants: {
