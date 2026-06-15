@@ -1,14 +1,19 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase.server';
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/home'; // 로그인 후 이동할 페이지
+  const next = searchParams.get('next') ?? '/';
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+    console.log('endpoint: /auth/callback');
+    console.log('data: ', data);
+    console.log('error: ', error);
+
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
