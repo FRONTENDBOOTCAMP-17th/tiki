@@ -1,15 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { success, fail } from "@/lib/api/api-response";
 
-// EVENT-03 이벤트 검색 (통합 필터)
-// GET /api/events/search?keyword=...&sort=recent
-// 응답: { success, message, data: { items } }
+// EVENT-03 이벤트 검색 (통합 필터) + 페이지네이션
+// GET /api/events/search?keyword=...&sortKey=date|name&direction=asc|desc&page=1&limit=12
+// 응답: { success, message, data: { items, total, page, limit } }
 //
-// 현재 DB(event/category)로 가능한 범위만 구현:
-//  - keyword: title / venue_name 부분일치(ilike)
-//  - category(표시명): category 테이블 조인
-//  - minPrice: ticket_grades 미구현 → null (추후 최저가 계산으로 대체)
-//  - 페이지네이션: 추후 구현 예정
+//  - 정렬: 서버에서 처리. sortKey=date→start_date, name→title
+//  - minPrice: ticket_grades 미구현
+
+const DEFAULT_LIMIT = 24;
+const MAX_LIMIT = 50;
 
 // 조인 결과는 to-one 이라 객체지만, 방어적으로 배열도 허용
 type EventRow = {
@@ -25,32 +25,39 @@ type EventRow = {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const keyword = (searchParams.get("keyword") ?? "").trim();
-  const sort = searchParams.get("sort") ?? "recent";
+  const sortKey = searchParams.get("sortKey") === "name" ? "name" : "date"; // 정렬(이름순,날짜순)
+  const ascending = searchParams.get("direction") === "asc";
+  const page = Math.max(1, Number(searchParams.get("page")) || 1);
+  const limit = Math.min(
+    MAX_LIMIT,
+    Math.max(1, Number(searchParams.get("limit")) || DEFAULT_LIMIT),
+  );
 
-  // PostgREST or()/ilike 필터를 깨뜨리는 특수문자 제거 (%,(),쉼표 등)
+  // 특수문자 제거 (%,(),쉼표 등)
   const safe = keyword.replace(/[%(),]/g, " ").trim();
 
   // 키워드 없으면 빈 결과 (검색 화면 기본 상태)
   if (!safe) {
-    return success({ items: [] });
+    return success({ items: [], total: 0, page, limit });
   }
 
   const supabase = await createClient();
+  // 페이지네이션
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+  const sortColumn = sortKey === "name" ? "title" : "start_date";
 
-  let query = supabase
+  const { data, error, count } = await supabase
     .from("event")
     .select(
       "event_id, title, thumbnail, start_date, end_date, venue_address, category:category_id ( category_name )",
+      { count: "exact" }, // 개수 카운트
     )
-    .or(`title.ilike.%${safe}%,venue_name.ilike.%${safe}%`);
-
-  // sort: recent(최신 등록순) | 그 외(공연 임박순)
-  query =
-    sort === "recent"
-      ? query.order("created_at", { ascending: false })
-      : query.order("start_date", { ascending: true });
-
-  const { data, error } = await query;
+    .or(`title.ilike.%${safe}%,venue_name.ilike.%${safe}%`)
+    .order(sortColumn, { ascending })
+    // 같은 날짜나 제목이어도 고유키로 2차 정렬
+    .order("event_id", { ascending: true })
+    .range(from, to);
 
   if (error) {
     return fail(error.message, 500);
@@ -63,12 +70,12 @@ export async function GET(request: Request) {
       title: e.title,
       thumbnail: e.thumbnail,
       category: cat?.category_name ?? null,
-      minPrice: null, // ticket_grades 미구현
+      minPrice: null, // 검색 결과에 띄울 가격은 미정
       startDate: e.start_date,
       endDate: e.end_date,
       venue: { address: e.venue_address },
     };
   });
 
-  return success({ items });
+  return success({ items, total: count ?? items.length, page, limit });
 }

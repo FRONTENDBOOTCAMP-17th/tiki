@@ -1,57 +1,106 @@
 "use client";
 
 import { ChevronLeft, Search, Menu } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import RecentSearchList from "@/components/Search/RecentSearchList";
 import EventCard from "@/components/Search/EventCard";
 import Filter from "@/components/Search/Filter";
-import { SortProvider } from "@/components/Search/SortContext";
 import SortedList from "@/components/Search/SortedList";
-import type { SortItem } from "@/components/Search/filterSort";
+import {
+  type SortItem,
+  type SortKey,
+  type Direction,
+} from "@/components/Search/filterSort";
 import Navigation from "@/components/Navigation";
+
+const LIMIT = 25; // 한 번에 불러올 개수
+
+// 서버 응답 item → 카드/리스트가 쓰는 SortItem 형태로 변환
+function toSortItems(items: unknown[]): SortItem[] {
+  return (
+    items as Array<{
+      title: string;
+      startDate: string;
+      venue?: { address?: string };
+      thumbnail?: string;
+    }>
+  ).map((it) => ({
+    name: it.title,
+    date: it.startDate,
+    location: it.venue?.address,
+    image: it.thumbnail,
+  }));
+}
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("date");
+  const [direction, setDirection] = useState<Direction>("desc");
+
   const [results, setResults] = useState<SortItem[]>([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
-  // 빠르게 타이핑 할 경우 응답 덮어쓰기 방지
-  const [searchedKeyword, setSearchedKeyword] = useState("");
+  // 응답 중첩 방지
+  const [loadedKey, setLoadedKey] = useState("");
 
-  // 검색어 변경시 0.3초 대기하고 작동
+  const trimmed = searchQuery.trim();
+  const requestKey = `${trimmed}|${sortKey}|${direction}`;
+  const loadingRef = useRef(false);
+
+  // 정렬 버튼 클릭
+  const changeSort = useCallback(
+    (key: SortKey) => {
+      if (key === sortKey) {
+        setDirection((d) => (d === "asc" ? "desc" : "asc"));
+      } else {
+        setSortKey(key);
+      }
+    },
+    [sortKey],
+  );
+
+  // 한 페이지 요청
+  const fetchPage = useCallback(
+    async (pageNum: number) => {
+      const params = new URLSearchParams({
+        keyword: trimmed,
+        sortKey,
+        direction,
+        page: String(pageNum),
+        limit: String(LIMIT),
+      });
+      const res = await fetch(`/api/events/search?${params}`);
+      const json = await res.json();
+      return json?.data ?? { items: [], total: 0 };
+    },
+    [trimmed, sortKey, direction],
+  );
+
+  // 1) 검색어/정렬 변경 (1페이지부터 다시 로드)
   useEffect(() => {
-    const q = searchQuery.trim();
-    if (!q) return;
+    if (!trimmed) return;
 
-    let ignore = false; // 늦게 도착한 이전 응답 무시
+    let ignore = false;
     const timer = setTimeout(async () => {
+      loadingRef.current = true;
       setLoading(true);
       try {
-        const res = await fetch(
-          `/api/events/search?keyword=${encodeURIComponent(q)}`,
-        );
-        const json = await res.json();
+        const data = await fetchPage(1);
         if (ignore) return;
-        const items: SortItem[] = (json?.data?.items ?? []).map(
-          (it: {
-            title: string;
-            startDate: string;
-            venue?: { address?: string };
-            thumbnail?: string;
-          }) => ({
-            name: it.title,
-            date: it.startDate,
-            location: it.venue?.address,
-            image: it.thumbnail,
-          }),
-        );
-        setResults(items);
-        setSearchedKeyword(q);
+        setResults(toSortItems(data.items));
+        setTotal(data.total ?? 0);
+        setPage(1);
+        setLoadedKey(requestKey);
       } catch {
         if (!ignore) {
           setResults([]);
-          setSearchedKeyword(q);
+          setTotal(0);
+          setPage(1);
+          setLoadedKey(requestKey);
         }
       } finally {
+        loadingRef.current = false;
         if (!ignore) setLoading(false);
       }
     }, 300);
@@ -60,8 +109,50 @@ export default function SearchPage() {
       ignore = true;
       clearTimeout(timer);
     };
-  }, [searchQuery]);
+  }, [trimmed, requestKey, fetchPage]);
 
+  // 2) 페이지 이어붙이기 (무한스크롤에서 호출)
+  const loadMore = useCallback(async () => {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    setLoading(true);
+    const next = page + 1;
+    try {
+      const data = await fetchPage(next);
+      setResults((prev) => [...prev, ...toSortItems(data.items)]);
+      setTotal(data.total ?? total);
+      setPage(next);
+    } catch {
+      // 추가 로딩 실패시 무시
+    } finally {
+      loadingRef.current = false;
+      setLoading(false);
+    }
+  }, [page, total, fetchPage]);
+
+  // 3) 스크롤 감지(sentinel)
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const isCurrent = loadedKey === requestKey; // 결과가 현재 요청과 일치하는지
+  const hasMore = isCurrent && results.length < total;
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore || loading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore();
+      },
+      { rootMargin: "200px" }, // 바닥 200px 전에 미리 로드
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loading, loadMore]);
+
+  // 첫 페이지 로딩중인지 — 검색중 표시
+  const isInitialLoading = trimmed !== "" && !isCurrent;
+
+  // 검색어 없을 때 예시코드
   const popularEvents = [
     {
       id: 1,
@@ -94,10 +185,6 @@ export default function SearchPage() {
       location: "서울 중구 세종문화회관",
     },
   ];
-
-  // 응답 대기 중이면 "검색중"이라 표시
-  const trimmedQuery = searchQuery.trim();
-  const isSearching = loading || searchedKeyword !== trimmedQuery;
 
   return (
     <div className="lg:min-h-screen lg:bg-gray-50">
@@ -153,25 +240,40 @@ export default function SearchPage() {
             </div>
           </div>
         ) : (
-          <SortProvider items={results}>
+          <>
             <div className="flex flex-col gap-3 px-4 pt-3 pb-2 lg:px-0 lg:pt-0">
               <span className="text-base font-medium text-gray-800 lg:text-lg lg:font-semibold">
                 검색결과
               </span>
-              <Filter />
+              <Filter
+                sortKey={sortKey}
+                direction={direction}
+                onChange={changeSort}
+              />
             </div>
-            {isSearching ? (
+            {isInitialLoading ? (
               <p className="px-4 py-10 text-center text-sm text-gray-400">
                 검색 중...
               </p>
             ) : results.length === 0 ? (
               <p className="px-4 py-10 text-center text-sm text-gray-400">
-                &lsquo;{trimmedQuery}&rsquo;에 대한 검색결과가 없습니다.
+                &lsquo;{trimmed}&rsquo;에 대한 검색결과가 없습니다.
               </p>
             ) : (
-              <SortedList />
+              <>
+                <SortedList items={results} />
+                {/* 무한스크롤 감시 지점: 화면에 들어오면 다음 페이지 로드 */}
+                {hasMore && (
+                  <div ref={sentinelRef} aria-hidden className="h-10" />
+                )}
+                {loading && (
+                  <p className="px-4 py-4 text-center text-sm text-gray-400">
+                    불러오는 중...
+                  </p>
+                )}
+              </>
             )}
-          </SortProvider>
+          </>
         )}
       </main>
       <Navigation />
