@@ -1,6 +1,6 @@
 'use client';
 
-import { createClient } from '@/lib/supabase.client';
+import { createClient } from '@/lib/supabase/client';
 
 // 지원할 소셜 로그인 목록 (버튼 추가/삭제가 쉽도록 배열로)
 const providers = [
