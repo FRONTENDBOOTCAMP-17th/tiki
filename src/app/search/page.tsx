@@ -1,17 +1,66 @@
 "use client";
 
 import { ChevronLeft, Search, Menu } from "lucide-react";
-import { useState } from "react";
-import Header from "@/components/Header";
+import { useEffect, useState } from "react";
 import RecentSearchList from "@/components/Search/RecentSearchList";
 import EventCard from "@/components/Search/EventCard";
 import Filter from "@/components/Search/Filter";
 import { SortProvider } from "@/components/Search/SortContext";
 import SortedList from "@/components/Search/SortedList";
+import type { SortItem } from "@/components/Search/filterSort";
 import Navigation from "@/components/Navigation";
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [results, setResults] = useState<SortItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  // 빠르게 타이핑 할 경우 응답 덮어쓰기 방지
+  const [searchedKeyword, setSearchedKeyword] = useState("");
+
+  // 검색어 변경시 0.3초 대기하고 작동
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (!q) return;
+
+    let ignore = false; // 늦게 도착한 이전 응답 무시
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `/api/events/search?keyword=${encodeURIComponent(q)}`,
+        );
+        const json = await res.json();
+        if (ignore) return;
+        const items: SortItem[] = (json?.data?.items ?? []).map(
+          (it: {
+            title: string;
+            startDate: string;
+            venue?: { address?: string };
+            thumbnail?: string;
+          }) => ({
+            name: it.title,
+            date: it.startDate,
+            location: it.venue?.address,
+            image: it.thumbnail,
+          }),
+        );
+        setResults(items);
+        setSearchedKeyword(q);
+      } catch {
+        if (!ignore) {
+          setResults([]);
+          setSearchedKeyword(q);
+        }
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    }, 300);
+
+    return () => {
+      ignore = true;
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
 
   const popularEvents = [
     {
@@ -46,11 +95,9 @@ export default function SearchPage() {
     },
   ];
 
-  const sortItems = popularEvents.map((e) => ({
-    name: e.title,
-    date: e.date,
-    location: e.location,
-  }));
+  // 응답 대기 중이면 "검색중"이라 표시
+  const trimmedQuery = searchQuery.trim();
+  const isSearching = loading || searchedKeyword !== trimmedQuery;
 
   return (
     <div className="lg:min-h-screen lg:bg-gray-50">
@@ -106,14 +153,24 @@ export default function SearchPage() {
             </div>
           </div>
         ) : (
-          <SortProvider items={sortItems}>
+          <SortProvider items={results}>
             <div className="flex flex-col gap-3 px-4 pt-3 pb-2 lg:px-0 lg:pt-0">
               <span className="text-base font-medium text-gray-800 lg:text-lg lg:font-semibold">
                 검색결과
               </span>
               <Filter />
             </div>
-            <SortedList />
+            {isSearching ? (
+              <p className="px-4 py-10 text-center text-sm text-gray-400">
+                검색 중...
+              </p>
+            ) : results.length === 0 ? (
+              <p className="px-4 py-10 text-center text-sm text-gray-400">
+                &lsquo;{trimmedQuery}&rsquo;에 대한 검색결과가 없습니다.
+              </p>
+            ) : (
+              <SortedList />
+            )}
           </SortProvider>
         )}
       </main>
