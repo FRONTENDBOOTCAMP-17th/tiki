@@ -13,7 +13,7 @@ export default function SidebarMenuItem({ label, href, icon: Icon, badge }: Side
       href={href}
       className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm transition-colors ${
         isActive
-          ? "bg-primary-100 font-semibold text-primary-800" // 가독성을 위해 800번대 컬러로 보완
+          ? "bg-primary-500 font-semibold text-white"
           : "text-gray-700 hover:bg-gray-50" // 비활성
       }`}
     >
