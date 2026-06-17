@@ -1,15 +1,15 @@
-import Image from 'next/image';
+import Image from "next/image";
 
 interface EventImgProps {
   poster: string; // 포스터 이미지 URL
-  title?: string; // 접근성용 alt
+  title?: string;
 }
 
-export default function EventImg({ poster, title = '' }: EventImgProps) {
+export default function EventImg({ poster, title = "" }: EventImgProps) {
   return (
-    // relative + 고정 높이 + overflow-hidden : fill 기준 박스이자, 확대/블러 배경을 잘라줌
-    <div className="relative h-70 w-full overflow-hidden md:h-90">
-      {/* 배경 : object-cover 로 좌우 꽉 채우고 확대(scale-110) + 블러(blur-2xl) */}
+    // fill 기준 박스 + 배경 클립
+    <div className="relative mx-4 h-70 overflow-hidden rounded-2xl md:h-90">
+      {/* 배경: 확대 + 블러 */}
       <Image
         src={poster}
         alt=""
@@ -20,15 +20,19 @@ export default function EventImg({ poster, title = '' }: EventImgProps) {
         className="scale-110 object-cover blur-2xl brightness-90"
       />
 
-      {/* 원본 : object-contain 으로 비율 유지하며 중앙에 또렷하게, z-10 으로 배경 위 */}
-      <Image
-        src={poster}
-        alt={title}
-        fill
-        sizes="100vw"
-        priority
-        className="z-10 object-contain"
-      />
+      {/* 원본: 포스터 비율 박스 (rounded 위해 overflow-hidden) */}
+      <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
+        <div className="relative aspect-5/7 h-full overflow-hidden rounded-2xl shadow-md">
+          <Image
+            src={poster}
+            alt={title}
+            fill
+            sizes="(max-width: 768px) 60vw, 360px"
+            priority
+            className="object-cover"
+          />
+        </div>
+      </div>
     </div>
   );
 }

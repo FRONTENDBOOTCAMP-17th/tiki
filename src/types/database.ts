@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       category: {
@@ -135,7 +110,6 @@ export type Database = {
             referencedRelation: "category"
             referencedColumns: ["category_id"]
           },
-<<<<<<< HEAD
         ]
       }
       event_image: {
@@ -169,6 +143,42 @@ export type Database = {
             referencedColumns: ["event_id"]
           },
         ]
+      }
+      orders: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          order_id: string
+          quantity: number
+          slot_id: string | null
+          status: string
+          ticket_grade_id: string | null
+          total_price: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          order_id?: string
+          quantity?: number
+          slot_id?: string | null
+          status?: string
+          ticket_grade_id?: string | null
+          total_price: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          order_id?: string
+          quantity?: number
+          slot_id?: string | null
+          status?: string
+          ticket_grade_id?: string | null
+          total_price?: number
+          user_id?: string
+        }
+        Relationships: []
       }
       seller_profiles: {
         Row: {
@@ -290,55 +300,41 @@ export type Database = {
           },
         ]
       }
-=======
-        ];
-      };
-      seller_stores: {
+      ticket_grade: {
         Row: {
-          address: string | null;
-          bank_account_number: string | null;
-          bank_holder_name: string | null;
-          bank_name: string | null;
-          bank_verified: boolean;
-          business_number: string | null;
-          created_at: string;
-          description: string | null;
-          email: string | null;
-          phone: string | null;
-          updated_at: string;
-          user_id: string;
-        };
+          created_at: string
+          event_id: string
+          grade_id: string
+          grade_name: string
+          price: number
+          quantity: number
+        }
         Insert: {
-          address?: string | null;
-          bank_account_number?: string | null;
-          bank_holder_name?: string | null;
-          bank_name?: string | null;
-          bank_verified?: boolean;
-          business_number?: string | null;
-          created_at?: string;
-          description?: string | null;
-          email?: string | null;
-          phone?: string | null;
-          updated_at?: string;
-          user_id: string;
-        };
+          created_at?: string
+          event_id: string
+          grade_id?: string
+          grade_name: string
+          price: number
+          quantity: number
+        }
         Update: {
-          address?: string | null;
-          bank_account_number?: string | null;
-          bank_holder_name?: string | null;
-          bank_name?: string | null;
-          bank_verified?: boolean;
-          business_number?: string | null;
-          created_at?: string;
-          description?: string | null;
-          email?: string | null;
-          phone?: string | null;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
->>>>>>> origin/develop
+          created_at?: string
+          event_id?: string
+          grade_id?: string
+          grade_name?: string
+          price?: number
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_ticket_grade_event"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["event_id"]
+          },
+        ]
+      }
       users: {
         Row: {
           created_at: string
@@ -500,9 +496,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },
