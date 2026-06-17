@@ -7,7 +7,7 @@ import { test, expect, type Page } from "@playwright/test";
 //  - 500이 나도 abort 하지 않고 캡처 후 status 로깅
 //  - 스크린샷은 ../images/2026-06-16/ 에 fullPage 저장
 
-const IMG = "../images/2026-06-16";
+const IMG = "../images/2026-06-17";
 const SETTLE = 1500;
 
 async function goto(page: Page, path: string, id: string) {
@@ -92,4 +92,38 @@ test("T4c /example/navigation — 렌더", async ({ page }) => {
 test("T5 /example/filter — 필터 데모 렌더", async ({ page }) => {
   await goto(page, "/example/filter", "T5-filter");
   await shot(page, "T5-filter");
+});
+
+// 이번 회차 신규 라우트: 검색 페이지 + 검색 API + 무한스크롤
+test("T6 /search — 검색 페이지 렌더 + 결과/무한스크롤", async ({ page }) => {
+  // 데스크톱
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await goto(page, "/search", "T6-search-desktop");
+  await shot(page, "T6-search-desktop");
+
+  // 검색어 입력 후 결과 확인
+  const input = page.getByRole("textbox").first();
+  if (await input.count()) {
+    await input.fill("콘서트");
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(2000);
+    await shot(page, "T6-search-results");
+    // 스크롤 내려 무한스크롤 트리거
+    await page.mouse.wheel(0, 4000);
+    await page.waitForTimeout(1500);
+    await shot(page, "T6-search-scrolled");
+  }
+
+  // 모바일
+  await page.setViewportSize({ width: 390, height: 844 });
+  await goto(page, "/search", "T6-search-mobile");
+  await shot(page, "T6-search-mobile");
+});
+
+// 검색 API 직접 호출 (응답 형태/상태)
+test("T7 /api/events/search — API 응답", async ({ request }) => {
+  const res = await request.get("/api/events/search?q=콘서트&limit=5");
+  console.log(`[T7] /api/events/search status = ${res.status()}`);
+  const body = await res.text();
+  console.log(`[T7] body(head) = ${body.slice(0, 300)}`);
 });
