@@ -16,7 +16,7 @@ export const buttonVariants = cva(
         danger: 'bg-danger-700 text-white hover:bg-danger-800',
         accent: 'bg-accent-700 text-white hover:bg-accent-800',
         outline:
-          'border border-gray-300 text-white hover:text-gray-700 hover:bg-gray-100',
+          'border border-gray-300 text-gray-700 hover:bg-gray-100',
         outlinePrimary:
           'border border-primary-300 text-primary-700 hover:bg-primary-100',
         outlineSecondary:
