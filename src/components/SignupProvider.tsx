@@ -4,7 +4,7 @@ import { JoinRequest, SignupContextValue } from '@/types/api/auth';
 import { UserRole } from '@/types/domain/user-role';
 import { createContext, useState } from 'react';
 
-const SignupContext = createContext<SignupContextValue | null>(null);
+export const SignupContext = createContext<SignupContextValue | null>(null);
 
 export default function SignupProvider({
   children,
@@ -21,6 +21,13 @@ export default function SignupProvider({
     organizerName: '',
     storeName: '',
   });
+  const [passwordConfirm, setPasswordConfirmState] = useState('');
+  const [terms, setTerms] = useState({
+    use: false,
+    privacy: false,
+    age: false,
+    marketing: false,
+  });
 
   const setEmail = (email: string) => {
     setSignupData((prev) => {
@@ -32,6 +39,10 @@ export default function SignupProvider({
     setSignupData((prev) => {
       return { ...prev, password };
     });
+  };
+
+  const setPasswordConfirm = (value: string) => {
+    setPasswordConfirmState(value);
   };
 
   const setName = (name: string) => {
@@ -64,11 +75,47 @@ export default function SignupProvider({
     });
   };
 
+  const checkAll = () => {
+    if (Object.values(terms).includes(false)) {
+      setTerms({ use: true, privacy: true, age: true, marketing: true });
+    } else {
+      setTerms((prev) => {
+        return {
+          use: !prev.use,
+          privacy: !prev.privacy,
+          age: !prev.age,
+          marketing: !prev.marketing,
+        };
+      });
+    }
+  };
+  const toggleUse = () => {
+    setTerms((prev) => {
+      return { ...prev, use: !prev.use };
+    });
+  };
+  const togglePrivacy = () => {
+    setTerms((prev) => {
+      return { ...prev, privacy: !prev.privacy };
+    });
+  };
+  const toggleAge = () => {
+    setTerms((prev) => {
+      return { ...prev, age: !prev.age };
+    });
+  };
+  const toggleMarketing = () => {
+    setTerms((prev) => {
+      return { ...prev, marketing: !prev.marketing };
+    });
+  };
+
   return (
     <SignupContext.Provider
       value={{
         setEmail,
         setPassword,
+        setPasswordConfirm,
         setName,
         setPhone,
         setRole,
@@ -77,6 +124,13 @@ export default function SignupProvider({
         setStep,
         step,
         signupData,
+        passwordConfirm,
+        terms,
+        checkAll,
+        toggleUse,
+        togglePrivacy,
+        toggleAge,
+        toggleMarketing,
       }}
     >
       {children}
