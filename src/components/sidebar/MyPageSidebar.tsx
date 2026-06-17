@@ -5,8 +5,8 @@ import SidebarMenuItem from "./SidebarMenuItem";
 import type { SidebarItem } from "./types";
 
 const MY_MENU: SidebarItem[] = [
-  { label: "프로필", href: "/mypage", icon: User },
-  { label: "예매 내역", href: "/mypage/orders", icon: CalendarCheck },
+  { label: "프로필", href: "/mypage/profile", icon: User },
+  { label: "예매 내역", href: "/mypage/reservations", icon: CalendarCheck },
   { label: "라이브러리", href: "/mypage/library", icon: Library },
   { label: "친구 관리", href: "/mypage/friends", icon: Users },
   { label: "설정", href: "/mypage/settings", icon: Settings },
@@ -14,7 +14,7 @@ const MY_MENU: SidebarItem[] = [
 
 export default function MyPageSidebar() {
   return (
-    <aside className="flex h-full w-64 flex-col rounded-2xl bg-white p-4">
+    <aside className="flex h-full w-full flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
       {/* 상단 큰 프로필 카드 (직접 작성) */}
       <div className="flex flex-col items-center gap-2 pb-4">
         <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary-300 to-secondary-300" />
