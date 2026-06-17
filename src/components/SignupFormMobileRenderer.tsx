@@ -1,0 +1,126 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import useSignup from '@/hooks/useSignup';
+import useToast from '@/hooks/useToast';
+import TermsForm from './TermsForm';
+import RoleForm from './RoleForm';
+import BasicInfoForm from './BasicInfoForm';
+import Button from './Button';
+
+const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+
+export default function SignupFormMobileRenderer() {
+  const { step, setStep, signupData, passwordConfirm, terms } = useSignup();
+  const toast = useToast();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const canProceedFromTerms = terms.use && terms.privacy && terms.age;
+
+  const canProceedFromBasicInfo =
+    !!signupData.email &&
+    !!signupData.password &&
+    !!signupData.name &&
+    !!signupData.phone &&
+    signupData.password === passwordConfirm &&
+    PASSWORD_REGEX.test(signupData.password);
+
+  const proceedToStep3 = () => {
+    if (signupData.password !== passwordConfirm) {
+      toast.error('비밀번호가 일치하지 않습니다');
+      return;
+    }
+    if (!PASSWORD_REGEX.test(signupData.password)) {
+      toast.error('비밀번호는 영문, 숫자, 특수문자를 포함한 8자 이상이어야 합니다');
+      return;
+    }
+    setStep(3);
+  };
+
+  const submitForm = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(signupData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('가입 완료! 이메일 인증 후 로그인해주세요');
+        router.push('/login');
+      } else {
+        toast.error(data.message ?? '회원가입에 실패했습니다');
+      }
+    } catch {
+      toast.error('오류가 발생했습니다. 다시 시도해주세요');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className='flex flex-col items-center py-8 gap-6'>
+      {step === 1 && (
+        <form
+          className='w-full flex flex-col gap-6'
+          onSubmit={(e) => { e.preventDefault(); setStep(2); }}
+          noValidate
+        >
+          <TermsForm />
+          <div className='px-10'>
+            <Button type='submit' fullWidth disabled={!canProceedFromTerms}>
+              다음
+            </Button>
+          </div>
+        </form>
+      )}
+      {step === 2 && (
+        <form
+          className='w-full flex flex-col gap-6'
+          onSubmit={(e) => { e.preventDefault(); proceedToStep3(); }}
+          noValidate
+        >
+          <BasicInfoForm />
+          <div className='flex gap-2 px-10'>
+            <Button
+              type='button'
+              variant='outlinePrimary'
+              className='w-20 shrink-0'
+              onClick={() => setStep(1)}
+            >
+              이전
+            </Button>
+            <Button type='submit' fullWidth disabled={!canProceedFromBasicInfo}>
+              다음
+            </Button>
+          </div>
+        </form>
+      )}
+      {step === 3 && (
+        <form
+          className='w-full flex flex-col gap-6'
+          onSubmit={(e) => { e.preventDefault(); submitForm(); }}
+          noValidate
+        >
+          <RoleForm />
+          <div className='flex gap-2 px-10'>
+            <Button
+              type='button'
+              variant='outlinePrimary'
+              className='w-20 shrink-0'
+              onClick={() => setStep(2)}
+            >
+              이전
+            </Button>
+            <Button type='submit' fullWidth loading={loading}>
+              가입 완료
+            </Button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
