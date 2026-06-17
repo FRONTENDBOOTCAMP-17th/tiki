@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import tiki_character from '../../public/tiki_character.png';
 import Button from './Button';
 import useSignup from '@/hooks/useSignup';
 
@@ -24,7 +23,7 @@ export default function RoleForm() {
           onClick={() => setRole('buyer')}
         >
           <Image
-            src={tiki_character}
+            src={'/tiki_character.png'}
             alt={'티키 캐릭터 이미지'}
             width={100}
             height={100}
