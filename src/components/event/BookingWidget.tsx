@@ -1,0 +1,75 @@
+"use client";
+
+import { useState } from "react";
+import { ChevronUp } from "lucide-react";
+import Modal from "@/components/modal/Modal";
+import { Slot, Grade } from "@/types/domain/event";
+import BookingPanel, { BookingSelection } from "./BookingPanel";
+
+interface BookingWidgetProps {
+  slots: Slot[];
+  grades: Grade[];
+  soldOut?: boolean; // event.status 마감 시 예매 차단
+  onAddToCart: (selection: BookingSelection) => void;
+  onBookNow: (selection: BookingSelection) => void;
+}
+
+export default function BookingWidget({
+  soldOut = false,
+  ...panelProps
+}: BookingWidgetProps) {
+  const [open, setOpen] = useState(false);
+
+  // 마감(매진) 시 예매 UI 대신 안내
+  if (soldOut) {
+    return (
+      <>
+        <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm">
+            <p className="font-bold text-danger-600">매진되었습니다</p>
+          </div>
+        </aside>
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white p-4 lg:hidden">
+          <div className="w-full rounded-md bg-gray-300 py-3 text-center font-medium text-white">
+            매진되었습니다
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      {/* 데스크탑: 우측 sticky 패널 (sticky 는 grid item 인 aside 에) */}
+      <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
+        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <BookingPanel {...panelProps} />
+        </div>
+      </aside>
+
+      {/* 모바일/태블릿 : 하단에 살짝 보이는 트리거 바 */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white p-4 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="flex w-full items-center justify-center gap-1 rounded-md bg-primary-700 py-3 font-medium text-white"
+        >
+          <ChevronUp className="h-4 w-4" />
+          예매하기
+        </button>
+      </div>
+
+      {/* 모바일/태블릿 : 위로 슬라이드되는 시트 (데스크탑과 구성 동일) */}
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        position="sheet"
+        className="animate-slide-in-from-bottom"
+      >
+        <Modal.Body>
+          <BookingPanel {...panelProps} />
+        </Modal.Body>
+      </Modal>
+    </>
+  );
+}
