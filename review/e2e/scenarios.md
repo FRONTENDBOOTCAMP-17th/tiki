@@ -43,3 +43,9 @@ baseURL: http://localhost:3102 (webServer 가 `PORT=3102 npm run dev` 자동 기
 
 - **[참고] T2/T3 캡처 동일.** `/home`이 비로그인 시 `/login`으로 리다이렉트되어 두 캡처가 같은 로그인 카드 화면.
   인증 가드 정상 동작의 증거.
+
+## 7차 추가 (2026-06-17)
+| T6 | /search 렌더(데스크톱·모바일) | `/search` | 200, 검색 페이지 | **fail 500 — picsum 이미지 호스트 미등록(next/image), EventCard.tsx:35 / page.tsx:228** |
+| T7 | /api/events/search | API | 200 + items 배열 | pass(200, items:[] total:0 — 시드 데이터 없음) |
+
+발견: 검색 API는 정상, 검색 페이지만 next/image 외부호스트(picsum.photos) next.config 미등록으로 500. tsc 0 클린.
