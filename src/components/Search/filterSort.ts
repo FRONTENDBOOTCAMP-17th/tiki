@@ -17,6 +17,8 @@ export type Direction = "asc" | "desc";
 export type SortItem = {
   name: string;
   date: string; // ISO 문자열 ("2026-01-15")
+  location?: string;
+  image?: string;
 };
 
 // ── 날짜,이름순 정렬 ── key=식별자, label=버튼 글자, compare=정렬 함수

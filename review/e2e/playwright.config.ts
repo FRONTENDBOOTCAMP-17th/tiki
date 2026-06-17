@@ -11,4 +11,11 @@ export default defineConfig({
     viewport: { width: 1280, height: 900 },
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: {
+    command: "PORT=3102 npm run dev",
+    url: "http://localhost:3102",
+    cwd: "../../",
+    reuseExistingServer: true,
+    timeout: 120_000,
+  },
 });
