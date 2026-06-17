@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import tiki_character from '../tiki_character.png';
+import tiki_character from '../../public/tiki_character.png';
 import Button from './Button';
 import useSignup from '@/hooks/useSignup';
 
