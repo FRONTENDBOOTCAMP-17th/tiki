@@ -68,6 +68,51 @@ export type Database = {
           },
         ];
       };
+      seller_stores: {
+        Row: {
+          address: string | null;
+          bank_account_number: string | null;
+          bank_holder_name: string | null;
+          bank_name: string | null;
+          bank_verified: boolean;
+          business_number: string | null;
+          created_at: string;
+          description: string | null;
+          email: string | null;
+          phone: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          address?: string | null;
+          bank_account_number?: string | null;
+          bank_holder_name?: string | null;
+          bank_name?: string | null;
+          bank_verified?: boolean;
+          business_number?: string | null;
+          created_at?: string;
+          description?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          address?: string | null;
+          bank_account_number?: string | null;
+          bank_holder_name?: string | null;
+          bank_name?: string | null;
+          bank_verified?: boolean;
+          business_number?: string | null;
+          created_at?: string;
+          description?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       users: {
         Row: {
           created_at: string;
