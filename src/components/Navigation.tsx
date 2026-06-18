@@ -149,7 +149,7 @@ function LoginIcon() {
 const menus = [
   { label: "홈", href: "/", icon: HomeIcon },
   { label: "카테고리", href: "/category", icon: GridIcon },
-  { label: "예매내역", href: "/mypage/orders", icon: TicketIcon },
+  { label: "예매내역", href: "/mypage/reservations", icon: TicketIcon },
   { label: "라이브러리", href: "/mypage/library", icon: StackIcon },
   { label: "마이", href: "/mypage", icon: UserIcon },
 ];
