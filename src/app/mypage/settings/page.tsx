@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import Toggle from "@/components/Toggle";
+import InfoLinkButton from "@/components/mypage/InfoLinkButton";
 import WithdrawButton from "@/components/mypage/WithdrawButton";
 
 // 더미 알림 설정 (나중에 Supabase 조회로 교체)
@@ -35,11 +36,15 @@ export default function SettingsPage() {
           </div>
 
           {/* 개인정보 */}
-          <div className="flex flex-col gap-3">
-            <h2 className="text-sm font-semibold text-gray-500">개인정보</h2>
-            <SettingLink href="/policy/privacy" label="개인정보 처리방침" />
-            <SettingLink href="/policy/terms" label="서비스 이용약관" />
-          </div>
+        <div className="flex flex-col gap-3">
+          <h2 className="text-sm font-semibold text-gray-500">개인정보</h2>
+          <InfoLinkButton label="개인정보 처리방침" title="개인정보 처리방침">
+            <p>개인정보 처리방침 내용이 여기 들어갑니다. (실제 약관 텍스트로 교체)</p>
+          </InfoLinkButton>
+          <InfoLinkButton label="서비스 이용약관" title="서비스 이용약관">
+            <p>서비스 이용약관 내용이 여기 들어갑니다. (실제 약관 텍스트로 교체)</p>
+          </InfoLinkButton>
+        </div>
 
           {/* 계정 관리 */}
           <div className="flex flex-col gap-3">
