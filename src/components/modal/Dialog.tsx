@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
 
@@ -13,7 +13,9 @@ interface DialogProps {
   confirmText?: string;
   onConfirm?: () => void;
   confirmDisabled?: boolean;
+  confirmVariant?: ComponentProps<typeof Button>["variant"];
   cancelText?: string;
+  cancelVariant?: ComponentProps<typeof Button>["variant"];
   showCancel?: boolean;
   position?: "center" | "sheet";
   className?: string;
@@ -28,7 +30,9 @@ export default function Dialog({
   confirmText = "확인",
   onConfirm,
   confirmDisabled,
+  confirmVariant, // undefined면 Button 기본 primary
   cancelText = "취소",
+  cancelVariant = "outlinePrimary",
   showCancel = true,
   position = "center",
   className,
@@ -44,11 +48,16 @@ export default function Dialog({
 
       <Modal.Footer>
         {showCancel && (
-          <Button variant="outlinePrimary" fullWidth onClick={onClose}>
+          <Button variant={cancelVariant} fullWidth onClick={onClose}>
             {cancelText}
           </Button>
         )}
-        <Button fullWidth disabled={confirmDisabled} onClick={onConfirm ?? onClose}>
+        <Button
+          fullWidth
+          variant={confirmVariant}
+          disabled={confirmDisabled}
+          onClick={onConfirm ?? onClose}
+        >
           {confirmText}
         </Button>
       </Modal.Footer>
