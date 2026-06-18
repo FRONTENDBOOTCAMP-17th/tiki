@@ -216,7 +216,7 @@ export default function EventCreateForm({
           <SectionCard
             step={2}
             title="공연 일정"
-            desc="기간 고르고 회차 시간 추가하세요 (종료시간은 자동 계산돼요)"
+            desc="공연 일정 및 회차를 선택해주세요. (종료시간은 자동 계산돼요)"
           >
             <div className="grid gap-6 sm:grid-cols-2">
               <div>
