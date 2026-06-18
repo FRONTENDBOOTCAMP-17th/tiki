@@ -25,9 +25,20 @@ export async function PATCH(req: NextRequest) {
   }
 
   const fields: TablesUpdate<"seller_stores"> = {};
+  
   if (body.businessNumber !== undefined) {
-    fields.business_number = body.businessNumber;
+  // 사업자번호: 숫자 10자리(하이픈 제거 후) 강사님이 리뷰에 추천해주신 내용대로 수정햇습니다
+  const digits = body.businessNumber.replace(/\D/g, "");
+  if (digits.length !== 10) return fail("invalid_business_number");
+  fields.business_number = digits;
   }
+  if (body.bankAccountNumber !== undefined) {
+    if (!/^\d{10,16}$/.test(body.bankAccountNumber.replace(/\D/g, ""))) {
+      return fail("invalid_bank_account");
+    }
+    fields.bank_account_number = body.bankAccountNumber;
+  }
+
   if (body.description !== undefined) {
     fields.description = body.description;
   }
@@ -43,9 +54,9 @@ export async function PATCH(req: NextRequest) {
   if (body.bankName !== undefined) {
     fields.bank_name = body.bankName;
   }
-  if (body.bankAccountNumber !== undefined) {
-    fields.bank_account_number = body.bankAccountNumber;
-  }
+  // if (body.bankAccountNumber !== undefined) {
+  //   fields.bank_account_number = body.bankAccountNumber;
+  // }
   if (body.bankHolderName !== undefined) {
     fields.bank_holder_name = body.bankHolderName;
   }

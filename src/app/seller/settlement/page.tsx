@@ -1,3 +1,3 @@
-export default function SellerSettlementPage() {
+export default function SettlementPage() {
   return <div></div>;
 }

@@ -15,7 +15,7 @@ export default function RoleHeader({ role, className, ...props }: RoleHeaderProp
   return (
     <header
       className={cn(
-        "w-full bg-linear-to-r from-primary-300 to-secondary-300",
+        "w-full bg-linear-to-r from-primary-200 to-secondary-200 shadow-md",
         className,
       )}
       {...props}
