@@ -40,7 +40,7 @@ const MOCK_EVENT: EventDetail = {
   intermission: 15,
   startDate: "2026-06-14",
   endDate: "2026-06-21",
-  status: "on_sale", // "closed" 로 바꾸면 "매진되었습니다" 노출
+  status: "on_sale", // "closed" 라면 "매진되었습니다" 표시
   rating: 4.8,
   reviewCount: 2,
   isBookmarked: false,
@@ -92,7 +92,7 @@ const MOCK_GRADES: Grade[] = [
   },
 ];
 
-// 예시 후기 (REVIEW-04 미연결)
+// 예시 후기 (REVIEW-04 불러오기는 완성함. 리뷰 작성하기 만든 후 불러와야 함)
 const MOCK_REVIEWS: Review[] = [
   {
     reviewId: "rev_1",
@@ -141,7 +141,7 @@ export default function EventDetailPage() {
   const router = useRouter();
   const { eventId } = useParams<{ eventId: string }>();
 
-  // mock 초기값, fetch 성공 시 교체
+  // fetch 실패시 예시 데이터 로딩되도록 함. 나중에 예시데이터 삭제 필요
   const [event, setEvent] = useState<EventDetail | null>(MOCK_EVENT);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -151,6 +151,14 @@ export default function EventDetailPage() {
   const displaySlots = slots.length ? slots : MOCK_SLOTS;
   const displayReviews = reviews.length ? reviews : MOCK_REVIEWS;
   const firstShowDate = formatFirstDate(displaySlots);
+
+  // 평점/리뷰수는 표시 중인 리뷰에서 집계 (REVIEW-04 결과 또는 mock)
+  const reviewCount = displayReviews.length;
+  const averageRating = reviewCount
+    ? Math.round(
+        (displayReviews.reduce((s, r) => s + r.rating, 0) / reviewCount) * 10,
+      ) / 10
+    : 0;
 
   // TODO: CART-02 / ORDER-01 연동 (현재 alert stub)
   function handleAddToCart(selection: BookingSelection) {
@@ -229,166 +237,172 @@ export default function EventDetailPage() {
 
       <main className="mx-auto w-full max-w-7xl pb-24">
         {/* 목록으로 */}
-      <button
-        type="button"
-        onClick={() => router.back()}
-        className="flex items-center gap-1 px-4 py-3 text-sm text-gray-600"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        목록으로
-      </button>
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="flex items-center gap-1 px-4 py-3 text-sm text-gray-600"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          목록으로
+        </button>
 
-      {loading && <p className="p-8 text-center text-gray-500">불러오는 중…</p>}
+        {loading && (
+          <p className="p-8 text-center text-gray-500">불러오는 중…</p>
+        )}
 
-      {!loading && !event && (
-        <p className="p-8 text-center text-gray-500">
-          존재하지 않는 공연입니다.
-        </p>
-      )}
+        {!loading && !event && (
+          <p className="p-8 text-center text-gray-500">
+            존재하지 않는 공연입니다.
+          </p>
+        )}
 
-      {event && (
-        <>
-          <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-8 lg:px-4">
-          {/* 좌측 : 상세 본문 */}
-          <div>
-            {/* 상단 포스터 : 블러 배경 + 원본 (썸네일은 images[0]) */}
-            <EventImg poster={event.images[0] ?? ""} title={event.title} />
+        {event && (
+          <>
+            <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-8 lg:px-4">
+              {/* 좌측 : 상세 본문 */}
+              <div>
+                {/* 상단 포스터 : 블러 배경 + 원본 (썸네일은 images[0]) */}
+                <EventImg poster={event.images[0] ?? ""} title={event.title} />
 
-            <div className="flex flex-col gap-6 px-4 pt-4 lg:px-0">
-              {/* 카테고리 + 제목 + 메타 */}
-              <section className="flex flex-col gap-3">
-                <span className="w-fit rounded-xl bg-[#E891FF] px-3 py-1 text-xs font-medium text-white">
-                  {event.category}
-                </span>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {event.title}
-                </h1>
+                <div className="flex flex-col gap-6 px-4 pt-4 lg:px-0">
+                  {/* 카테고리 + 제목 + 메타 */}
+                  <section className="flex flex-col gap-3">
+                    <span className="w-fit rounded-xl bg-[#E891FF] px-3 py-1 text-xs font-medium text-white">
+                      {event.category}
+                    </span>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                      {event.title}
+                    </h1>
 
-                <ul className="flex flex-col gap-2 text-sm text-gray-600">
-                  {firstShowDate && (
-                    <li>
-                      <button
-                        type="button"
-                        onClick={() => scrollToId("event-info")}
-                        className="flex items-center gap-2 hover:text-primary-700"
-                      >
-                        <Clock className="h-4 w-4 shrink-0 text-primary-600" />
-                        최초공연날짜 : {firstShowDate}
-                      </button>
-                    </li>
+                    <ul className="flex flex-col gap-2 text-sm text-gray-600">
+                      {firstShowDate && (
+                        <li>
+                          <button
+                            type="button"
+                            onClick={() => scrollToId("event-info")}
+                            className="flex items-center gap-2 hover:text-primary-700"
+                          >
+                            <Clock className="h-4 w-4 shrink-0 text-primary-600" />
+                            최초공연날짜 : {firstShowDate}
+                          </button>
+                        </li>
+                      )}
+                      <li>
+                        <button
+                          type="button"
+                          onClick={() => scrollToId("event-info")}
+                          className="flex items-center gap-2 hover:text-primary-700"
+                        >
+                          <MapPin className="h-4 w-4 shrink-0 text-primary-600" />
+                          {event.venue.address}
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          onClick={() => scrollToId("event-intro")}
+                          className="flex items-center gap-2 hover:text-primary-700"
+                        >
+                          <User className="h-4 w-4 shrink-0 text-primary-600" />
+                          {event.seller?.storeName || "비공개"}
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          onClick={() => scrollToId("event-reviews")}
+                          className="flex items-center gap-2 hover:text-primary-700"
+                        >
+                          <Star className="h-4 w-4 shrink-0 text-yellow-400" />
+                          {averageRating} ({reviewCount}개 리뷰)
+                        </button>
+                      </li>
+                    </ul>
+                  </section>
+
+                  {/* 공연정보 */}
+                  <section id="event-info" className="flex flex-col gap-3">
+                    <h2 className="text-lg font-bold text-gray-900">
+                      공연정보
+                    </h2>
+                    <ul className="flex flex-col gap-4 rounded-2xl border border-info-border p-4">
+                      {/* 기간 (event.start_date ~ end_date) */}
+                      <li className="flex items-center gap-3">
+                        <Calendar className="h-5 w-5 shrink-0 text-info-accent" />
+                        <div className="flex flex-col gap-0.5">
+                          <p className="text-xs font-medium text-info-accent">
+                            기간
+                          </p>
+                          <p className="text-sm text-gray-900">
+                            {formatPeriod(event.startDate, event.endDate)}
+                          </p>
+                        </div>
+                      </li>
+
+                      {/* 시간 */}
+                      <li className="flex items-center gap-3">
+                        <Clock className="h-5 w-5 shrink-0 text-info-accent" />
+                        <div className="flex flex-col gap-0.5">
+                          <p className="text-xs font-medium text-info-accent">
+                            시간
+                          </p>
+                          <p className="text-sm text-gray-900">
+                            {`${event.duration}분 (${
+                              event.intermission
+                                ? `인터미션 ${event.intermission}분 포함`
+                                : "인터미션 없음"
+                            })`}
+                          </p>
+                        </div>
+                      </li>
+
+                      {/* 장소 */}
+                      <li className="flex items-center gap-3">
+                        <MapPin className="h-5 w-5 shrink-0 text-info-accent" />
+                        <div className="flex flex-col gap-0.5">
+                          <p className="text-xs font-medium text-info-accent">
+                            장소
+                          </p>
+                          <p className="text-sm text-gray-900">
+                            {event.venue.address} {event.venue.detailAddress}
+                          </p>
+                        </div>
+                      </li>
+                    </ul>
+                  </section>
+
+                  {/* 안내사항 */}
+                  {event.description && (
+                    <Notice title="안내사항" description={event.description} />
                   )}
-                  <li>
-                    <button
-                      type="button"
-                      onClick={() => scrollToId("event-info")}
-                      className="flex items-center gap-2 hover:text-primary-700"
-                    >
-                      <MapPin className="h-4 w-4 shrink-0 text-primary-600" />
-                      {event.venue.address}
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      type="button"
-                      onClick={() => scrollToId("event-intro")}
-                      className="flex items-center gap-2 hover:text-primary-700"
-                    >
-                      <User className="h-4 w-4 shrink-0 text-primary-600" />
-                      {event.seller.storeName}
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      type="button"
-                      onClick={() => scrollToId("event-reviews")}
-                      className="flex items-center gap-2 hover:text-primary-700"
-                    >
-                      <Star className="h-4 w-4 shrink-0 text-yellow-400" />
-                      {event.rating} ({event.reviewCount}개 리뷰)
-                    </button>
-                  </li>
-                </ul>
-              </section>
 
-              {/* 공연정보 */}
-              <section id="event-info" className="flex flex-col gap-3">
-                <h2 className="text-lg font-bold text-gray-900">공연정보</h2>
-                <ul className="flex flex-col gap-4 rounded-2xl border border-info-border p-4">
-                  {/* 기간 (event.start_date ~ end_date) */}
-                  <li className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 shrink-0 text-info-accent" />
-                    <div className="flex flex-col gap-0.5">
-                      <p className="text-xs font-medium text-info-accent">기간</p>
-                      <p className="text-sm text-gray-900">
-                        {formatPeriod(event.startDate, event.endDate)}
-                      </p>
-                    </div>
-                  </li>
-
-                  {/* 시간 */}
-                  <li className="flex items-center gap-3">
-                    <Clock className="h-5 w-5 shrink-0 text-info-accent" />
-                    <div className="flex flex-col gap-0.5">
-                      <p className="text-xs font-medium text-info-accent">
-                        시간
-                      </p>
-                      <p className="text-sm text-gray-900">
-                        {`${event.duration}분 (${
-                          event.intermission
-                            ? `인터미션 ${event.intermission}분 포함`
-                            : "인터미션 없음"
-                        })`}
-                      </p>
-                    </div>
-                  </li>
-
-                  {/* 장소 */}
-                  <li className="flex items-center gap-3">
-                    <MapPin className="h-5 w-5 shrink-0 text-info-accent" />
-                    <div className="flex flex-col gap-0.5">
-                      <p className="text-xs font-medium text-info-accent">
-                        장소
-                      </p>
-                      <p className="text-sm text-gray-900">
-                        {event.venue.address} {event.venue.detailAddress}
-                      </p>
-                    </div>
-                  </li>
-                </ul>
-              </section>
-
-              {/* 안내사항 */}
-              {event.description && (
-                <Notice title="안내사항" description={event.description} />
-              )}
-
-              {/* 공연 소개 : 판매자 소개 이미지 (썸네일 제외) */}
-              <div id="event-intro">
-                <EventIntro images={event.images.slice(1)} />
+                  {/* 공연 소개 : 판매자 소개 이미지 (썸네일 제외) */}
+                  <div id="event-intro">
+                    <EventIntro images={event.images.slice(1)} />
+                  </div>
+                </div>
               </div>
+
+              {/* 우측 : 예매 위젯 (데스크탑 사이드 / 모바일 하단 시트) */}
+              <BookingWidget
+                slots={displaySlots}
+                grades={MOCK_GRADES}
+                soldOut={event.status === "closed"}
+                onAddToCart={handleAddToCart}
+                onBookNow={handleBookNow}
+              />
             </div>
-          </div>
 
-          {/* 우측 : 예매 위젯 (데스크탑 사이드 / 모바일 하단 시트) */}
-          <BookingWidget
-            slots={displaySlots}
-            grades={MOCK_GRADES}
-            soldOut={event.status === "closed"}
-            onAddToCart={handleAddToCart}
-            onBookNow={handleBookNow}
-          />
-          </div>
-
-          {/* 관람 후기 : 모바일/태블릿/데스크탑 모두 풀폭 (그리드 밖) */}
-          <div id="event-reviews" className="px-4 pt-6 lg:px-4">
-            <ReviewSection
-              rating={event.rating}
-              reviewCount={event.reviewCount}
-              reviews={displayReviews}
-            />
-          </div>
-        </>
-      )}
+            {/* 관람 후기 : 모바일/태블릿/데스크탑 모두 풀폭 (그리드 밖) */}
+            <div id="event-reviews" className="px-4 pt-6 lg:px-4">
+              <ReviewSection
+                rating={averageRating}
+                reviewCount={reviewCount}
+                reviews={displayReviews}
+              />
+            </div>
+          </>
+        )}
       </main>
     </>
   );
