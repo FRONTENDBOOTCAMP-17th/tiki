@@ -1,3 +1,3 @@
-export default function SellerTicketManagementPage() {
+export default function TicketManagementPage() {
   return <div></div>;
 }

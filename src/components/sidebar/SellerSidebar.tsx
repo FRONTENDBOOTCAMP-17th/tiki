@@ -1,8 +1,17 @@
 "use client";
 
-import { LayoutGrid, Plus, Ticket, Receipt, Store, LogOut, CalendarDays } from "lucide-react";
+import {
+  LayoutGrid,
+  Plus,
+  Ticket,
+  Receipt,
+  Store,
+  LogOut,
+  CalendarDays,
+} from "lucide-react";
 import SidebarMenuItem from "./SidebarMenuItem";
 import type { SidebarItem } from "./types";
+import { logout } from "@/app/action";
 
 const SELLER_MENU: SidebarItem[] = [
   { label: "대시보드", href: "/seller/dashboard", icon: LayoutGrid },
@@ -20,16 +29,20 @@ export default function SellerSidebar() {
   return (
     <aside className="flex h-full w-64 flex-col justify-between rounded-2xl bg-white p-4">
       <div>
-        {/* 섹션 1: 판매자 메뉴 */}
-        <p className="px-3 pt-1 pb-1 text-xs font-semibold text-gray-400">판매자 메뉴</p>
+        {/* 판매자 메뉴 */}
+        <p className="px-3 pt-1 pb-1 text-xs font-semibold text-gray-400">
+          판매자 메뉴
+        </p>
         <nav className="flex flex-col gap-1">
           {SELLER_MENU.map((item) => (
             <SidebarMenuItem key={item.href} {...item} />
           ))}
         </nav>
 
-        {/* 섹션 2: 정산 · 설정 */}
-        <p className="px-3 pt-3 pb-1 text-xs font-semibold text-gray-400">정산 · 설정</p>
+        {/* 정산 · 설정 */}
+        <p className="px-3 pt-3 pb-1 text-xs font-semibold text-gray-400">
+          정산 · 설정
+        </p>
         <nav className="flex flex-col gap-1">
           {SELLER_SETTINGS.map((item) => (
             <SidebarMenuItem key={item.href} {...item} />
@@ -43,15 +56,22 @@ export default function SellerSidebar() {
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-400 text-sm font-semibold text-white">
             S
           </div>
+
           <div>
             <p className="text-sm font-semibold text-gray-900">판매자명</p>
             <p className="text-xs text-gray-400">seller@tiki.com</p>
           </div>
         </div>
-        <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">
-          <LogOut size={18} />
-          로그아웃
-        </button>
+
+        <form action={logout}>
+          <button
+            type="submit"
+            className="flex w-full items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+          >
+            <LogOut size={18} />
+            로그아웃
+          </button>
+        </form>
       </div>
     </aside>
   );
