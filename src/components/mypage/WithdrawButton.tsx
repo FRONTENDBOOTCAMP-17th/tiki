@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Dialog from "@/components/modal/Dialog";
 
 export default function WithdrawButton() {
@@ -19,7 +19,7 @@ export default function WithdrawButton() {
         className="flex items-center justify-between rounded-xl border border-danger-200 bg-white px-5 py-4 shadow-sm transition-colors hover:bg-gray-50"
       >
         <span className="font-medium text-danger-600">회원 탈퇴</span>
-        <ArrowRight size={18} className="text-danger-600" />
+        <ChevronRight size={18} className="text-danger-600" />
       </button>
 
       <Dialog

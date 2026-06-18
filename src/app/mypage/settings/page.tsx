@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Toggle from "@/components/Toggle";
 import InfoLinkButton from "@/components/mypage/InfoLinkButton";
 import WithdrawButton from "@/components/mypage/WithdrawButton";
@@ -14,7 +14,7 @@ function SettingLink({ href, label }: { href: string; label: string }) {
       className="flex items-center justify-between rounded-xl border border-gray-100 bg-white px-5 py-4 shadow-sm transition-colors hover:bg-gray-50"
     >
       <span className="font-medium text-gray-900">{label}</span>
-      <ArrowRight size={18} className="text-gray-400" />
+      <ChevronRight size={18} className="text-gray-400" />
     </Link>
   );
 }
