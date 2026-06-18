@@ -1,0 +1,232 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { Minus, Plus } from "lucide-react";
+import Button from "@/components/Button";
+import { cn } from "@/lib/cn";
+import { Slot, Grade } from "@/types/domain/event";
+import BookingCalendar from "./BookingCalendar";
+
+const FEE_RATE = 0.05; // 수수료 5%
+const WEEKDAY_KO = ["일", "월", "화", "수", "목", "금", "토"];
+
+export interface BookingSelection {
+  slotId: string;
+  gradeId: string;
+  quantity: number;
+}
+
+interface BookingPanelProps {
+  slots: Slot[];
+  grades: Grade[]; // 이벤트 등급
+  onAddToCart: (selection: BookingSelection) => void;
+  onBookNow: (selection: BookingSelection) => void;
+}
+
+function weekdayOf(date: string) {
+  return WEEKDAY_KO[new Date(`${date}T00:00:00`).getDay()];
+}
+
+export default function BookingPanel({
+  slots,
+  grades,
+  onAddToCart,
+  onBookNow,
+}: BookingPanelProps) {
+  // 회차 있는 날짜 (마감 제외)
+  const availableDates = useMemo(
+    () => new Set(slots.filter((s) => !s.isClosed).map((s) => s.date)),
+    [slots],
+  );
+  const firstDate = useMemo(
+    () => [...availableDates].sort()[0],
+    [availableDates],
+  );
+
+  const [month, setMonth] = useState<Date>(() =>
+    firstDate ? new Date(`${firstDate}T00:00:00`) : new Date(),
+  );
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
+  const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState(1);
+
+  // 선택 날짜의 회차 (시간순)
+  const daySlots = useMemo(
+    () =>
+      slots
+        .filter((s) => s.date === selectedDate)
+        .sort((a, b) => a.startTime.localeCompare(b.startTime)),
+    [slots, selectedDate],
+  );
+
+  const grade = grades.find((g) => g.gradeId === selectedGradeId);
+  const subtotal = grade ? grade.price * quantity : 0;
+  const fee = Math.round(subtotal * FEE_RATE);
+  const total = subtotal + fee;
+  const ready = selectedSlotId !== null && selectedGradeId !== null;
+
+  function handleSelectDate(date: string) {
+    setSelectedDate(date);
+    setSelectedSlotId(null); // 날짜 바뀌면 회차 초기화
+  }
+
+  function submit(handler: (selection: BookingSelection) => void) {
+    if (!selectedSlotId || !selectedGradeId) return;
+    handler({ slotId: selectedSlotId, gradeId: selectedGradeId, quantity });
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <h2 className="text-lg font-bold text-mirage">예매하기</h2>
+
+      {/* 1. 날짜 및 회차 선택 */}
+      <section className="flex flex-col gap-3">
+        <p className="text-sm font-semibold text-gray-700">
+          1. 날짜 및 회차 선택
+        </p>
+        <BookingCalendar
+          month={month}
+          selectedDate={selectedDate}
+          availableDates={availableDates}
+          onMonthChange={setMonth}
+          onSelectDate={handleSelectDate}
+        />
+
+        {/* 선택 날짜의 회차 가로 나열 (많으면 가로 스크롤) */}
+        {selectedDate &&
+          (daySlots.length === 0 ? (
+            <p className="text-sm text-gray-400">
+              해당 날짜에 회차가 없습니다.
+            </p>
+          ) : (
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {daySlots.map((s) => {
+                const active = selectedSlotId === s.slotId;
+                return (
+                  <button
+                    key={s.slotId}
+                    type="button"
+                    disabled={s.isClosed}
+                    onClick={() => setSelectedSlotId(s.slotId)}
+                    className={cn(
+                      "flex shrink-0 flex-col items-center gap-0.5 rounded-xl border px-4 py-2 text-sm",
+                      active
+                        ? "border-primary-500 bg-primary-100 text-primary-800"
+                        : "border-gray-200 text-gray-600",
+                      s.isClosed && "opacity-40",
+                    )}
+                  >
+                    <span className="text-xs">{weekdayOf(s.date)}</span>
+                    <span className="font-semibold">
+                      {Number(s.date.slice(5, 7))}/{Number(s.date.slice(8, 10))}
+                    </span>
+                    <span className="text-xs">{s.startTime}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+      </section>
+
+      {/* 2. 좌석 등급 (매진 여부만, 잔여 수량 미노출) */}
+      <section className="flex flex-col gap-3">
+        <p className="text-sm font-semibold text-gray-700">2. 좌석 등급</p>
+        <div className="flex flex-col gap-2">
+          {grades.map((g) => {
+            const active = selectedGradeId === g.gradeId;
+            const soldOut = g.quantity === 0; // 잔여 0 이면 매진
+            return (
+              <button
+                key={g.gradeId}
+                type="button"
+                disabled={soldOut}
+                onClick={() => setSelectedGradeId(g.gradeId)}
+                className={cn(
+                  "flex items-center justify-between rounded-xl border px-4 py-3 text-left",
+                  active ? "border-primary-500 bg-primary-100" : "border-gray-200",
+                  soldOut && "opacity-50",
+                )}
+              >
+                <span className="flex flex-col">
+                  <span className="text-sm font-semibold text-gray-900">
+                    {g.name}
+                  </span>
+                  {soldOut && (
+                    <span className="text-xs text-danger-500">매진</span>
+                  )}
+                </span>
+                <span className="text-sm font-semibold text-gray-900">
+                  {g.price.toLocaleString()}원
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 3. 수량 */}
+      <section className="flex flex-col gap-3">
+        <p className="text-sm font-semibold text-gray-700">3. 수량</p>
+        <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
+          <span className="text-sm text-gray-600">매수</span>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              aria-label="수량 감소"
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600"
+            >
+              <Minus className="h-4 w-4" />
+            </button>
+            <span className="w-6 text-center font-semibold">{quantity}</span>
+            <button
+              type="button"
+              aria-label="수량 증가"
+              onClick={() => setQuantity((q) => q + 1)}
+              className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 합계 : 소계 + 수수료 = 최종가 */}
+      <div className="flex flex-col gap-2 border-t border-gray-100 pt-4 text-sm">
+        <div className="flex justify-between text-gray-600">
+          <span>티켓 금액 ({quantity}매)</span>
+          <span>{subtotal.toLocaleString()}원</span>
+        </div>
+        <div className="flex justify-between text-gray-600">
+          <span>수수료 (5%)</span>
+          <span>{fee.toLocaleString()}원</span>
+        </div>
+        <div className="flex justify-between text-base font-bold">
+          <span>합계</span>
+          <span className="text-primary-700">{total.toLocaleString()}원</span>
+        </div>
+      </div>
+
+      {/* 버튼 : 장바구니(보조) / 바로 예매(주요) */}
+      <div className="flex gap-2">
+        <Button
+          variant="outlinePrimary"
+          fullWidth
+          disabled={!ready}
+          onClick={() => submit(onAddToCart)}
+        >
+          장바구니
+        </Button>
+        <Button
+          variant="primary"
+          fullWidth
+          disabled={!ready}
+          onClick={() => submit(onBookNow)}
+        >
+          바로 예매
+        </Button>
+      </div>
+    </div>
+  );
+}
