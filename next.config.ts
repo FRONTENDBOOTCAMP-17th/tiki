@@ -1,12 +1,16 @@
 import type { NextConfig } from "next";
 
+// 예시 이미지 사이트 picsum,unsplash 허용
 const nextConfig: NextConfig = {
-  // 보안으로 인해 막힌 외부 이미지를 허용
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "picsum.photos",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
     ],
   },
