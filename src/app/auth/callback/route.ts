@@ -8,11 +8,7 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-    console.log('endpoint: /auth/callback');
-    console.log('data: ', data);
-    console.log('error: ', error);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
