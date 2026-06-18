@@ -160,12 +160,44 @@ export default function EventDetailPage() {
       ) / 10
     : 0;
 
-  // TODO: CART-02 / ORDER-01 연동 (현재 alert stub)
-  function handleAddToCart(selection: BookingSelection) {
-    alert(`장바구니에 담기\n${JSON.stringify(selection, null, 2)}`);
+  async function createOrder(
+    selection: BookingSelection,
+    status: "cart" | "ordered",
+  ) {
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        eventId,
+        slotId: selection.slotId,
+        ticketGradeId: selection.gradeId,
+        quantity: selection.quantity,
+        status,
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      throw new Error(json.message || "예매 처리에 실패했습니다.");
+    }
+    return json.data as { orderId: string };
   }
-  function handleBookNow(selection: BookingSelection) {
-    alert(`바로 예매\n${JSON.stringify(selection, null, 2)}`);
+  async function handleAddToCart(selection: BookingSelection) {
+    try {
+      await createOrder(selection, "cart");
+      alert("장바구니에 담았습니다.");
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : "장바구니 담기에 실패했습니다.",
+      );
+    }
+  }
+  async function handleBookNow(selection: BookingSelection) {
+    try {
+      await createOrder(selection, "ordered");
+      router.push("/mypage/orders");
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "예매 처리에 실패했습니다.");
+    }
   }
 
   // EVENT-02 이벤트 상세 조회
