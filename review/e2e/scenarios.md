@@ -49,3 +49,22 @@ baseURL: http://localhost:3102 (webServer 가 `PORT=3102 npm run dev` 자동 기
 | T7 | /api/events/search | API | 200 + items 배열 | pass(200, items:[] total:0 — 시드 데이터 없음) |
 
 발견: 검색 API는 정상, 검색 페이지만 next/image 외부호스트(picsum.photos) next.config 미등록으로 500. tsc 0 클린.
+
+## 8차 추가 (2026-06-18) — 도메인 화면 대거 진입, 사용자→판매자 순서
+
+| ID | 시나리오 | 대상 | 기대 | 결과 |
+|----|----------|------|------|------|
+| T8 | 이벤트 상세(신규) | `/eventDetail/1` | 200 렌더 | pass (200, mock 폴백 — /api/events/[id] 미존재) |
+| T9 | 회원가입 폼(신규) | `/join` | 200 폼 | pass |
+| T10 | 로그인 폼 | `/login` | OAuth 3종 | pass |
+| T11 | 마이페이지 인증가드(신규) | `/mypage` | 비로그인→/login | **fail — /mypage/profile 그대로 렌더(가드 없음)** |
+| T12 | 회원가입 API 검증(신규) | `POST /api/auth/join` 빈본문 | 400 fail | pass(400 empty_email) |
+| T20 | 판매자 스토어정보(신규) | `/seller/storeInfo` | 200 | pass(비로그인 빈 폼, getUser는 부르나 redirect 안 함) |
+| T21 | 판매자 대시보드 | `/seller/dashboard` | 200 | pass(현재 스텁 `<div></div>`) |
+
+발견(8차):
+- **[해결] 7차 /search 500 → 200**: next.config images.remotePatterns에 picsum.photos 등록됨(T6 pass).
+- **[필수] 마이페이지 인증 가드 부재**: mypage/layout.tsx에 getUser 가드 없음 + Header loggedIn 하드코딩. 비로그인 /mypage/* 접근(플레이스홀더라 데이터유출은 아님). home은 가드 있음→일관성 결여. layout에서 getUser→redirect 처방.
+- **[신규 엔드포인트]** eventDetail(강재훈, mock 폴백·fetch 경합방어 좋음), join/login(이선우, 검증 또렷, error.message 원문노출 이월), mypage(김연수, 탈퇴 확인모달), seller store API(방효진, getUser 401+필드 화이트리스트 부분업데이트 — 좋음, 입력 형식검증 없음).
+- tsc 0 클린, CI(build+tsc) 존재(칭찬). [제안] CI push 트리거+lint 이월.
+- 한계: service role 키 없음·이메일 확인 필요 → 로그인 후 화면은 다음 회차.

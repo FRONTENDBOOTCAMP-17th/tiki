@@ -7,7 +7,7 @@ import { test, expect, type Page } from "@playwright/test";
 //  - 500이 나도 abort 하지 않고 캡처 후 status 로깅
 //  - 스크린샷은 ../images/2026-06-16/ 에 fullPage 저장
 
-const IMG = "../images/2026-06-17";
+const IMG = "../images/2026-06-18";
 const SETTLE = 1500;
 
 async function goto(page: Page, path: string, id: string) {
@@ -126,4 +126,58 @@ test("T7 /api/events/search — API 응답", async ({ request }) => {
   console.log(`[T7] /api/events/search status = ${res.status()}`);
   const body = await res.text();
   console.log(`[T7] body(head) = ${body.slice(0, 300)}`);
+});
+
+/* ===== 이번 회차(8차) 신규 엔드포인트 — 사용자 여정 ===== */
+
+// 이벤트 상세(신규, 395줄). API(/api/events/[id])가 아직 없어 mock 폴백으로 렌더되는지 확인.
+test("T8 /eventDetail/[id] — 상세 페이지 렌더(mock 폴백)", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const status = await goto(page, "/eventDetail/1", "T8-eventDetail-desktop");
+  await shot(page, "T8-eventDetail-desktop");
+  expect(status).toBeLessThan(500);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await goto(page, "/eventDetail/1", "T8-eventDetail-mobile");
+  await shot(page, "T8-eventDetail-mobile");
+});
+
+// 회원가입 폼(신규) — 렌더 + 잘못된 입력 검증 동작
+test("T9 /join — 회원가입 폼 렌더", async ({ page }) => {
+  const status = await goto(page, "/join", "T9-join");
+  await shot(page, "T9-join");
+  expect(status).toBeLessThan(500);
+});
+
+// 로그인(신규 갱신) — 폼 렌더
+test("T10 /login — 로그인 폼", async ({ page }) => {
+  await goto(page, "/login", "T10-login");
+  await shot(page, "T10-login");
+});
+
+// 마이페이지 인증 가드 — 비로그인 시 리다이렉트
+test("T11 /mypage(/profile) — 비로그인 인증 가드", async ({ page }) => {
+  const status = await goto(page, "/mypage", "T11-mypage-guard");
+  await shot(page, "T11-mypage-guard");
+  console.log(`[T11] final url = ${page.url()}`);
+});
+
+// 회원가입 API 입력 검증 — 잘못된 입력에 fail 응답이 오는지(쓰기 없음, 검증만)
+test("T12 /api/auth/join — 입력 검증(빈 값)", async ({ request }) => {
+  const res = await request.post("/api/auth/join", { data: {} });
+  console.log(`[T12] empty body status = ${res.status()} body = ${(await res.text()).slice(0, 200)}`);
+});
+
+/* ===== 판매자(seller) 여정 ===== */
+
+// 판매자 스토어 정보(신규, 실제 supabase 연동) + 나머지 seller 페이지는 스텁
+test("T20 /seller/storeInfo — 스토어 정보 페이지", async ({ page }) => {
+  const status = await goto(page, "/seller/storeInfo", "T20-seller-storeInfo");
+  await shot(page, "T20-seller-storeInfo");
+  console.log(`[T20] status = ${status}, url = ${page.url()}`);
+});
+
+test("T21 /seller/dashboard — (현재 스텁 확인)", async ({ page }) => {
+  const status = await goto(page, "/seller/dashboard", "T21-seller-dashboard");
+  await shot(page, "T21-seller-dashboard");
+  expect(status).toBeLessThan(500);
 });
