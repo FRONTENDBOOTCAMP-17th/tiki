@@ -1,25 +1,12 @@
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import Toggle from "@/components/Toggle";
-import WithdrawButton from "@/components/mypage/WithdrawButton";
 import InfoLinkButton from "@/components/mypage/InfoLinkButton";
+import PasswordChangeButton from "@/components/mypage/PasswordChangeButton";
+import WithdrawButton from "@/components/mypage/WithdrawButton";
 import TermsContent from "@/components/policies/TermsContent";
 import PrivacyContent from "@/components/policies/PrivacyContent";
 
 // 더미 알림 설정 (나중에 Supabase 조회로 교체)
 const notif = { friend: true, event: true, marketing: false };
-
-function SettingLink({ href, label }: { href: string; label: string }) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center justify-between rounded-xl border border-gray-100 bg-white px-5 py-4 shadow-sm transition-colors hover:bg-gray-50"
-    >
-      <span className="font-medium text-gray-900">{label}</span>
-      <ChevronRight size={18} className="text-gray-400" />
-    </Link>
-  );
-}
 
 export default function SettingsPage() {
   return (
@@ -60,10 +47,7 @@ export default function SettingsPage() {
             <InfoLinkButton label="개인정보 처리방침" title="개인정보 처리방침">
               <PrivacyContent />
             </InfoLinkButton>
-            <InfoLinkButton
-              label="TiKi 서비스 이용약관"
-              title="TiKi 서비스 이용약관"
-            >
+            <InfoLinkButton label="서비스 이용약관" title="서비스 이용약관">
               <TermsContent />
             </InfoLinkButton>
           </div>
@@ -71,7 +55,7 @@ export default function SettingsPage() {
           {/* 계정 관리 */}
           <div className="flex flex-col gap-3">
             <h2 className="text-sm font-semibold text-gray-500">계정 관리</h2>
-            <SettingLink href="/mypage/password" label="비밀번호 변경" />
+            <PasswordChangeButton />
             <WithdrawButton />
           </div>
         </div>
