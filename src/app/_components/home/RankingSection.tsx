@@ -1,14 +1,9 @@
-import EventCard from "@/components/Search/EventCard";
+import RankingCard, { type RankingCardItem } from "./RankingCard";
 
-export interface RankingEventItem {
-  eventId: string;
-  title: string;
-  startDate: string;
-  venueName: string;
-  thumbnail: string;
-}
+export type RankingEventItem = Omit<RankingCardItem, "rank">;
 
-// 예매 랭킹: 누적 예매 수량이 높은 순으로 정렬된 이벤트를 카드 리스트로 보여준다.
+// 예매 랭킹: 누적 예매 수량이 높은 순으로 정렬된 이벤트를 세로형 카드로 가로 나열한다.
+// 모바일은 가로 스크롤, 태블릿/웹은 한 행에 펼쳐서 보여준다.
 export default function RankingSection({
   events,
 }: {
@@ -21,18 +16,11 @@ export default function RankingSection({
       <h2 className="mb-3 text-lg font-bold text-gray-900 md:text-xl">
         예매 랭킹
       </h2>
-      <ul className="flex flex-col gap-2">
+      <ul className="flex gap-3 overflow-x-auto md:grid md:grid-cols-5 md:gap-4 md:overflow-visible">
         {events.map((event, index) => (
-          <EventCard
-            key={event.eventId}
-            rank={index + 1}
-            item={{
-              title: event.title,
-              date: event.startDate,
-              location: event.venueName,
-              image: event.thumbnail,
-            }}
-          />
+          <li key={event.eventId}>
+            <RankingCard item={{ ...event, rank: index + 1 }} />
+          </li>
         ))}
       </ul>
     </section>

@@ -83,6 +83,7 @@ export default async function Home() {
       startDate: event.start_date,
       venueName: event.venue_name,
       thumbnail: event.thumbnail,
+      minPrice: minPriceByEvent.get(event.event_id) ?? null,
     }));
 
   // 이미 최근 등록순으로 가져왔으니, 앞에서 N개만 잘라내면 "신규 오픈" 목록이 된다.
