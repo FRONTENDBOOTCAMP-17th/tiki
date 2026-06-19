@@ -85,6 +85,14 @@
   background-color: rgba(0, 0, 0, 0.15);
   border-radius: 9999px;
 }
+
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
 @theme {
   --animate-slide-in-from-left: slide-in-from-left 0.5s ease-out;
   --animate-slide-in-from-right: slide-in-from-right 0.5s ease-out;

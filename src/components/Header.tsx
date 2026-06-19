@@ -243,7 +243,7 @@ export default function Header({
       </div>
 
       {showCategory && (
-        <nav className="flex items-center gap-5 h-11 overflow-x-auto border-b border-whisper bg-white px-6">
+        <nav className="scrollbar-hide flex items-center gap-5 h-11 overflow-x-auto border-b border-whisper bg-white px-6">
           {categories.map((cat) => {
             const active = path === cat.href;
 
