@@ -15,8 +15,11 @@ export type Direction = "asc" | "desc";
 
 // 정렬 대상 데이터 형태
 export type SortItem = {
+  id?: string; // 이벤트 상세(/[eventId])로 이동할 식별자
   name: string;
   date: string; // ISO 문자열 ("2026-01-15")
+  location?: string;
+  image?: string;
 };
 
 // ── 날짜,이름순 정렬 ── key=식별자, label=버튼 글자, compare=정렬 함수

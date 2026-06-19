@@ -1,35 +1,53 @@
 "use client";
 
-import { LayoutGrid, Plus, Ticket, Receipt, Store, LogOut, CalendarDays } from "lucide-react";
+import {
+  LayoutGrid,
+  Plus,
+  Ticket,
+  Receipt,
+  Store,
+  LogOut,
+  CalendarDays,
+} from "lucide-react";
 import SidebarMenuItem from "./SidebarMenuItem";
+import Avatar from "@/components/Avatar";
 import type { SidebarItem } from "./types";
+import { logout } from "@/app/action";
+
+interface SellerSidebarProps {
+  name: string;
+  email: string;
+}
 
 const SELLER_MENU: SidebarItem[] = [
-  { label: "대시보드", href: "/seller", icon: LayoutGrid },
-  { label: "이벤트 관리", href: "/seller/events", icon: CalendarDays, badge: 8 },
-  { label: "새 이벤트 등록", href: "/seller/events/new", icon: Plus },
-  { label: "예매 관리", href: "/seller/orders", icon: Ticket, badge: 2 },
+  { label: "대시보드", href: "/seller/dashboard", icon: LayoutGrid },
+  { label: "이벤트 관리", href: "/seller/list", icon: CalendarDays },
+  { label: "새 이벤트 등록", href: "/seller/registration", icon: Plus },
+  { label: "예매 관리", href: "/seller/ticketManagement", icon: Ticket },
 ];
 
 const SELLER_SETTINGS: SidebarItem[] = [
-  { label: "매출 · 정산", href: "/seller/revenue", icon: Receipt },
-  { label: "스토어 정보", href: "/seller/store", icon: Store },
+  { label: "매출 · 정산", href: "/seller/settlement", icon: Receipt },
+  { label: "스토어 정보", href: "/seller/storeInfo", icon: Store },
 ];
 
-export default function SellerSidebar() {
+export default function SellerSidebar({ name, email }: SellerSidebarProps) {
+
   return (
     <aside className="flex h-full w-64 flex-col justify-between rounded-2xl bg-white p-4">
       <div>
-        {/* 섹션 1: 판매자 메뉴 */}
-        <p className="px-3 pt-1 pb-1 text-xs font-semibold text-gray-400">판매자 메뉴</p>
+        <p className="px-3 pt-1 pb-1 text-xs font-semibold text-gray-400">
+          판매자 메뉴
+        </p>
         <nav className="flex flex-col gap-1">
           {SELLER_MENU.map((item) => (
             <SidebarMenuItem key={item.href} {...item} />
           ))}
         </nav>
 
-        {/* 섹션 2: 정산 · 설정 */}
-        <p className="px-3 pt-3 pb-1 text-xs font-semibold text-gray-400">정산 · 설정</p>
+        <p className="px-3 pt-3 pb-1 text-xs font-semibold text-gray-400">
+          정산 · 설정
+        </p>
         <nav className="flex flex-col gap-1">
           {SELLER_SETTINGS.map((item) => (
             <SidebarMenuItem key={item.href} {...item} />
@@ -37,21 +55,26 @@ export default function SellerSidebar() {
         </nav>
       </div>
 
-      {/* 하단 프로필 + 로그아웃 */}
       <div className="border-t border-gray-100 pt-3">
-        <div className="flex items-center gap-3 px-1 py-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-400 text-sm font-semibold text-white">
-            S
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-900">판매자명</p>
-            <p className="text-xs text-gray-400">seller@tiki.com</p>
+        <div className="flex items-center gap-2.5 px-1 py-2">
+          <Avatar seed={email || name} className="size-9 text-xs" />
+          <div className="min-w-0">
+            <p className="truncate text-xs font-semibold text-gray-900">
+              {name}
+            </p>
+            <p className="truncate text-[11px] text-gray-400">{email}</p>
           </div>
         </div>
-        <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">
-          <LogOut size={18} />
-          로그아웃
-        </button>
+
+        <form action={logout}>
+          <button
+            type="submit"
+            className="flex w-full items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+          >
+            <LogOut size={18} />
+            로그아웃
+          </button>
+        </form>
       </div>
     </aside>
   );

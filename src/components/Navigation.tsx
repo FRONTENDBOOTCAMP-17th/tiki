@@ -149,7 +149,7 @@ function LoginIcon() {
 const menus = [
   { label: "홈", href: "/", icon: HomeIcon },
   { label: "카테고리", href: "/category", icon: GridIcon },
-  { label: "예매내역", href: "/mypage/orders", icon: TicketIcon },
+  { label: "예매내역", href: "/mypage/reservations", icon: TicketIcon },
   { label: "라이브러리", href: "/mypage/library", icon: StackIcon },
   { label: "마이", href: "/mypage", icon: UserIcon },
 ];
@@ -177,31 +177,34 @@ export default function Navigation({
   const items = loggedIn ? menus : guestMenus;
 
   return (
-    <nav
-      className={cn(
-        "w-full bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.08)] min-[744px]:hidden",
-        className,
-      )}
-      {...props}
-    >
-      <ul className="flex items-stretch h-16 list-none w-full">
-        {items.map((menu) => {
-          const active = path === menu.href;
-          const Icon = menu.icon;
+    <>
+      <div className="h-16 min-[744px]:hidden" aria-hidden="true" />
+      <nav
+        className={cn(
+          "w-full bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.08)] min-[744px]:hidden fixed bottom-0 left-0 right-0 z-50",
+          className,
+        )}
+        {...props}
+      >
+        <ul className="flex items-stretch h-16 list-none w-full">
+          {items.map((menu) => {
+            const active = path === menu.href;
+            const Icon = menu.icon;
 
-          return (
-            <li key={menu.href} className="relative flex flex-1">
-              <Link href={menu.href} className={navItem({ active })}>
-                {active && (
-                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[3px] rounded-[3px] bg-primary-700" />
-                )}
-                <Icon />
-                <span>{menu.label}</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+            return (
+              <li key={menu.href} className="relative flex flex-1">
+                <Link href={menu.href} className={navItem({ active })}>
+                  {active && (
+                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.75 rounded-[3px] bg-primary-700" />
+                  )}
+                  <Icon />
+                  <span>{menu.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </>
   );
 }

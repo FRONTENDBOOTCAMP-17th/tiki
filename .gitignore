@@ -42,3 +42,12 @@ next-env.d.ts
 
 # 예외: example은 공유용으로 올림
 !.env.example
+
+# supabase (마이그레이션은 추적, 로컬 전용 파일만 무시 / .env 는 위 .env* 규칙으로 무시됨)
+/supabase/.temp/
+/supabase/.branches/
+
+# claude AI
+.claude
+
+.mcp.json
