@@ -17,30 +17,21 @@ import { logout } from "@/app/action";
 interface SellerSidebarProps {
   name: string;
   email: string;
-  eventCount?: number;
 }
+
+const SELLER_MENU: SidebarItem[] = [
+  { label: "대시보드", href: "/seller/dashboard", icon: LayoutGrid },
+  { label: "이벤트 관리", href: "/seller/list", icon: CalendarDays },
+  { label: "새 이벤트 등록", href: "/seller/registration", icon: Plus },
+  { label: "예매 관리", href: "/seller/ticketManagement", icon: Ticket },
+];
 
 const SELLER_SETTINGS: SidebarItem[] = [
   { label: "매출 · 정산", href: "/seller/settlement", icon: Receipt },
   { label: "스토어 정보", href: "/seller/storeInfo", icon: Store },
 ];
 
-export default function SellerSidebar({
-  name,
-  email,
-  eventCount,
-}: SellerSidebarProps) {
-  const sellerMenu: SidebarItem[] = [
-    { label: "대시보드", href: "/seller/dashboard", icon: LayoutGrid },
-    {
-      label: "이벤트 관리",
-      href: "/seller/list",
-      icon: CalendarDays,
-      badge: eventCount,
-    },
-    { label: "새 이벤트 등록", href: "/seller/registration", icon: Plus },
-    { label: "예매 관리", href: "/seller/ticketManagement", icon: Ticket },
-  ];
+export default function SellerSidebar({ name, email }: SellerSidebarProps) {
 
   return (
     <aside className="flex h-full w-64 flex-col justify-between rounded-2xl bg-white p-4">
@@ -49,7 +40,7 @@ export default function SellerSidebar({
           판매자 메뉴
         </p>
         <nav className="flex flex-col gap-1">
-          {sellerMenu.map((item) => (
+          {SELLER_MENU.map((item) => (
             <SidebarMenuItem key={item.href} {...item} />
           ))}
         </nav>
