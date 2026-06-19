@@ -1,8 +1,8 @@
 # TiKi 리뷰 전용 E2E 시나리오
 
 대상: TiKi (티켓 예약 오픈마켓) — Next.js 16 + Turbopack, Tailwind v4, cva, Supabase
-실행: `cd review/e2e && npx playwright test tests/tiki-daily.spec.ts --reporter=line`
-baseURL: http://localhost:3102 (webServer 가 `PORT=3102 npm run dev` 자동 기동)
+실행: `cd review/e2e && PORT=3201 npx playwright test tests/tiki-daily.spec.ts --reporter=line`
+baseURL: `PORT` 환경변수로 지정(기본 3102, 9차 리뷰는 3201). webServer 가 `PORT=<포트> npm run dev` 자동 기동(이미 떠 있으면 재사용).
 
 > 현재 단계: 대부분 디자인 시스템 / 컴포넌트 카탈로그 단계.
 > 실제 라우트는 `/`, `/home`(인증 가드), `/login`, `/auth/callback`, `/example/*` 데모로 제한적.
@@ -68,3 +68,22 @@ baseURL: http://localhost:3102 (webServer 가 `PORT=3102 npm run dev` 자동 기
 - **[신규 엔드포인트]** eventDetail(강재훈, mock 폴백·fetch 경합방어 좋음), join/login(이선우, 검증 또렷, error.message 원문노출 이월), mypage(김연수, 탈퇴 확인모달), seller store API(방효진, getUser 401+필드 화이트리스트 부분업데이트 — 좋음, 입력 형식검증 없음).
 - tsc 0 클린, CI(build+tsc) 존재(칭찬). [제안] CI push 트리거+lint 이월.
 - 한계: service role 키 없음·이메일 확인 필요 → 로그인 후 화면은 다음 회차.
+
+## 9차 추가 (2026-06-19) — 백엔드 연결·판매자 이벤트 관리·미들웨어 가드
+
+| ID | 시나리오 | 대상 | 기대 | 결과 |
+|----|----------|------|------|------|
+| T8 | 이벤트 상세 | `/eventDetail/1` | 200 렌더 | pass (200, 상세 API 연결됐으나 시드 없어 mock 폴백 — slots/grades 여전히 mock) |
+| T11 | 마이페이지 가드 | `/mypage` | 비로그인→/login | **fail — `/mypage/profile` 그대로 200(가드 여전히 없음)** |
+| T20~T22 | 판매자 가드 | `/seller/*` 전체 | 비로그인→/login | **pass — 미들웨어(proxy.ts)가 `/seller` 전부 `/login`으로 막음(신규 해결)** |
+| T23 | 친구 관리(신규) | `/mypage/friends` | (가드 대상) | 200 — 비로그인 접근됨(가드 없음, 더미 데이터) |
+| T24 | 설정(약관/탈퇴/비번) | `/mypage/settings` | 200 | pass — 약관·개인정보 모달 연결, 탈퇴 2단계, 비번변경 모달(서버액션 TODO) |
+| T25 | 라이브러리·예매내역(신규 라우트) | `/mypage/library`, `/mypage/reservations` | 200 | pass(렌더, 가드 없음) |
+| T26 | 이벤트 상세 API 에러 노출 | `GET /api/events/1`(비-uuid) | 4xx + 일반 메시지 | **fail — HTTP 500 + 원문 `invalid input syntax for type uuid: "1"` 노출** (valid-uuid는 404 event_not_found 정상) |
+| T27 | 주문 API 인증 가드 | `POST /api/orders`(비로그인) | 401 | pass(401 unauthorized) |
+
+발견(9차):
+- **[부분해결] 8차 [필수] 로그인 가드**: `/seller`는 미들웨어(`proxy.ts` + `PROTECTED_ROUTES=['/seller']`)로 전부 막힘(해결). 그러나 `PROTECTED_ROUTES`에 `/mypage`가 빠져 **마이페이지는 여전히 무방비**(T11/T23/T25). `mypage/layout.tsx`도 `Header loggedIn` 하드코딩 유지.
+- **[필수·신규] `/api/events/[eventId]` 원문 DB 에러 노출**: 비-uuid id → 500 + `invalid input syntax for type uuid` 노출. 회원가입 에러 노출과 같은 패턴(원문→일반 메시지+로그).
+- **[신규 백엔드 연결]** 이벤트 상세 API(`/api/events/[eventId]`, reviews), 주문(`/api/orders`, 인증·재고·회차 검증), 판매자 이벤트 CRUD(`/api/seller/event`, `[id]`, stats) 추가. tsc 0·build 38라우트 성공.
+- 한계: service role 키 없음·시드 없음 → 로그인 후/실데이터 화면은 다음 회차(여전히).
