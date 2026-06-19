@@ -42,7 +42,7 @@ export default function BookingCalendar({
   }).format(month);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1">
       {/* 헤더 : 월 이동 */}
       <div className="flex items-center justify-between px-1">
         <button
@@ -72,7 +72,7 @@ export default function BookingCalendar({
       </div>
 
       {/* 날짜 */}
-      <div className="grid grid-cols-7 gap-y-1 text-center text-sm">
+      <div className="grid grid-cols-7 gap-y-0.5 text-center text-sm">
         {cells.map((day, i) => {
           if (day === null) return <span key={`empty-${i}`} />;
 
@@ -87,7 +87,7 @@ export default function BookingCalendar({
               disabled={!hasSlot}
               onClick={() => onSelectDate(iso)}
               className={cn(
-                "mx-auto flex size-8 items-center justify-center rounded-full",
+                "mx-auto flex size-7 items-center justify-center rounded-full",
                 selected && "bg-primary-700 font-semibold text-white",
                 !selected && hasSlot && "text-gray-900 hover:bg-primary-100",
                 !hasSlot && "text-gray-300",

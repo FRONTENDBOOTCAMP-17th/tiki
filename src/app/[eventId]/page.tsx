@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, MapPin, User, Star, Clock, Calendar } from "lucide-react";
 
 import Header from "@/components/Header";
+import Spinner from "@/components/Spinner";
 import EventImg from "@/components/event/EventImg";
 import Notice from "@/components/Notice";
 import BookingWidget from "@/components/event/BookingWidget";
@@ -141,11 +142,11 @@ export default function EventDetailPage() {
   const router = useRouter();
   const { eventId } = useParams<{ eventId: string }>();
 
-  // fetch 실패시 예시 데이터 로딩되도록 함. 나중에 예시데이터 삭제 필요
-  const [event, setEvent] = useState<EventDetail | null>(MOCK_EVENT);
+  // 로딩 중에는 스피너만 노출. fetch 실패/데이터 없을 때만 예시 데이터로 폴백 (나중에 예시데이터 삭제 필요)
+  const [event, setEvent] = useState<EventDetail | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // 미연결 시 예시 데이터로 대체
   const displaySlots = slots.length ? slots : MOCK_SLOTS;
@@ -209,9 +210,11 @@ export default function EventDetailPage() {
       try {
         const res = await fetch(`/api/events/${eventId}`);
         const json: EventDetailResponse = await res.json();
-        if (!ignore && json.success) setEvent(json.data);
+        if (ignore) return;
+        // 데이터 있으면 실제 값, 없으면(시드 미존재 등) 예시 데이터로 폴백
+        setEvent(json.success ? json.data : MOCK_EVENT);
       } catch {
-        // 실패 시 mock 유지
+        if (!ignore) setEvent(MOCK_EVENT); // 네트워크 실패 시 예시 데이터 폴백
       } finally {
         if (!ignore) setLoading(false);
       }
@@ -279,7 +282,9 @@ export default function EventDetailPage() {
         </button>
 
         {loading && (
-          <p className="p-8 text-center text-gray-500">불러오는 중…</p>
+          <div className="flex justify-center py-24">
+            <Spinner size="lg" color="primary" />
+          </div>
         )}
 
         {!loading && !event && (

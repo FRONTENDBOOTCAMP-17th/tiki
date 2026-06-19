@@ -23,11 +23,19 @@ type EventRow = {
   category: { category_name: string } | { category_name: string }[] | null;
 };
 
+// 잘못된 id 가 uuid 컬럼 캐스팅 에러를 일으키기 전에 형식 검증
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ eventId: string }> },
 ) {
   const { eventId } = await params;
+
+  // 잘못된 형식의 id 는 DB(uuid 캐스팅 에러)까지 가기 전에 차단
+  if (!UUID_RE.test(eventId)) return fail("event_not_found", 404);
+
   const supabase = await createClient();
 
   // 1) event + category (category_id 는 FK 있어 중첩 조회)
@@ -39,7 +47,10 @@ export async function GET(
     .eq("event_id", eventId)
     .maybeSingle();
 
-  if (error) return fail(error.message, 500);
+  if (error) {
+    console.error("[EVENT-02] event query failed:", error);
+    return fail("internal_error", 500);
+  }
   if (!data) return fail("event_not_found", 404);
 
   const e = data as EventRow;
