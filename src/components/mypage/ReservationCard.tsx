@@ -4,7 +4,7 @@ import ReservationActions from "./ReservationActions";
 export interface Reservation {
   id: string;
   title: string;
-  status: "confirmed" | "entered" | "cancelled";
+  status: "confirmed" | "cancelled";
   statusLabel: string;
   seat: string;
   count: number;
@@ -18,7 +18,6 @@ export interface Reservation {
 
 const STATUS_STYLE: Record<Reservation["status"], string> = {
   confirmed: "bg-primary-100 text-primary-700",
-  entered: "bg-gray-100 text-gray-500",
   cancelled: "bg-danger-100 text-danger-600",
 };
 
