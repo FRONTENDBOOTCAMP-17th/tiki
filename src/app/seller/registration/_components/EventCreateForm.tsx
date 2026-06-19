@@ -1,14 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type SyntheticEvent,
+} from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import Button from "@/components/Button";
 import BookingCalendar from "@/components/event/BookingCalendar";
 import AddressSearch from "@/components/AddressSearch";
 import useToast from "@/hooks/useToast";
-import { createClient } from "@/lib/supabase/client";
 import {
   toMin,
   toTime,
@@ -260,7 +265,10 @@ export default function EventCreateForm({
     return Object.keys(nextErrors).length === 0;
   }
 
-  async function onSubmit(formData: FormData) {
+  async function onSubmit(event: SyntheticEvent<HTMLFormElement>) {
+    event.preventDefault(); // 기본 submit 동작 제거 했습니다
+    const formData = new FormData(event.currentTarget);
+
     if (!validateForm(formData)) return;
 
     if (!startDate || !endDate) return;
@@ -278,21 +286,22 @@ export default function EventCreateForm({
 
     setUploading(true);
     try {
-      const supabase = createClient();
+      // 이미지는 서버에서 webp 변환·리사이즈 후 업로드하고 URL만 받아오게 했습니다.
+      let urls: string[] = [];
+      if (images.length > 0) {
+        const imageForm = new FormData();
+        images.forEach((file) => imageForm.append("files", file));
 
-      const urls: string[] = [];
-      for (const file of images) {
-        const ext = file.name.split(".").pop();
-        const path = `${crypto.randomUUID()}.${ext}`;
-        const { data } = await supabase.storage
-          .from("event-images")
-          .upload(path, file);
-        if (data) {
-          urls.push(
-            supabase.storage.from("event-images").getPublicUrl(data.path).data
-              .publicUrl,
-          );
+        const uploadRes = await fetch("/api/seller/event/images", {
+          method: "POST",
+          body: imageForm,
+        });
+        if (!uploadRes.ok) {
+          toast.error("이미지 업로드에 실패했습니다");
+          return;
         }
+        const uploaded = await uploadRes.json();
+        urls = uploaded.data.urls as string[];
       }
 
       const res = await fetch("/api/seller/event", {
@@ -337,7 +346,7 @@ export default function EventCreateForm({
   }
 
   return (
-    <form action={onSubmit} className="space-y-6">
+    <form onSubmit={onSubmit} className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold text-gray-900">새 이벤트 등록</h1>
       </header>

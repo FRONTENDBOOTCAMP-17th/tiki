@@ -12,6 +12,24 @@ export default async function SellerLayout({
   const user = await requireUser();
   const supabase = await createClient();
 
+  const { data: account } = await supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (account?.role !== "seller") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#fafafb] p-8 text-center">
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-lg font-bold text-mirage">
+            판매자만 접근 가능한 페이지입니다
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const { data: profile } = await supabase
     .from("seller_profiles")
     .select("store_name")

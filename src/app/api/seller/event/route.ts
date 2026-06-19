@@ -81,14 +81,6 @@ export async function POST(req: NextRequest) {
 
   const supabase = await createClient();
 
-  const { data: profile } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "seller") return fail("forbidden", 403);
-
   const { count } = await supabase
     .from("event")
     .select("event_id", { count: "exact", head: true })
