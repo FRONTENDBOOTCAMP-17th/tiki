@@ -9,8 +9,9 @@ import type { Store } from "../types";
 import Dialog from "@/components/modal/Dialog";
 import useToast from "@/hooks/useToast";
 
+const inputClass = "rounded-lg px-3 py-2 text-sm text-gray-900 outline-none";
+
 function Field({
-  // 스토어 정보 필드
   label,
   name,
   value,
@@ -28,7 +29,7 @@ function Field({
         name={name}
         readOnly={!editing}
         defaultValue={value}
-        className={`text-sm px-3 py-2  text-gray-900 rounded-lg outline-none ${
+        className={`${inputClass} ${
           editing
             ? "border border-gray-200 bg-white focus:border-primary-500"
             : "border border-transparent bg-gray-50"
@@ -60,13 +61,12 @@ export default function StoreInfoForm({
   const [bankHolder, setBankHolder] = useState(store?.bank_holder_name ?? "");
 
   async function onSave(formData: FormData) {
-    // 위에 있는 폼 저장입니다
     const res = await fetch("/api/seller/store", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         storeName: formData.get("storeName"),
-        businessNumber: formData.get("businessNumber"), // 사업자번호
+        businessNumber: formData.get("businessNumber"),
         description: formData.get("description"),
         email: formData.get("email"),
         phone: formData.get("phone"),
@@ -83,7 +83,6 @@ export default function StoreInfoForm({
   }
 
   async function onBankConfirm() {
-    // 은행 수정 따로 해놨습니다
     const res = await fetch("/api/seller/store", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -101,205 +100,223 @@ export default function StoreInfoForm({
     setBankModalOpen(false);
     toast.success("정산 계좌를 변경했습니다");
   }
-  // ============== 화면 ==================
+
   return (
-    <>
-      <div className="space-y-6">
-        <header>
-          <h1 className="text-3xl text-gray-900 font-bold">스토어 정보</h1>
-        </header>
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-3xl text-gray-900 font-bold">스토어 정보</h1>
+      </header>
 
-        <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-          <div className="flex h-fit flex-col items-center border border-gray-200 rounded-2xl bg-white p-6">
-            <Profile name={storeName} email={store?.email ?? undefined} />
-            <div className="mt-4 text-center">
-              <p className="text-xs text-gray-500">
-                {store?.created_at?.slice(0, 10)} 가입
-              </p>
-            </div>
+      <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+        <div className="flex h-fit flex-col items-center border border-gray-200 rounded-2xl bg-white p-6">
+          <Profile name={storeName} email={store?.email ?? undefined} />
+          <div className="mt-4 text-center">
+            <p className="text-xs text-gray-500">
+              {store?.created_at?.slice(0, 10)} 가입
+            </p>
           </div>
+        </div>
 
-          <form
-            key={editing ? "edit" : "view"}
-            action={onSave}
-            className="flex flex-col gap-6"
-          >
-            <section className="rounded-2xl border border-gray-200 bg-white p-6">
-              <div className="mb-5 flex items-center justify-between">
-                <h2 className="font-semibold text-gray-900">기본 정보</h2>
-                {!editing && (
-                  <button
-                    type="button"
-                    onClick={() => setEditing(true)}
-                    className="flex items-center gap-1 text-sm text-primary-700 hover:underline"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    편집 모드
-                  </button>
-                )}
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field
-                  label="스토어명"
-                  name="storeName"
-                  value={storeName}
-                  editing={editing}
-                />
-                <Field
-                  label="사업자등록번호"
-                  name="businessNumber"
-                  value={store?.business_number ?? ""}
-                  editing={editing}
-                />
-              </div>
-              <div className="mt-4 flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">
-                  스토어 소개
-                </label>
-                <textarea
-                  name="description"
-                  readOnly={!editing}
-                  className={`min-h-24 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none ${
-                    editing
-                      ? "border border-gray-200 bg-white focus:border-primary-500"
-                      : "border border-transparent bg-gray-50"
-                  }`}
-                  defaultValue={store?.description ?? ""}
-                />
-              </div>
-            </section>
-
-            <section className="rounded-2xl border border-gray-200 bg-white p-6">
-              <h2 className="mb-5 font-semibold text-gray-900">연락처</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field
-                  label="대표 이메일"
-                  name="email"
-                  value={store?.email ?? userEmail}
-                  editing={editing}
-                />
-                <Field
-                  label="고객 상담 전화"
-                  name="phone"
-                  value={store?.phone ?? ""}
-                  editing={editing}
-                />
-                <Field
-                  label="사업장 주소"
-                  name="address"
-                  value={store?.address ?? ""}
-                  editing={editing}
-                />
-              </div>
-            </section>
-
-            <section className="rounded-2xl border border-gray-200 bg-white p-6">
-              <h2 className="mb-5 font-semibold text-gray-900">정산 계좌</h2>
-              <div className="flex items-center justify-between rounded-lg bg-gray-100 p-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {store?.bank_name ?? ""} {store?.bank_account_number ?? ""}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    예금주 {store?.bank_holder_name ?? ""}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setBankModalOpen(true)}
-                  className="text-sm text-primary-700 hover:underline"
-                >
-                  변경
-                </button>
-              </div>
-            </section>
-
-            {editing && (
-              <div className="flex justify-end gap-3">
+        <form
+          key={editing ? "edit" : "view"}
+          action={onSave}
+          className="flex flex-col gap-6"
+        >
+          <section className="rounded-2xl border border-gray-200 bg-white p-6">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="font-semibold text-gray-900">기본 정보</h2>
+              {!editing && (
                 <Button
+                  type="button"
                   size="sm"
                   variant="outlinePrimary"
-                  onClick={() => setEditing(false)}
+                  onClick={() => setEditing(true)}
                 >
-                  취소
+                  <Pencil className="h-3.5 w-3.5" />
+                  편집 모드
                 </Button>
-                <Button size="sm" type="submit">
-                  저장
-                </Button>
+              )}
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                label="스토어명"
+                name="storeName"
+                value={storeName}
+                editing={editing}
+              />
+              <Field
+                label="사업자등록번호"
+                name="businessNumber"
+                value={store?.business_number ?? ""}
+                editing={editing}
+              />
+            </div>
+            <div className="mt-4 flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">
+                스토어 소개
+              </label>
+              <textarea
+                name="description"
+                readOnly={!editing}
+                className={`${inputClass} min-h-24 ${
+                  editing
+                    ? "border border-gray-200 bg-white focus:border-primary-500"
+                    : "border border-transparent bg-gray-50"
+                }`}
+                defaultValue={store?.description ?? ""}
+              />
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-gray-200 bg-white p-6">
+            <h2 className="mb-5 font-semibold text-gray-900">연락처</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                label="대표 이메일"
+                name="email"
+                value={store?.email ?? userEmail}
+                editing={editing}
+              />
+              <Field
+                label="고객 상담 전화"
+                name="phone"
+                value={store?.phone ?? ""}
+                editing={editing}
+              />
+              <Field
+                label="사업장 주소"
+                name="address"
+                value={store?.address ?? ""}
+                editing={editing}
+              />
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-gray-200 bg-white p-6">
+            <h2 className="mb-5 font-semibold text-gray-900">정산 계좌</h2>
+            <div className="flex items-center justify-between rounded-lg bg-gray-100 p-4">
+              <div>
+                {store?.bank_account_number ? (
+                  <>
+                    <p className="text-sm font-medium text-gray-900">
+                      {store.bank_name} {store.bank_account_number}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      예금주 {store.bank_holder_name}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    등록된 정산 계좌가 없습니다
+                  </p>
+                )}
               </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="outlinePrimary"
+                onClick={() => setBankModalOpen(true)}
+              >
+                변경
+              </Button>
+            </div>
+          </section>
+
+          {editing && (
+            <div className="flex justify-end gap-3">
+              <Button
+                size="sm"
+                variant="outlinePrimary"
+                onClick={() => setEditing(false)}
+              >
+                취소
+              </Button>
+              <Button size="sm" type="submit">
+                저장
+              </Button>
+            </div>
+          )}
+        </form>
+      </div>
+      <Dialog
+        open={bankModalOpen}
+        onClose={() => setBankModalOpen(false)}
+        title="정산 계좌 변경"
+        confirmText="변경"
+        onConfirm={onBankConfirm}
+        confirmDisabled={
+          !bankName.trim() || !bankAccount.trim() || !bankHolder.trim()
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            새로운 정산 계좌 정보를 입력해주세요.
+          </p>
+
+          <div className="rounded-lg bg-gray-50 p-4">
+            <p className="text-xs text-gray-500">현재 계좌</p>
+
+            {store?.bank_account_number ? (
+              <>
+                <p className="mt-1 font-medium text-gray-900">
+                  {store.bank_name} {store.bank_account_number}
+                </p>
+                <p className="text-sm text-gray-500">
+                  예금주 {store.bank_holder_name}
+                </p>
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-gray-500">
+                등록된 정산 계좌가 없습니다
+              </p>
             )}
-          </form>
-        </div>
-        <Dialog
-          open={bankModalOpen}
-          onClose={() => setBankModalOpen(false)}
-          title="정산 계좌 변경"
-          confirmText="변경"
-          onConfirm={onBankConfirm}
-        >
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600">
-              새로운 정산 계좌 정보를 입력해주세요.
-            </p>
+          </div>
 
-            <div className="rounded-lg bg-gray-50 p-4">
-              <p className="text-xs text-gray-500">현재 계좌</p>
+          <div className="space-y-3">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                은행명
+              </label>
 
-              <p className="mt-1 font-medium text-gray-900">
-                {store?.bank_name} {store?.bank_account_number}
-              </p>
-
-              <p className="text-sm text-gray-500">
-                예금주 {store?.bank_holder_name}
-              </p>
+              <input
+                type="text"
+                value={bankName}
+                onChange={(e) => setBankName(e.target.value)}
+                placeholder="은행명을 입력하세요"
+                className={`${inputClass} w-full border border-gray-200 focus:border-primary-500`}
+              />
             </div>
 
-            <div className="space-y-3">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  은행명
-                </label>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                계좌번호
+              </label>
 
-                <input
-                  type="text"
-                  value={bankName}
-                  onChange={(e) => setBankName(e.target.value)}
-                  placeholder="은행명을 입력하세요"
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 outline-none focus:border-primary-500"
-                />
-              </div>
+              <input
+                type="text"
+                value={bankAccount}
+                onChange={(e) => setBankAccount(e.target.value)}
+                placeholder="계좌번호를 입력하세요"
+                className={`${inputClass} w-full border border-gray-200 focus:border-primary-500`}
+              />
+            </div>
 
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  계좌번호
-                </label>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                예금주
+              </label>
 
-                <input
-                  type="text"
-                  value={bankAccount}
-                  onChange={(e) => setBankAccount(e.target.value)}
-                  placeholder="계좌번호를 입력하세요"
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 outline-none focus:border-primary-500"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  예금주
-                </label>
-
-                <input
-                  type="text"
-                  value={bankHolder}
-                  onChange={(e) => setBankHolder(e.target.value)}
-                  placeholder="예금주명을 입력하세요"
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 outline-none focus:border-primary-500"
-                />
-              </div>
+              <input
+                type="text"
+                value={bankHolder}
+                onChange={(e) => setBankHolder(e.target.value)}
+                placeholder="예금주명을 입력하세요"
+                className={`${inputClass} w-full border border-gray-200 focus:border-primary-500`}
+              />
             </div>
           </div>
-        </Dialog>
-      </div>
-    </>
+        </div>
+      </Dialog>
+    </div>
   );
 }
