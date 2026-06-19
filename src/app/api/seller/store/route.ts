@@ -33,10 +33,11 @@ export async function PATCH(req: NextRequest) {
     fields.business_number = digits;
   }
   if (body.bankAccountNumber !== undefined) {
-    if (!/^\d{10,16}$/.test(body.bankAccountNumber.replace(/\D/g, ""))) {
+    const digits = body.bankAccountNumber.replace(/\D/g, "");
+    if (!/^\d{10,16}$/.test(digits)) {
       return fail("invalid_bank_account");
     }
-    fields.bank_account_number = body.bankAccountNumber;
+    fields.bank_account_number = digits;
   }
 
   if (body.description !== undefined) {
@@ -54,9 +55,6 @@ export async function PATCH(req: NextRequest) {
   if (body.bankName !== undefined) {
     fields.bank_name = body.bankName;
   }
-  // if (body.bankAccountNumber !== undefined) {
-  //   fields.bank_account_number = body.bankAccountNumber;
-  // }
   if (body.bankHolderName !== undefined) {
     fields.bank_holder_name = body.bankHolderName;
   }
