@@ -41,10 +41,10 @@ export default function BookingWidget({
   return (
     <>
       {/* 데스크탑: 우측 sticky 패널.
-          max-h 에서 11rem 은 상단 헤더(로고/카테고리)+목록버튼 높이만큼 빼서
+          max-h 에서 10rem 은 상단 헤더(로고/카테고리)+목록버튼 높이만큼 빼서
           스크롤 0 위치에서도 패널 바닥(합계+버튼)이 화면 안에 들어오게 함. */}
       <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
-        <div className="flex max-h-[calc(100vh-11rem)] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="flex max-h-[calc(100vh-10rem)] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
           <BookingPanel {...panelProps} />
         </div>
       </aside>
@@ -66,7 +66,7 @@ export default function BookingWidget({
         open={open}
         onClose={() => setOpen(false)}
         position="sheet"
-        className="animate-slide-in-from-bottom"
+        className="max-h-[95vh] animate-slide-in-from-bottom"
       >
         {/* Modal.Body 대신 BookingPanel 을 직접 → 시트 높이를 채워 푸터 버튼 고정 */}
         <BookingPanel {...panelProps} />

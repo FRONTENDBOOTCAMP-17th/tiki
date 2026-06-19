@@ -80,12 +80,12 @@ export default function BookingPanel({
   // 높이 제한은 부모(데스크탑 카드 / 모바일 시트)가 줌.
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <h2 className="shrink-0 px-6 pt-6 pb-3 text-lg font-bold text-mirage">
+      <h2 className="shrink-0 px-6 pt-4 pb-2 text-lg font-bold text-mirage">
         예매하기
       </h2>
 
       {/* 스크롤 영역 : 날짜/회차/등급/수량 */}
-      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 pb-4">
         {/* 1. 날짜 및 회차 선택 */}
         <section className="flex flex-col gap-3">
           <p className="text-sm font-semibold text-gray-700">
@@ -150,14 +150,14 @@ export default function BookingPanel({
                   disabled={soldOut}
                   onClick={() => setSelectedGradeId(g.gradeId)}
                   className={cn(
-                    "flex items-center justify-between rounded-xl border px-4 py-3 text-left",
+                    "flex items-center justify-between rounded-xl border px-4 py-2.5 text-left",
                     active
                       ? "border-primary-500 bg-primary-100"
                       : "border-gray-200",
                     soldOut && "opacity-50",
                   )}
                 >
-                  <span className="flex flex-col">
+                  <span className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-gray-900">
                       {g.name}
                     </span>
@@ -203,7 +203,7 @@ export default function BookingPanel({
       </div>
 
       {/* 고정 푸터 : 합계 + 버튼 (스크롤 없이 항상 보임) */}
-      <div className="shrink-0 border-t border-gray-100 px-6 py-4">
+      <div className="shrink-0 border-t border-gray-100 px-6 py-3">
         <div className="flex flex-col gap-2 text-sm">
           <div className="flex justify-between text-gray-600">
             <span>티켓 금액 ({quantity}매)</span>
