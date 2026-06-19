@@ -131,13 +131,13 @@ test("T7 /api/events/search — API 응답", async ({ request }) => {
 /* ===== 이번 회차(8차) 신규 엔드포인트 — 사용자 여정 ===== */
 
 // 이벤트 상세(신규, 395줄). API(/api/events/[id])가 아직 없어 mock 폴백으로 렌더되는지 확인.
-test("T8 /eventDetail/[id] — 상세 페이지 렌더(mock 폴백)", async ({ page }) => {
+test("T8 /[eventId] — 상세 페이지 렌더(mock 폴백)", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  const status = await goto(page, "/eventDetail/1", "T8-eventDetail-desktop");
+  const status = await goto(page, "/1", "T8-eventDetail-desktop");
   await shot(page, "T8-eventDetail-desktop");
   expect(status).toBeLessThan(500);
   await page.setViewportSize({ width: 390, height: 844 });
-  await goto(page, "/eventDetail/1", "T8-eventDetail-mobile");
+  await goto(page, "/1", "T8-eventDetail-mobile");
   await shot(page, "T8-eventDetail-mobile");
 });
 

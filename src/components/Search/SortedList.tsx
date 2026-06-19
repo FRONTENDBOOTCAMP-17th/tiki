@@ -8,8 +8,9 @@ export default function SortedList({ items }: { items: SortItem[] }) {
       {items.map((item, i) => (
         // 검색결과는 인기순과 동일한 카드, 단 rank(번호)는 전달하지 않음
         <EventCard
-          key={`${item.name}-${i}`}
+          key={`${item.id ?? item.name}-${i}`}
           item={{
+            id: item.id,
             title: item.name,
             date: item.date,
             location: item.location,
