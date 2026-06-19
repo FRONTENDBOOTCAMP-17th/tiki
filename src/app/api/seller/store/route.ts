@@ -1,3 +1,4 @@
+import { getCurrentUser } from "@/lib/auth";
 import { fail, success } from "@/lib/api/api-response";
 import { createClient } from "@/lib/supabase/server";
 import { TablesUpdate } from "@/types/database";
@@ -6,13 +7,12 @@ import { NextRequest } from "next/server";
 export async function PATCH(req: NextRequest) {
   const body = await req.json();
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) {
     return fail("unauthorized", 401);
   }
+
+  const supabase = await createClient();
 
   if (body.storeName !== undefined) {
     const { error } = await supabase
@@ -25,12 +25,12 @@ export async function PATCH(req: NextRequest) {
   }
 
   const fields: TablesUpdate<"seller_stores"> = {};
-  
+
   if (body.businessNumber !== undefined) {
-  // 사업자번호: 숫자 10자리(하이픈 제거 후) 강사님이 리뷰에 추천해주신 내용대로 수정햇습니다
-  const digits = body.businessNumber.replace(/\D/g, "");
-  if (digits.length !== 10) return fail("invalid_business_number");
-  fields.business_number = digits;
+    // 사업자번호: 숫자 10자리(하이픈 제거 후) 강사님이 리뷰에 추천해주신 내용대로 수정햇습니다
+    const digits = body.businessNumber.replace(/\D/g, "");
+    if (digits.length !== 10) return fail("invalid_business_number");
+    fields.business_number = digits;
   }
   if (body.bankAccountNumber !== undefined) {
     if (!/^\d{10,16}$/.test(body.bankAccountNumber.replace(/\D/g, ""))) {

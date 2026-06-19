@@ -1,3 +1,4 @@
+import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { fail, success } from "@/lib/api/api-response";
 import { NextRequest } from "next/server";
@@ -9,11 +10,10 @@ export async function PATCH(
   const { id } = await params;
   const body = await req.json();
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return fail("unauthorized", 401);
+
+  const supabase = await createClient();
 
   const fields: Record<string, unknown> = {
     updated_at: new Date().toISOString(),

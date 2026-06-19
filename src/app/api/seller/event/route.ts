@@ -1,3 +1,4 @@
+import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { fail, success } from "@/lib/api/api-response";
 import { NextRequest } from "next/server";
@@ -5,11 +6,10 @@ import { NextRequest } from "next/server";
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return fail("unauthorized", 401);
+
+  const supabase = await createClient();
 
   if (!body.title || !body.categoryId) return fail("empty_required");
 
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       venue_name: body.venueName,
       venue_address: body.venueAddress,
       venue_detail_address: body.venueDetailAddress || null,
-      thumbnail: body.thumbnail || null,
+      thumbnail: body.thumbnail || "",
       created_at: now,
       updated_at: now,
     })
