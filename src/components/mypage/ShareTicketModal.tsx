@@ -5,7 +5,6 @@ import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
 import type { Reservation } from "./ReservationCard";
 
-// 더미 친구 (나중에 친구 목록 조회로 교체)
 const friends = [
   { id: "1", name: "강재훈", email: "ex1@gmail.com" },
   { id: "2", name: "이선우", email: "ex2@gmail.com" },
@@ -22,7 +21,7 @@ export default function ShareTicketModal({
   onClose: () => void;
   reservation: Reservation;
 }) {
-  const max = Math.max(1, r.count - 1); // 최소 1장은 본인 보유
+  const max = Math.max(1, r.count - 1);
   const [qty, setQty] = useState(1);
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -35,7 +34,6 @@ export default function ShareTicketModal({
     <Modal open={open} onClose={onClose}>
       <Modal.Header>티켓 공유하기</Modal.Header>
       <Modal.Body>
-        {/* 예매 이벤트 */}
         <div className="rounded-xl bg-gray-50 p-4">
           <p className="text-xs text-gray-400">예매 이벤트</p>
           <p className="font-semibold text-gray-900">{r.title}</p>
@@ -45,7 +43,6 @@ export default function ShareTicketModal({
           </div>
         </div>
 
-        {/* 공유할 티켓 수 */}
         <div>
           <p className="mb-2 text-sm font-medium text-gray-700">
             공유할 티켓 수
@@ -77,7 +74,6 @@ export default function ShareTicketModal({
           </p>
         </div>
 
-        {/* 친구 선택 */}
         <div>
           <p className="mb-2 text-sm font-medium text-gray-700">
             티켓을 공유할 친구 선택
@@ -108,7 +104,6 @@ export default function ShareTicketModal({
           </div>
         </div>
 
-        {/* 안내 */}
         <div className="rounded-xl bg-secondary-100 p-4 text-sm text-secondary-700">
           <p className="font-semibold">티켓 공유란?</p>
           <p className="mt-1">
