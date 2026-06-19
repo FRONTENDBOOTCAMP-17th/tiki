@@ -12,17 +12,11 @@ export default async function SellerLayout({
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: profile }, { count: eventCount }] = await Promise.all([
-    supabase
-      .from("seller_profiles")
-      .select("store_name")
-      .eq("id", user.id)
-      .single(),
-    supabase
-      .from("event")
-      .select("event_id", { count: "exact", head: true })
-      .eq("seller_id", user.id),
-  ]);
+  const { data: profile } = await supabase
+    .from("seller_profiles")
+    .select("store_name")
+    .eq("id", user.id)
+    .single();
 
   return (
     <>
@@ -43,7 +37,6 @@ export default async function SellerLayout({
           <SellerSidebar
             name={profile?.store_name ?? "판매자"}
             email={user?.email ?? ""}
-            eventCount={eventCount ?? 0}
           />
           <main className="min-w-0 flex-1">{children}</main>
         </div>
