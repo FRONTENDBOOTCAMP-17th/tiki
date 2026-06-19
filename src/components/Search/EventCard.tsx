@@ -1,8 +1,10 @@
 import { MapPin } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 // 인기 공연 / 검색결과 카드가 공통으로 쓰는 데이터 형태
 export type EventCardItem = {
+  id?: string | number; // 이벤트 상세(/[eventId])로 이동할 식별자. 없으면 링크 비활성
   title: string;
   date: string; // ISO 문자열 ("2026-01-20")
   location?: string;
@@ -23,8 +25,11 @@ export default function EventCard({
   item: EventCardItem;
   rank?: number;
 }) {
-  return (
-    <li className="flex items-center gap-3 px-4 py-3 bg-search-background-pink rounded-2xl">
+  const cardClass =
+    "flex items-center gap-3 px-4 py-3 bg-search-background-pink rounded-2xl";
+
+  const content = (
+    <>
       {rank != null && (
         <span className="w-5 text-center text-md font-bold text-primary-700 shrink-0">
           {rank}
@@ -57,6 +62,21 @@ export default function EventCard({
           )}
         </div>
       </div>
+    </>
+  );
+
+  return (
+    <li>
+      {item.id != null ? (
+        <Link
+          href={`/${item.id}`}
+          className={`${cardClass} transition hover:brightness-95`}
+        >
+          {content}
+        </Link>
+      ) : (
+        <div className={cardClass}>{content}</div>
+      )}
     </li>
   );
 }

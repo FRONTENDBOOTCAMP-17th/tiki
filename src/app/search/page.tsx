@@ -19,12 +19,14 @@ const LIMIT = 25; // 한 번에 불러올 개수
 function toSortItems(items: unknown[]): SortItem[] {
   return (
     items as Array<{
+      eventId: string;
       title: string;
       startDate: string;
       venue?: { address?: string };
       thumbnail?: string;
     }>
   ).map((it) => ({
+    id: it.eventId,
     name: it.title,
     date: it.startDate,
     location: it.venue?.address,
@@ -190,7 +192,7 @@ export default function SearchPage() {
     <div className="lg:min-h-screen lg:bg-gray-50">
       {/* 검색 상단 헤더 */}
       <header className="bg-white lg:sticky lg:top-0 lg:z-40 lg:border-b lg:border-gray-200">
-        <div className="flex items-center gap-3 px-4 py-3 lg:mx-auto lg:max-w-5xl xl:max-w-7xl lg:gap-4 lg:px-8 lg:py-4">
+        <div className="flex items-center gap-3 px-4 py-3 lg:mx-auto lg:max-w-6xl lg:gap-4 lg:px-8 lg:py-4">
           <ChevronLeft className="w-7 h-7 shrink-0 cursor-pointer text-gray-700" />
           <div className="flex items-center flex-1 border border-gray-200 rounded-full px-4 py-2 gap-2 bg-white lg:py-2.5">
             <input
@@ -202,11 +204,11 @@ export default function SearchPage() {
             />
             <Search className="w-5 h-5 text-gray-400 shrink-0" />
           </div>
-          <Menu className="w-7 h-7 shrink-0 cursor-pointer text-gray-700" />
+          <Menu className="w-7 h-7 shrink-0 cursor-pointer text-gray-700 lg:hidden" />
         </div>
       </header>
 
-      <main className="lg:mx-auto lg:max-w-5xl xl:max-w-7xl lg:px-8 lg:py-8">
+      <main className="lg:mx-auto lg:max-w-6xl lg:px-8 lg:py-8">
         {searchQuery.length === 0 ? (
           <div className="lg:grid lg:grid-cols-[280px_1fr] lg:items-start lg:gap-8">
             {/* 최근 검색어 리스트 */}
@@ -229,6 +231,7 @@ export default function SearchPage() {
                     key={event.id}
                     rank={index + 1}
                     item={{
+                      id: event.id,
                       title: event.title,
                       date: event.date,
                       location: event.location,
