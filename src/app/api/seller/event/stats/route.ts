@@ -1,14 +1,12 @@
+import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { fail, success } from "@/lib/api/api-response";
 
 export async function GET() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const user = await getCurrentUser();
   if (!user) return fail("unauthorized", 401);
+
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("event")

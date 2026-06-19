@@ -1,21 +1,22 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Calendar, MapPin, Clock } from "lucide-react";
 import type { EventListItem } from "../types";
 
 interface Props {
   event: EventListItem;
-  onClick: () => void;
+  href: string;
 }
 
-export default function EventCard({ event, onClick }: Props) {
+export default function EventCard({ event, href }: Props) {
   const time = event.start_time ? event.start_time.slice(0, 5) : "-";
 
   return (
-    <div
-      onClick={onClick}
-      className="cursor-pointer rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-primary-300 hover:shadow-sm"
+    <Link
+      href={href}
+      className="block rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-primary-300 hover:shadow-sm"
     >
       <div className="flex gap-5">
         <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-xl bg-gray-100">
@@ -29,7 +30,7 @@ export default function EventCard({ event, onClick }: Props) {
             />
           ) : (
             <div className="flex h-full items-center justify-center text-xs text-gray-400">
-              no image
+              이미지 없음
             </div>
           )}
         </div>
@@ -87,6 +88,6 @@ export default function EventCard({ event, onClick }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

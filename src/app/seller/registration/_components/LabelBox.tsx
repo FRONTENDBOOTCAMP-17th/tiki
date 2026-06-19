@@ -1,14 +1,17 @@
 export default function LabelBox({
   label,
+  error,
   children,
 }: {
   label: string;
+  error?: string;
   children: React.ReactNode;
 }) {
-  return ( // 카드 안에 있는 라벨이랑 아래 자식(폼이든 뭐든) 구성해놓은 컴포넌트입니다
+  return (
     <div className="flex flex-col gap-1.5">
       <label className="text-sm font-medium text-gray-700">{label}</label>
       {children}
+      {error && <p className="text-xs text-danger-700">{error}</p>}
     </div>
   );
 }

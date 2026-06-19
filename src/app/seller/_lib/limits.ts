@@ -1,0 +1,17 @@
+export const SELLER_EVENT_LIMITS = {
+  maxEventsPerSeller: 10,
+  maxSeatsPerEvent: 1000,
+  maxSlotsPerEvent: 120,
+  maxTimesPerDay: 8,
+  maxImagesPerEvent: 5,
+  maxImageSizeMb: 5,
+  maxDateRangeDays: 180,
+  maxTitleLength: 80,
+  maxVenueNameLength: 80,
+  maxVenueDetailLength: 80,
+  maxDescriptionLength: 2000,
+  maxPrice: 1000000,
+  minDuration: 10,
+  maxDuration: 360,
+  maxIntermission: 120,
+} as const;
