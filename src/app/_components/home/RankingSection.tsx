@@ -16,7 +16,7 @@ export default function RankingSection({
       <h2 className="mb-3 text-lg font-bold text-gray-900 md:text-xl">
         예매 랭킹
       </h2>
-      <ul className="flex gap-3 overflow-x-auto md:grid md:grid-cols-5 md:gap-4 md:overflow-visible">
+      <ul className="scrollbar-thin flex gap-3 overflow-x-auto pb-2 md:grid md:grid-cols-5 md:gap-4 md:overflow-visible md:pb-0">
         {events.map((event, index) => (
           <li key={event.eventId}>
             <RankingCard item={{ ...event, rank: index + 1 }} />
