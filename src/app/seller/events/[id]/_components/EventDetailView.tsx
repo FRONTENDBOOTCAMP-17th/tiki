@@ -84,7 +84,7 @@ export default function EventDetailView({
             />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-gray-400">
-              no image
+              이미지 없음
             </div>
           )}
         </div>

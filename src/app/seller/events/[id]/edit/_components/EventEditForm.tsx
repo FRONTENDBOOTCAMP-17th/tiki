@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import useToast from "@/hooks/useToast";
+import SectionCard from "@/app/seller/registration/_components/SectionCard";
+import LabelBox from "@/app/seller/registration/_components/LabelBox";
 import type { EventDetail, CategoryOption } from "@/app/seller/events/types";
 
 const inputClass =
@@ -18,10 +20,9 @@ function Field({
   defaultValue?: string | number;
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-medium text-gray-700">{label}</label>
+    <LabelBox label={label}>
       <input name={name} defaultValue={defaultValue} className={inputClass} />
-    </div>
+    </LabelBox>
   );
 }
 
@@ -58,7 +59,6 @@ export default function EventEditForm({ event, categories }: Props) {
     }
     toast.success("수정했습니다");
     router.push("/seller/list");
-    router.refresh();
   }
 
   return (
@@ -67,41 +67,43 @@ export default function EventEditForm({ event, categories }: Props) {
         <h1 className="text-2xl font-bold text-gray-900">이벤트 수정</h1>
       </header>
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-6 space-y-4">
-        <h2 className="font-semibold text-gray-900">기본 정보</h2>
-
+      <SectionCard step={1} title="기본 정보">
         <Field label="공연명" name="title" defaultValue={event.title} />
 
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">카테고리</label>
-          <select
-            name="categoryId"
-            defaultValue={event.category_id}
-            className={inputClass}
-          >
-            {categories.map((c) => (
-              <option key={c.category_id} value={c.category_id}>
-                {c.category_name}
-              </option>
-            ))}
-          </select>
+        <div className="mt-4">
+          <LabelBox label="카테고리">
+            <select
+              name="categoryId"
+              defaultValue={event.category_id}
+              className={inputClass}
+            >
+              {categories.map((c) => (
+                <option key={c.category_id} value={c.category_id}>
+                  {c.category_name}
+                </option>
+              ))}
+            </select>
+          </LabelBox>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">공연 소개</label>
-          <textarea
-            name="description"
-            defaultValue={event.description ?? ""}
-            className={`${inputClass} min-h-24`}
-          />
+        <div className="mt-4">
+          <LabelBox label="공연 소개">
+            <textarea
+              name="description"
+              defaultValue={event.description ?? ""}
+              className={`${inputClass} min-h-24`}
+            />
+          </LabelBox>
         </div>
-      </section>
+      </SectionCard>
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-6 space-y-4">
-        <h2 className="font-semibold text-gray-900">일정 · 장소</h2>
-
+      <SectionCard step={2} title="일정 · 장소">
         <div className="grid gap-4 sm:grid-cols-3">
-          <Field label="시작일" name="startDate" defaultValue={event.start_date} />
+          <Field
+            label="시작일"
+            name="startDate"
+            defaultValue={event.start_date}
+          />
           <Field label="종료일" name="endDate" defaultValue={event.end_date} />
           <Field
             label="시작 시간"
@@ -110,7 +112,7 @@ export default function EventEditForm({ event, categories }: Props) {
           />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Field
             label="공연 시간 (분)"
             name="duration"
@@ -123,9 +125,15 @@ export default function EventEditForm({ event, categories }: Props) {
           />
         </div>
 
-        <Field label="공연 장소명" name="venueName" defaultValue={event.venue_name} />
+        <div className="mt-4">
+          <Field
+            label="공연 장소명"
+            name="venueName"
+            defaultValue={event.venue_name}
+          />
+        </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Field
             label="기본 주소"
             name="venueAddress"
@@ -137,7 +145,7 @@ export default function EventEditForm({ event, categories }: Props) {
             defaultValue={event.venue_detail_address ?? ""}
           />
         </div>
-      </section>
+      </SectionCard>
 
       <div className="flex justify-end gap-3">
         <Button

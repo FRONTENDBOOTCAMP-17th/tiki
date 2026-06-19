@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import EventEditForm from "./_components/EventEditForm";
 import type { EventDetail, CategoryOption } from "@/app/seller/events/types";
@@ -9,17 +10,14 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const user = await requireUser();
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   const { data: event } = await supabase
     .from("event")
     .select("*")
     .eq("event_id", id)
-    .eq("seller_id", user!.id)
+    .eq("seller_id", user.id)
     .single();
 
   if (!event) notFound();
