@@ -7,7 +7,7 @@ import { test, expect, type Page } from "@playwright/test";
 //  - 500이 나도 abort 하지 않고 캡처 후 status 로깅
 //  - 스크린샷은 ../images/2026-06-16/ 에 fullPage 저장
 
-const IMG = "../images/2026-06-18";
+const IMG = "../images/2026-06-19";
 const SETTLE = 1500;
 
 async function goto(page: Page, path: string, id: string) {
@@ -179,5 +179,62 @@ test("T20 /seller/storeInfo — 스토어 정보 페이지", async ({ page }) =>
 test("T21 /seller/dashboard — (현재 스텁 확인)", async ({ page }) => {
   const status = await goto(page, "/seller/dashboard", "T21-seller-dashboard");
   await shot(page, "T21-seller-dashboard");
-  expect(status).toBeLessThan(500);
+  // 비로그인 → /login 리다이렉트(미들웨어 가드) 기대
+  console.log(`[T21] final url = ${page.url()} (status ${status})`);
+});
+
+/* ===== 9차 신규 엔드포인트 ===== */
+
+// 판매자 가드(미들웨어) — 비로그인은 /seller/* 전부 /login 으로 막혀야 함
+test("T22 /seller/* 가드 — 비로그인 리다이렉트(미들웨어)", async ({ page }) => {
+  for (const path of [
+    "/seller/storeInfo",
+    "/seller/list",
+    "/seller/registration",
+    "/seller/settlement",
+    "/seller/ticketManagement",
+  ]) {
+    await page.goto(path, { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(400);
+    console.log(`[T22] ${path} -> final url ${page.url()}`);
+  }
+  await shot(page, "T22-seller-guard");
+});
+
+// 마이페이지 신규 페이지(친구/라이브러리/예매내역) — 비로그인 접근 가드 점검
+test("T23 /mypage/friends — 친구 관리(신규)", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await goto(page, "/mypage/friends", "T23-mypage-friends");
+  await shot(page, "T23-mypage-friends");
+  console.log(`[T23] final url = ${page.url()}`);
+});
+
+test("T24 /mypage/settings — 설정(약관/탈퇴/비번)", async ({ page }) => {
+  await goto(page, "/mypage/settings", "T24-mypage-settings");
+  await shot(page, "T24-mypage-settings");
+});
+
+test("T25 /mypage/library, /mypage/reservations — 신규 라우트", async ({ page }) => {
+  await goto(page, "/mypage/library", "T25-mypage-library");
+  await shot(page, "T25-mypage-library");
+  await goto(page, "/mypage/reservations", "T25-mypage-reservations");
+  await shot(page, "T25-mypage-reservations");
+});
+
+// API 에러 노출 점검 — 잘못된 eventId(비-uuid)는 원문 DB 에러를 흘리면 안 됨
+test("T26 /api/events/[id] — 잘못된 id 에러 응답 확인", async ({ request }) => {
+  const bad = await request.get("/api/events/1");
+  console.log(`[T26] /api/events/1 status=${bad.status()} body=${(await bad.text()).slice(0, 200)}`);
+  const notFound = await request.get(
+    "/api/events/00000000-0000-0000-0000-000000000000",
+  );
+  console.log(`[T26] valid-uuid status=${notFound.status()} body=${(await notFound.text()).slice(0, 200)}`);
+});
+
+// 주문 API — 비로그인 401 (쓰기 없음, 인증 가드만 확인)
+test("T27 /api/orders — 비로그인 401", async ({ request }) => {
+  const res = await request.post("/api/orders", {
+    data: { eventId: "x", slotId: "y", ticketGradeId: "z", quantity: 1 },
+  });
+  console.log(`[T27] /api/orders status=${res.status()} body=${(await res.text()).slice(0, 200)}`);
 });
