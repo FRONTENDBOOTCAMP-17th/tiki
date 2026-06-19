@@ -25,7 +25,7 @@ function formatPrice(price: number) {
 export default function RankingCard({ item }: { item: RankingCardItem }) {
   return (
     <Link
-      href={`/eventDetail/${item.eventId}`}
+      href={`/${item.eventId}`}
       className="flex w-36 shrink-0 flex-col gap-2 md:w-full"
     >
       <div className="relative aspect-3/4 w-full overflow-hidden rounded-xl">

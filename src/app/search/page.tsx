@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, Search, Menu } from "lucide-react";
+import { ChevronLeft, Search } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import RecentSearchList from "@/components/Search/RecentSearchList";
 import EventCard from "@/components/Search/EventCard";
@@ -12,6 +12,8 @@ import {
   type Direction,
 } from "@/components/Search/filterSort";
 import Navigation from "@/components/Navigation";
+import MobileDrawer from "@/components/mypage/MobileDrawer";
+import MyPageSidebar from "@/components/sidebar/MyPageSidebar";
 
 const LIMIT = 25; // 한 번에 불러올 개수
 
@@ -204,7 +206,10 @@ export default function SearchPage() {
             />
             <Search className="w-5 h-5 text-gray-400 shrink-0" />
           </div>
-          <Menu className="w-7 h-7 shrink-0 cursor-pointer text-gray-700 lg:hidden" />
+          {/* 햄버거 → 우측 슬라이드 사이드바(마이페이지). 데스크탑(lg)에선 MobileDrawer 자체가 숨김 */}
+          <MobileDrawer>
+            <MyPageSidebar />
+          </MobileDrawer>
         </div>
       </header>
 

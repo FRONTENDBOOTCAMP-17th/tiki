@@ -37,7 +37,7 @@ export default function TicketOpenSection({
         {events.map((event) => (
           <li key={event.eventId}>
             <Link
-              href={`/eventDetail/${event.eventId}`}
+              href={`/${event.eventId}`}
               className='flex items-center gap-3 rounded-2xl bg-gradient-to-r from-primary-400 to-secondary-400 p-4 transition-opacity hover:opacity-90'
             >
               <div className='relative h-20 w-14 shrink-0 overflow-hidden rounded-lg bg-white/40'>
