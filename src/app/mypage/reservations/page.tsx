@@ -1,7 +1,104 @@
-export default function ReservationsPage() {
+import Link from "next/link";
+import ReservationCard, {
+  type Reservation,
+} from "@/components/mypage/ReservationCard";
+
+// 더미 (나중에 Supabase 조회로 교체)
+const reservations: Reservation[] = [
+  {
+    id: "1",
+    eventId: "evt_001", // 2f55b5b8-1a59-4e43-a525-9d08f427a1f0
+    title: "미드나잇 라이브 2026",
+    status: "confirmed",
+    statusLabel: "예매 확정",
+    seat: "R석",
+    count: 2,
+    bookedAt: "2026.04.15",
+    date: "2026.05.18 (일)",
+    time: "19:00",
+    place: "서울 마포구 홍대 라이브홀",
+    orderNo: "TK12345678",
+    price: 110000,
+  },
+  {
+    id: "2",
+    eventId: "evt_002",
+    title: "재즈 피아노 콘서트",
+    status: "confirmed",
+    statusLabel: "예매 확정",
+    seat: "VIP석",
+    count: 1,
+    bookedAt: "2026.05.01",
+    date: "2026.05.20 (화)",
+    time: "20:00",
+    place: "블루노트 서울",
+    orderNo: "TK87654321",
+    price: 45000,
+  },
+  {
+    id: "3",
+    eventId: "evt_003",
+    title: "어쿠스틱 나이트",
+    status: "cancelled",
+    statusLabel: "예매 취소",
+    seat: "S석",
+    count: 1,
+    bookedAt: "2026.02.20",
+    date: "2026.03.15 (토)",
+    time: "19:30",
+    place: "롤링홀",
+    orderNo: "TK55667788",
+    price: 33000,
+  },
+];
+
+const FILTERS = [
+  { label: "전체", value: "all" },
+  { label: "예매 확정", value: "confirmed" },
+  { label: "예매 취소", value: "cancelled" },
+];
+
+export default async function ReservationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
+  const { filter = "all" } = await searchParams;
+  const list =
+    filter === "all"
+      ? reservations
+      : reservations.filter((r) => r.status === filter);
+
   return (
-    <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
-      예매 내역 (준비 중)
-    </section>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap gap-2">
+        {FILTERS.map((f) => {
+          const active = filter === f.value;
+          const href =
+            f.value === "all"
+              ? "/mypage/reservations"
+              : `/mypage/reservations?filter=${f.value}`;
+          return (
+            <Link
+              key={f.value}
+              href={href}
+              className={
+                active
+                  ? "rounded-full bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-1.5 text-sm font-semibold text-white"
+                  : "rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+              }
+            >
+              {f.label}
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="flex flex-col gap-4">
+        {list.map((r) => (
+          <ReservationCard key={r.id} reservation={r} />
+        ))}
+      </div>
+    </div>
   );
 }

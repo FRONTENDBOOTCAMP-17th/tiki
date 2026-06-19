@@ -3,8 +3,13 @@ import Footer from "@/components/Footer";
 import Navigation from "@/components/Navigation";
 import MyPageSidebar from "@/components/sidebar/MyPageSidebar";
 import MobileDrawer from "@/components/mypage/MobileDrawer";
+import MobileProfileCard from "@/components/mypage/MobileProfileCard";
 
-export default function MyPageLayout({ children }: { children: React.ReactNode }) {
+export default function MyPageLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex min-h-screen flex-col">
       <Header loggedIn showCategory={false} />
@@ -17,13 +22,15 @@ export default function MyPageLayout({ children }: { children: React.ReactNode }
               <MyPageSidebar />
             </MobileDrawer>
           </div>
-
+          <MobileProfileCard />
           <div className="flex gap-6">
             {/* 데스크탑(lg+): 세로 사이드바 */}
             <div className="hidden w-64 shrink-0 lg:block">
               <MyPageSidebar />
             </div>
-            <main className="min-w-0 flex-1 pb-20 min-[744px]:pb-0">{children}</main>
+            <main className="min-w-0 flex-1 pb-20 min-[744px]:pb-0">
+              {children}
+            </main>
           </div>
         </div>
       </div>
