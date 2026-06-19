@@ -4,12 +4,13 @@ import Navigation from "@/components/Navigation";
 import { isAuthenticated } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import HeroBanner from "./_components/home/HeroBanner";
+import HeroSlider from "./_components/home/HeroSlider";
 import RankingSection from "./_components/home/RankingSection";
 import TicketOpenSection from "./_components/home/TicketOpenSection";
 
 const PUBLISHED_STATUS = "공개";
 const EVENT_POOL_LIMIT = 20; // 랭킹/티켓오픈 섹션이 고를 후보 풀 크기
+const HERO_SLIDE_SIZE = 5;
 const RANKING_SIZE = 5;
 const TICKET_OPEN_SIZE = 3;
 
@@ -86,6 +87,17 @@ export default async function Home() {
       minPrice: minPriceByEvent.get(event.event_id) ?? null,
     }));
 
+  // 히어로 슬라이더는 이미지가 있어야 의미가 있으므로 썸네일이 비어있는 이벤트는 제외한다.
+  const heroSlides = pool
+    .filter((event) => event.thumbnail)
+    .slice(0, HERO_SLIDE_SIZE)
+    .map((event) => ({
+      eventId: event.event_id,
+      title: event.title,
+      startDate: event.start_date,
+      thumbnail: event.thumbnail,
+    }));
+
   // 이미 최근 등록순으로 가져왔으니, 앞에서 N개만 잘라내면 "신규 오픈" 목록이 된다.
   const newlyOpened = pool.slice(0, TICKET_OPEN_SIZE).map((event) => ({
     eventId: event.event_id,
@@ -100,7 +112,7 @@ export default async function Home() {
     <>
       <Header loggedIn={loggedIn} />
       <main className="flex-1 bg-white pb-20 min-[744px]:pb-0">
-        <HeroBanner />
+        <HeroSlider slides={heroSlides} />
         <RankingSection events={ranking} />
         <TicketOpenSection events={newlyOpened} />
       </main>
