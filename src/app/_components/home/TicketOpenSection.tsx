@@ -41,12 +41,17 @@ export default function TicketOpenSection({
               className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-primary-400 to-secondary-400 p-4 transition-opacity hover:opacity-90"
             >
               <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-lg bg-white/40">
-                <Image
-                  src={event.thumbnail}
-                  alt={event.title}
-                  fill
-                  className="object-cover"
-                />
+                {event.thumbnail ? (
+                  <Image
+                    src={event.thumbnail}
+                    alt={event.title}
+                    fill
+                    sizes="56px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-linear-to-br from-accent-300 to-primary-500" />
+                )}
               </div>
               <div className="flex min-w-0 flex-col gap-1">
                 <p className="truncate text-sm font-semibold text-white">
