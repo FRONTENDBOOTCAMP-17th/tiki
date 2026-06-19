@@ -46,7 +46,7 @@ export default function HeroSlider({ slides }: { slides: HeroSlideItem[] }) {
           {slides.map((slide) => (
             <Link
               key={slide.eventId}
-              href={`/eventDetail/${slide.eventId}`}
+              href={`/${slide.eventId}`}
               className='relative h-full w-full shrink-0'
             >
               {/* 확대 + 블러 배경: 카드 전체를 채우는 모던한 느낌의 배경 */}
