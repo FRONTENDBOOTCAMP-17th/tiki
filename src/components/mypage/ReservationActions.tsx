@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { QrCode, Share2 } from "lucide-react";
 import type { Reservation } from "./ReservationCard";
 import QrTicketModal from "./QrTicketModal";
@@ -15,6 +16,18 @@ export default function ReservationActions({
   const handleCancel = () => {
     // TODO: 취소 신청 server action
   };
+
+  // 취소된 예매는 상세보기만
+  if (reservation.status === "cancelled") {
+    return (
+      <Link
+        href={`/events/${reservation.eventId}`}
+        className="flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+      >
+        상세보기
+      </Link>
+    );
+  }
 
   return (
     <>
