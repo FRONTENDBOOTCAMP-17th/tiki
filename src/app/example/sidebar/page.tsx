@@ -8,7 +8,7 @@ export default function Home() {
     <div className="flex gap-6 bg-gray-100 p-8" style={{ height: "100vh" }}>
       <AdminSidebar />
       <MyPageSidebar />
-      <SellerSidebar />
+      <SellerSidebar name="판매자명" email="seller@tiki.com" eventCount={8} />
     </div>
   );
 }
