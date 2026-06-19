@@ -1,3 +1,4 @@
+import "server-only";
 import sharp from "sharp";
 import { nanoid } from "nanoid";
 import type { createClient } from "@/lib/supabase/server";

@@ -24,6 +24,7 @@ import Notice from "@/components/Notice";
 import { SELLER_EVENT_LIMITS } from "@/app/seller/_lib/limits";
 import SectionCard from "./SectionCard";
 import LabelBox from "./LabelBox";
+import { uploadEventImages } from "../actions";
 import type { CategoryOption } from "@/app/seller/events/types";
 
 const inputClass =
@@ -286,22 +287,15 @@ export default function EventCreateForm({
 
     setUploading(true);
     try {
-      // 이미지는 서버에서 webp 변환·리사이즈 후 업로드하고 URL만 받아오게 했습니다.
+      // 이미지는 서버 액션에서 webp 변환·리사이즈 후 업로드하고 URL만 받아옵니다.
       let urls: string[] = [];
       if (images.length > 0) {
-        const imageForm = new FormData();
-        images.forEach((file) => imageForm.append("files", file));
-
-        const uploadRes = await fetch("/api/seller/event/images", {
-          method: "POST",
-          body: imageForm,
-        });
-        if (!uploadRes.ok) {
+        try {
+          urls = await uploadEventImages(images);
+        } catch {
           toast.error("이미지 업로드에 실패했습니다");
           return;
         }
-        const uploaded = await uploadRes.json();
-        urls = uploaded.data.urls as string[];
       }
 
       const res = await fetch("/api/seller/event", {
