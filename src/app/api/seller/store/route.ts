@@ -1,64 +1,77 @@
+import { getCurrentUser } from "@/lib/auth";
 import { fail, success } from "@/lib/api/api-response";
 import { createClient } from "@/lib/supabase/server";
 import { TablesUpdate } from "@/types/database";
 import { NextRequest } from "next/server";
 
-export async function PATCH(req: NextRequest) {
-  const body = await req.json();
+interface StoreRequestBody {
+  storeName?: unknown;
+  businessNumber?: unknown;
+  description?: unknown;
+  email?: unknown;
+  phone?: unknown;
+  address?: unknown;
+  bankName?: unknown;
+  bankAccountNumber?: unknown;
+  bankHolderName?: unknown;
+}
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+function toText(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export async function PATCH(req: NextRequest) {
+  const body = (await req.json()) as StoreRequestBody;
+
+  const user = await getCurrentUser();
   if (!user) {
     return fail("unauthorized", 401);
   }
 
+  const supabase = await createClient();
+
   if (body.storeName !== undefined) {
     const { error } = await supabase
       .from("seller_profiles")
-      .update({ store_name: body.storeName })
+      .update({ store_name: toText(body.storeName) })
       .eq("id", user.id);
     if (error) {
-      return fail(error.message);
+      return fail("store_profile_update_failed", 500);
     }
   }
 
   const fields: TablesUpdate<"seller_stores"> = {};
-  
+
   if (body.businessNumber !== undefined) {
-  // 사업자번호: 숫자 10자리(하이픈 제거 후) 강사님이 리뷰에 추천해주신 내용대로 수정햇습니다
-  const digits = body.businessNumber.replace(/\D/g, "");
-  if (digits.length !== 10) return fail("invalid_business_number");
-  fields.business_number = digits;
+    const digits = toText(body.businessNumber).replace(/\D/g, "");
+    if (digits.length !== 10) return fail("invalid_business_number");
+    fields.business_number = digits;
   }
   if (body.bankAccountNumber !== undefined) {
-    if (!/^\d{10,16}$/.test(body.bankAccountNumber.replace(/\D/g, ""))) {
+    const digits = toText(body.bankAccountNumber).replace(/\D/g, "");
+    if (!/^\d{10,16}$/.test(digits)) {
       return fail("invalid_bank_account");
     }
-    fields.bank_account_number = body.bankAccountNumber;
+    fields.bank_account_number = digits;
   }
 
   if (body.description !== undefined) {
-    fields.description = body.description;
+    fields.description = toText(body.description);
   }
   if (body.email !== undefined) {
-    fields.email = body.email;
+    fields.email = toText(body.email);
   }
   if (body.phone !== undefined) {
-    fields.phone = body.phone;
+    fields.phone = toText(body.phone);
   }
   if (body.address !== undefined) {
-    fields.address = body.address;
+    fields.address = toText(body.address);
   }
   if (body.bankName !== undefined) {
-    fields.bank_name = body.bankName;
+    fields.bank_name = toText(body.bankName);
   }
-  // if (body.bankAccountNumber !== undefined) {
-  //   fields.bank_account_number = body.bankAccountNumber;
-  // }
   if (body.bankHolderName !== undefined) {
-    fields.bank_holder_name = body.bankHolderName;
+    fields.bank_holder_name = toText(body.bankHolderName);
   }
 
   if (Object.keys(fields).length > 0) {
@@ -67,7 +80,7 @@ export async function PATCH(req: NextRequest) {
       .update(fields)
       .eq("user_id", user.id);
     if (error) {
-      return fail(error.message);
+      return fail("store_update_failed", 500);
     }
   }
 

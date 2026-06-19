@@ -49,3 +49,5 @@ next-env.d.ts
 
 # claude AI
 .claude
+
+.mcp.json

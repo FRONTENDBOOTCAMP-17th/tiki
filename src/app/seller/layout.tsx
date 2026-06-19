@@ -1,8 +1,23 @@
 import type { ReactNode } from "react";
 import SellerSidebar from "@/components/sidebar/SellerSidebar";
 import RoleHeader from "@/components/RoleHeader";
+import { requireUser } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
-export default function SellerLayout({ children }: { children: ReactNode }) {
+export default async function SellerLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const user = await requireUser();
+  const supabase = await createClient();
+
+  const { data: profile } = await supabase
+    .from("seller_profiles")
+    .select("store_name")
+    .eq("id", user.id)
+    .single();
+
   return (
     <>
       <div className="flex min-h-screen items-center justify-center bg-[#fafafb] p-8 text-center lg:hidden">
@@ -19,7 +34,10 @@ export default function SellerLayout({ children }: { children: ReactNode }) {
       <div className="hidden min-h-screen flex-col bg-[#fafafb] lg:flex">
         <RoleHeader role="seller" />
         <div className="flex flex-1 gap-6 p-6">
-          <SellerSidebar />
+          <SellerSidebar
+            name={profile?.store_name ?? "판매자"}
+            email={user?.email ?? ""}
+          />
           <main className="min-w-0 flex-1">{children}</main>
         </div>
       </div>

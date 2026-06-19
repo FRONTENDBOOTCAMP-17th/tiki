@@ -1,18 +1,17 @@
+import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import EventList from "./_components/EventList";
+import { sumCapacityByEvent, sumOrdersByEvent } from "../_lib/stats";
 import type { Event, EventListItem } from "./types";
 
 export default async function Page() {
+  const user = await requireUser();
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   const { data: events, error: eventsError } = await supabase
     .from("event")
     .select("*")
-    .eq("seller_id", user!.id)
+    .eq("seller_id", user.id)
     .order("created_at", { ascending: false });
 
   if (eventsError) {
@@ -48,36 +47,8 @@ export default async function Page() {
     throw new Error(gradesError.message);
   }
 
-  const orderStats = new Map<
-    string,
-    {
-      totalOrders: number;
-      totalRevenue: number;
-    }
-  >();
-
-  for (const order of orders ?? []) {
-    const current = orderStats.get(order.event_id) ?? {
-      totalOrders: 0,
-      totalRevenue: 0,
-    };
-
-    current.totalOrders += order.quantity;
-    current.totalRevenue += order.total_price;
-
-    orderStats.set(order.event_id, current);
-  }
-
-  const capacityMap = new Map<string, number>();
-
-  for (const grade of grades ?? []) {
-    const currentCapacity = capacityMap.get(grade.event_id) ?? 0;
-
-    capacityMap.set(
-      grade.event_id,
-      currentCapacity + grade.quantity
-    );
-  }
+  const orderStats = sumOrdersByEvent(orders ?? []);
+  const capacityMap = sumCapacityByEvent(grades ?? []);
 
   const list: EventListItem[] = events.map((event: Event) => {
     const stats = orderStats.get(event.event_id);

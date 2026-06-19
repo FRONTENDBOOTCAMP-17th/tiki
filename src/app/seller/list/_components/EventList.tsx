@@ -2,16 +2,15 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Plus, CalendarDays, Ticket, Banknote } from "lucide-react";
 
 import Button from "@/components/Button";
+import StatCard from "@/components/StatCard";
 import EventCard from "./EventCard";
 
 import type { EventListItem } from "../types";
 
 export default function EventList({ events }: { events: EventListItem[] }) {
-  const router = useRouter();
   const [keyword, setKeyword] = useState("");
   const [tab, setTab] = useState<"전체" | "공개" | "비공개">("전체");
 
@@ -48,23 +47,23 @@ export default function EventList({ events }: { events: EventListItem[] }) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <ListHeadCard
+        <StatCard
           icon={CalendarDays}
           label="총 이벤트"
           value={`${events.length}개`}
-          color="bg-primary-100 text-primary-700"
+          tone="primary"
         />
-        <ListHeadCard
+        <StatCard
           icon={Ticket}
           label="총 예매"
           value={`${totalOrders.toLocaleString()}건`}
-          color="bg-blue-100 text-blue-600"
+          tone="secondary"
         />
-        <ListHeadCard
+        <StatCard
           icon={Banknote}
           label="총 매출"
           value={`${totalRevenue.toLocaleString()}원`}
-          color="bg-green-100 text-green-600"
+          tone="accent"
         />
       </div>
 
@@ -103,36 +102,10 @@ export default function EventList({ events }: { events: EventListItem[] }) {
             <EventCard
               key={event.event_id}
               event={event}
-              onClick={() => router.push(`/seller/events/${event.event_id}`)}
+              href={`/seller/events/${event.event_id}`}
             />
           ))
         )}
-      </div>
-    </div>
-  );
-}
-
-function ListHeadCard({
-  icon: Icon,
-  label,
-  value,
-  color,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-  color: string;
-}) {
-  return (
-    <div className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5">
-      <div
-        className={`flex h-11 w-11 items-center justify-center rounded-xl ${color}`}
-      >
-        <Icon size={20} />
-      </div>
-      <div>
-        <p className="text-xs text-gray-500">{label}</p>
-        <p className="text-lg font-bold text-gray-900">{value}</p>
       </div>
     </div>
   );
