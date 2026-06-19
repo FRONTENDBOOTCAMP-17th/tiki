@@ -3,6 +3,7 @@ import ReservationActions from "./ReservationActions";
 
 export interface Reservation {
   id: string;
+  eventId: string;
   title: string;
   status: "confirmed" | "cancelled";
   statusLabel: string;

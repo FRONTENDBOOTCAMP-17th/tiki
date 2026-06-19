@@ -3,14 +3,16 @@ import ReservationCard, {
   type Reservation,
 } from "@/components/mypage/ReservationCard";
 
+// 더미 (나중에 Supabase 조회로 교체)
 const reservations: Reservation[] = [
   {
     id: "1",
+    eventId: "evt_001", // 2f55b5b8-1a59-4e43-a525-9d08f427a1f0
     title: "미드나잇 라이브 2026",
     status: "confirmed",
     statusLabel: "예매 확정",
     seat: "R석",
-    count: 3,
+    count: 2,
     bookedAt: "2026.04.15",
     date: "2026.05.18 (일)",
     time: "19:00",
@@ -20,6 +22,7 @@ const reservations: Reservation[] = [
   },
   {
     id: "2",
+    eventId: "evt_002",
     title: "재즈 피아노 콘서트",
     status: "confirmed",
     statusLabel: "예매 확정",
@@ -34,11 +37,12 @@ const reservations: Reservation[] = [
   },
   {
     id: "3",
+    eventId: "evt_003",
     title: "어쿠스틱 나이트",
     status: "cancelled",
     statusLabel: "예매 취소",
     seat: "S석",
-    count: 2,
+    count: 1,
     bookedAt: "2026.02.20",
     date: "2026.03.15 (토)",
     time: "19:30",
