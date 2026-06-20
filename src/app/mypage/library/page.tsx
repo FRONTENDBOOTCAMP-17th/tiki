@@ -1,4 +1,5 @@
 import LibraryCalendar from "@/components/mypage/library/LibraryCalendar";
+import MonthNavigator from "@/components/mypage/library/MonthNavigator";
 import type { LibraryEvent } from "@/lib/mypage/library";
 
 // TODO: Supabase 연동 시 server에서 fetch
@@ -9,18 +10,21 @@ const mockEvents: LibraryEvent[] = [
   { date: 25, category: "class" },
 ];
 
-export default function LibraryPage() {
-  const now = new Date();
+export default async function LibraryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
+  const { month } = await searchParams;
+  const base = month ? new Date(`${month}-01`) : new Date();
+  const year = base.getFullYear();
+  const m = base.getMonth();
 
   return (
     <section>
-      <h1 className="text-2xl font-bold">라이브러리</h1>
+      <MonthNavigator year={year} month={m} />
       <hr className="mt-4 mb-8 border-gray-200" />
-      <LibraryCalendar
-        year={now.getFullYear()}
-        month={now.getMonth()}
-        events={mockEvents}
-      />
+      <LibraryCalendar year={year} month={m} events={mockEvents} />
     </section>
   );
 }
