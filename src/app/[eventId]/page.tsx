@@ -16,6 +16,7 @@ import { EventDetail, Slot, Grade, Review } from "@/types/domain/event";
 import {
   EventDetailResponse,
   SlotListResponse,
+  GradeListResponse,
   ReviewListResponse,
 } from "@/types/api/event";
 
@@ -145,11 +146,13 @@ export default function EventDetailPage() {
   // 로딩 중에는 스피너만 노출. fetch 실패/데이터 없을 때만 예시 데이터로 폴백 (나중에 예시데이터 삭제 필요)
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
+  const [grades, setGrades] = useState<Grade[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
   // 미연결 시 예시 데이터로 대체
   const displaySlots = slots.length ? slots : MOCK_SLOTS;
+  const displayGrades = grades.length ? grades : MOCK_GRADES;
   const displayReviews = reviews.length ? reviews : MOCK_REVIEWS;
   const firstShowDate = formatFirstDate(displaySlots);
 
@@ -237,6 +240,26 @@ export default function EventDetailPage() {
         if (!ignore && json.success) setSlots(json.data.slots);
       } catch {
         if (!ignore) setSlots([]);
+      }
+    })();
+
+    return () => {
+      ignore = true;
+    };
+  }, [eventId]);
+
+  // 이벤트별 좌석 등급 목록 (ticket_grade)
+  useEffect(() => {
+    if (!eventId) return;
+    let ignore = false;
+
+    (async () => {
+      try {
+        const res = await fetch(`/api/events/${eventId}/grades`);
+        const json: GradeListResponse = await res.json();
+        if (!ignore && json.success) setGrades(json.data.grades);
+      } catch {
+        if (!ignore) setGrades([]);
       }
     })();
 
@@ -423,7 +446,7 @@ export default function EventDetailPage() {
               {/* 우측 : 예매 위젯 (데스크탑 사이드 / 모바일 하단 시트) */}
               <BookingWidget
                 slots={displaySlots}
-                grades={MOCK_GRADES}
+                grades={displayGrades}
                 soldOut={event.status === "closed"}
                 onAddToCart={handleAddToCart}
                 onBookNow={handleBookNow}
