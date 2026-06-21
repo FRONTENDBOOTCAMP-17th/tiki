@@ -194,8 +194,8 @@ export default function EventDetailPage() {
   }
   async function handleBookNow(selection: BookingSelection) {
     try {
-      await createOrder(selection, "ordered");
-      router.push("/mypage/orders");
+      const { orderId } = await createOrder(selection, "ordered");
+      router.push(`/payment/${orderId}`);
     } catch (error) {
       alert(error instanceof Error ? error.message : "예매 처리에 실패했습니다.");
     }
