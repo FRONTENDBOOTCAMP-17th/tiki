@@ -27,12 +27,12 @@ const ROLE_LABEL: Record<string, string> = {
 };
 
 interface Props {
-  name: string;
-  email: string;
-  role: string;
+  name?: string;
+  email?: string;
+  role?: string;
 }
 
-export default function MyPageSidebar({ name, email, role }: Props) {
+export default function MyPageSidebar({ name = "", email = "", role = "buyer" }: Props) {
   const roleLabel = ROLE_LABEL[role] ?? "구매자";
 
   return (
