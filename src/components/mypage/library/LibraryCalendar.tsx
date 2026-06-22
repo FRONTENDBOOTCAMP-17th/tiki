@@ -1,14 +1,14 @@
-import {
-  CATEGORY_META,
-  getMonthCells,
-  type LibraryEvent,
-} from "@/lib/mypage/library";
+import Image from "next/image";
+import Link from "next/link";
+import { getMonthCells, type LibraryEvent } from "@/lib/mypage/library";
 
 interface LibraryCalendarProps {
   year: number;
   month: number; // 0-based
   events?: LibraryEvent[];
 }
+
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
 export default function LibraryCalendar({
   year,
@@ -19,35 +19,44 @@ export default function LibraryCalendar({
   const eventMap = new Map(events.map((e) => [e.date, e]));
 
   return (
-    <div className="grid grid-cols-7 gap-2 sm:gap-3">
-      {cells.map((date, i) => {
-        if (date === null) return <div key={`empty-${i}`} aria-hidden />;
+    <div>
+      <div className="grid grid-cols-7 pb-2 text-center text-sm text-gray-400">
+        {WEEKDAYS.map((w) => (
+          <span key={w}>{w}</span>
+        ))}
+      </div>
 
-        const event = eventMap.get(date);
-        const meta = event ? CATEGORY_META[event.category] : null;
+      <div className="grid grid-cols-7 gap-2">
+        {cells.map((date, i) => {
+          if (date === null)
+            return <div key={`empty-${i}`} className="aspect-square" />;
 
-        return (
-          <div
-            key={date}
-            className={`flex min-h-24 flex-col rounded-2xl p-2 sm:min-h-32 sm:p-3 ${
-              meta ? `bg-gradient-to-b ${meta.gradient}` : "bg-purple-50"
-            }`}
-          >
-            <span
-              className={`text-xs font-medium sm:text-sm ${
-                meta ? "text-white" : "text-gray-400"
-              }`}
+          const event = eventMap.get(date);
+
+          return (
+            <div
+              key={date}
+              className="flex aspect-square flex-col rounded-xl border border-gray-200 p-2"
             >
-              {date}
-            </span>
-            {meta && (
-              <span className="mt-auto self-center rounded-md bg-black/15 px-2 py-0.5 text-[10px] text-white sm:text-xs">
-                {meta.label}
-              </span>
-            )}
-          </div>
-        );
-      })}
+              <span className="text-sm text-gray-700">{date}</span>
+              {event && (
+                <Link
+                  href={`/events/${event.eventId}`}
+                  className="relative mt-1 flex-1 overflow-hidden rounded-md"
+                >
+                  <Image
+                    src={event.imageUrl}
+                    alt={event.title ?? "이벤트"}
+                    fill
+                    sizes="120px"
+                    className="object-cover"
+                  />
+                </Link>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
