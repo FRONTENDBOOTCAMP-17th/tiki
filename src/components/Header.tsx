@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import Button from "@/components/Button";
 import { categoryItem } from "./Header.styles";
 import Logo from "@/components/Logo";
+import NotificationBell from "@/components/NotificationBell";
 
 function SearchIcon() {
   return (
@@ -23,26 +24,6 @@ function SearchIcon() {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-      />
-    </svg>
-  );
-}
-
-function BellIcon() {
-  return (
-    <svg
-      width="24"
-      height="24"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
       />
     </svg>
   );
@@ -190,15 +171,7 @@ export default function Header({
         <div className="hidden min-[744px]:flex shrink-0 ml-auto min-w-46 justify-end items-center gap-4 text-gray-600">
           {loggedIn ? (
             <>
-              <Link
-                href="/notifications"
-                aria-label="알림"
-                className="relative transition-colors hover:text-white"
-              >
-                <BellIcon />
-                {/* ~ 알림 개수 (API) */}
-                <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-red-500" />
-              </Link>
+              <NotificationBell />
               <Link
                 href="/mypage/wishlist"
                 aria-label="찜"
@@ -207,7 +180,7 @@ export default function Header({
                 <TagIcon />
               </Link>
               <Link
-                href="/mypage/orders"
+                href="/mypage/reservations"
                 aria-label="예매내역"
                 className="transition-colors hover:text-white"
               >
