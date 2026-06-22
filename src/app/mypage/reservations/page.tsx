@@ -1,56 +1,9 @@
 import Link from "next/link";
+import { requireUser } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import ReservationCard, {
   type Reservation,
 } from "@/components/mypage/ReservationCard";
-
-// 더미 (나중에 Supabase 조회로 교체)
-const reservations: Reservation[] = [
-  {
-    id: "1",
-    eventId: "evt_001", // 2f55b5b8-1a59-4e43-a525-9d08f427a1f0
-    title: "미드나잇 라이브 2026",
-    status: "confirmed",
-    statusLabel: "예매 확정",
-    seat: "R석",
-    count: 2,
-    bookedAt: "2026.04.15",
-    date: "2026.05.18 (일)",
-    time: "19:00",
-    place: "서울 마포구 홍대 라이브홀",
-    orderNo: "TK12345678",
-    price: 110000,
-  },
-  {
-    id: "2",
-    eventId: "evt_002",
-    title: "재즈 피아노 콘서트",
-    status: "confirmed",
-    statusLabel: "예매 확정",
-    seat: "VIP석",
-    count: 1,
-    bookedAt: "2026.05.01",
-    date: "2026.05.20 (화)",
-    time: "20:00",
-    place: "블루노트 서울",
-    orderNo: "TK87654321",
-    price: 45000,
-  },
-  {
-    id: "3",
-    eventId: "evt_003",
-    title: "어쿠스틱 나이트",
-    status: "cancelled",
-    statusLabel: "예매 취소",
-    seat: "S석",
-    count: 1,
-    bookedAt: "2026.02.20",
-    date: "2026.03.15 (토)",
-    time: "19:30",
-    place: "롤링홀",
-    orderNo: "TK55667788",
-    price: 33000,
-  },
-];
 
 const FILTERS = [
   { label: "전체", value: "all" },
@@ -58,12 +11,108 @@ const FILTERS = [
   { label: "예매 취소", value: "cancelled" },
 ];
 
+const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
+// "2026-05-18" → "2026.05.18 (월)"
+function formatDate(date: string) {
+  const d = new Date(date);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}.${m}.${day} (${DAYS[d.getDay()]})`;
+}
+
+// "2026-04-15T..." → "2026.04.15"
+function formatShort(date: string) {
+  const d = new Date(date);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}.${m}.${day}`;
+}
+
 export default async function ReservationsPage({
   searchParams,
 }: {
   searchParams: Promise<{ filter?: string }>;
 }) {
   const { filter = "all" } = await searchParams;
+  const user = await requireUser();
+  const supabase = await createClient();
+
+  // 1) 내 주문 (장바구니 cart 제외, 결제된 ordered만)
+  const { data: orders } = await supabase
+    .from("orders")
+    .select(
+      "order_id, quantity, status, total_price, created_at, event_id, slot_id, ticket_grade_id",
+    )
+    .eq("user_id", user.id)
+    .eq("status", "ordered")
+    .order("created_at", { ascending: false });
+
+  // 2) 연관 테이블 모아서 조회 (FK 없어서 수동 조인)
+  const eventIds = [...new Set((orders ?? []).map((o) => o.event_id))];
+  const slotIds = [
+    ...new Set(
+      (orders ?? []).map((o) => o.slot_id).filter(Boolean) as string[],
+    ),
+  ];
+  const gradeIds = [
+    ...new Set(
+      (orders ?? []).map((o) => o.ticket_grade_id).filter(Boolean) as string[],
+    ),
+  ];
+
+  const [{ data: events }, { data: slots }, { data: grades }] =
+    await Promise.all([
+      eventIds.length
+        ? supabase
+            .from("event")
+            .select("event_id, title, venue_name, venue_address")
+            .in("event_id", eventIds)
+        : Promise.resolve({ data: [] as any[] }),
+      slotIds.length
+        ? supabase
+            .from("slot")
+            .select("slot_id, date, start_time")
+            .in("slot_id", slotIds)
+        : Promise.resolve({ data: [] as any[] }),
+      gradeIds.length
+        ? supabase
+            .from("ticket_grade")
+            .select("grade_id, grade_name")
+            .in("grade_id", gradeIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+
+  const eventMap = new Map((events ?? []).map((e) => [e.event_id, e]));
+  const slotMap = new Map((slots ?? []).map((s) => [s.slot_id, s]));
+  const gradeMap = new Map((grades ?? []).map((g) => [g.grade_id, g]));
+
+  // 3) 카드 데이터로 매핑
+  const reservations: Reservation[] = (orders ?? []).map((o) => {
+    const ev = eventMap.get(o.event_id);
+    const sl = o.slot_id ? slotMap.get(o.slot_id) : null;
+    const gr = o.ticket_grade_id ? gradeMap.get(o.ticket_grade_id) : null;
+    const place = [ev?.venue_address, ev?.venue_name].filter(Boolean).join(" ");
+
+    return {
+      id: o.order_id,
+      eventId: o.event_id,
+      title: ev?.title ?? "",
+      status: "confirmed",
+      statusLabel: "예매 확정",
+      seat: gr?.grade_name ?? "",
+      count: o.quantity,
+      bookedAt: o.created_at ? formatShort(o.created_at) : "",
+      date: sl?.date ? formatDate(sl.date) : "",
+      time: sl?.start_time ? sl.start_time.slice(0, 5) : "",
+      place,
+      orderNo: o.order_id.slice(0, 8).toUpperCase(),
+      price: o.total_price,
+    };
+  });
+
   const list =
     filter === "all"
       ? reservations
@@ -94,11 +143,17 @@ export default async function ReservationsPage({
         })}
       </div>
 
-      <div className="flex flex-col gap-4">
-        {list.map((r) => (
-          <ReservationCard key={r.id} reservation={r} />
-        ))}
-      </div>
+      {list.length === 0 ? (
+        <p className="rounded-2xl border border-gray-100 bg-white p-10 text-center text-sm text-gray-400 shadow-sm">
+          예매 내역이 없습니다.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-4">
+          {list.map((r) => (
+            <ReservationCard key={r.id} reservation={r} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
