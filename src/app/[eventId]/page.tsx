@@ -164,10 +164,7 @@ export default function EventDetailPage() {
       ) / 10
     : 0;
 
-  async function createOrder(
-    selection: BookingSelection,
-    status: "cart" | "ordered",
-  ) {
+  async function createOrder(selection: BookingSelection) {
     const res = await fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -176,7 +173,6 @@ export default function EventDetailPage() {
         slotId: selection.slotId,
         ticketGradeId: selection.gradeId,
         quantity: selection.quantity,
-        status,
       }),
     });
     const json = await res.json();
@@ -185,19 +181,10 @@ export default function EventDetailPage() {
     }
     return json.data as { orderId: string };
   }
-  async function handleAddToCart(selection: BookingSelection) {
-    try {
-      await createOrder(selection, "cart");
-      alert("장바구니에 담았습니다.");
-    } catch (error) {
-      alert(
-        error instanceof Error ? error.message : "장바구니 담기에 실패했습니다.",
-      );
-    }
-  }
+
   async function handleBookNow(selection: BookingSelection) {
     try {
-      const { orderId } = await createOrder(selection, "ordered");
+      const { orderId } = await createOrder(selection);
       router.push(`/payment/${orderId}`);
     } catch (error) {
       alert(error instanceof Error ? error.message : "예매 처리에 실패했습니다.");
@@ -448,7 +435,6 @@ export default function EventDetailPage() {
                 slots={displaySlots}
                 grades={displayGrades}
                 soldOut={event.status === "closed"}
-                onAddToCart={handleAddToCart}
                 onBookNow={handleBookNow}
               />
             </div>

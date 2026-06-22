@@ -5,7 +5,7 @@ import { Banknote, Wallet, Receipt, Pencil } from "lucide-react";
 import Link from "next/link";
 import Button from "@/components/Button";
 import StatCard from "@/components/StatCard";
-import { isCancelled, serviceFee, SERVICE_FEE_RATE } from "../../_lib/stats";
+import { isBooked, serviceFee, SERVICE_FEE_RATE } from "../../_lib/stats";
 import type { BankAccount, MonthSummary, SettlementOrder } from "../types";
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
 }
 
 function summarize(orders: SettlementOrder[]): Omit<MonthSummary, "month"> {
-  const valid = orders.filter((order) => !isCancelled(order.status));
+  const valid = orders.filter((order) => isBooked(order.status));
   const gross = valid.reduce((sum, o) => sum + o.amount, 0);
   const fee = serviceFee(gross);
   return {
@@ -45,7 +45,7 @@ export default function SettlementView({ orders, bank }: Props) {
     { id: string; title: string; gross: number; count: number }
   >();
   for (const order of current) {
-    if (isCancelled(order.status)) continue;
+    if (!isBooked(order.status)) continue;
     const entry = eventMap.get(order.event_id) ?? {
       id: order.event_id,
       title: order.event_title,
