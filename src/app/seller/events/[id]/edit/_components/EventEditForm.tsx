@@ -3,7 +3,7 @@
 import { useRef, useState, type SyntheticEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X, RotateCcw } from "lucide-react";
 import Button from "@/components/Button";
 import useToast from "@/hooks/useToast";
 import SectionCard from "@/app/seller/registration/_components/SectionCard";
@@ -53,6 +53,7 @@ interface Props {
   initialThumbnail: string | null;
   initialDetails: string[];
   initialSlots: SlotRow[];
+  orderCountBySlot: Record<string, number>;
 }
 
 export default function EventEditForm({
@@ -61,6 +62,7 @@ export default function EventEditForm({
   initialThumbnail,
   initialDetails,
   initialSlots,
+  orderCountBySlot,
 }: Props) {
   const router = useRouter();
   const toast = useToast();
@@ -75,6 +77,16 @@ export default function EventEditForm({
       initialSlots.map((s) => [s.slot_id, s.start_time.slice(0, 5)]),
     ),
   );
+  const [removed, setRemoved] = useState<Set<string>>(new Set());
+
+  function toggleRemove(slotId: string) {
+    setRemoved((prev) => {
+      const next = new Set(prev);
+      if (next.has(slotId)) next.delete(slotId);
+      else next.add(slotId);
+      return next;
+    });
+  }
 
   const slotsByDate = initialSlots.reduce<Record<string, SlotRow[]>>(
     (acc, slot) => {
@@ -87,6 +99,14 @@ export default function EventEditForm({
   async function onSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+
+    const remainingSlots = initialSlots.filter(
+      (slot) => !removed.has(slot.slot_id),
+    );
+    if (initialSlots.length > 0 && remainingSlots.length === 0) {
+      toast.error("회차는 최소 한 개 이상이어야 해요");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -101,7 +121,7 @@ export default function EventEditForm({
         return;
       }
 
-      const slots = initialSlots.map((slot) => {
+      const slots = remainingSlots.map((slot) => {
         const start = times[slot.slot_id];
         return {
           slotId: slot.slot_id,
@@ -123,6 +143,7 @@ export default function EventEditForm({
           thumbnail,
           images,
           slots,
+          removedSlotIds: [...removed],
         }),
       });
       if (!res.ok) {
@@ -233,41 +254,71 @@ export default function EventEditForm({
         ) : (
           <>
             <p className="mb-3 text-sm text-gray-500">
-              회차 시작 시간만 수정할 수 있어요. 종료 시간은 자동 계산돼요.
+              회차 시작 시간을 바꾸거나 회차를 제거할 수 있어요. 예매가 있는
+              회차는 제거할 수 없어요.
             </p>
-            <div className="max-h-96 space-y-3 overflow-auto pr-1">
+            <div className="max-h-112 space-y-3 overflow-auto pr-1">
               {Object.entries(slotsByDate).map(([date, slots]) => (
-                <div
-                  key={date}
-                  className="flex items-start gap-3 border-b border-gray-50 pb-3 last:border-0"
-                >
-                  <span className="w-20 shrink-0 pt-2 text-sm font-medium text-gray-700">
+                <div key={date} className="rounded-xl border border-gray-100 p-4">
+                  <p className="mb-3 text-sm font-semibold text-gray-800">
                     {formatDateLabel(date)}
-                  </span>
-                  <div className="flex flex-1 flex-wrap gap-2">
-                    {slots.map((slot) => {
+                  </p>
+                  <div className="space-y-2">
+                    {slots.map((slot, index) => {
                       const start = times[slot.slot_id];
+                      const orders = orderCountBySlot[slot.slot_id] ?? 0;
+                      const isRemoved = removed.has(slot.slot_id);
                       return (
                         <div
                           key={slot.slot_id}
-                          className="flex items-center gap-1"
+                          className={`flex items-center gap-3 ${isRemoved ? "opacity-50" : ""}`}
                         >
+                          <span className="w-12 shrink-0 text-xs text-gray-400">
+                            {index + 1}회차
+                          </span>
                           <input
                             type="time"
                             value={start}
+                            disabled={isRemoved}
                             onChange={(e) =>
                               setTimes((prev) => ({
                                 ...prev,
                                 [slot.slot_id]: e.target.value,
                               }))
                             }
-                            className={inputClass}
+                            className={`${inputClass} disabled:bg-gray-50 ${isRemoved ? "line-through" : ""}`}
                           />
-                          {start && run > 0 && (
+                          {run > 0 && (
                             <span className="text-xs text-gray-400">
-                              ~{toTime(toMin(start) + run)}
+                              ~ {toTime(toMin(start) + run)}
                             </span>
                           )}
+
+                          <div className="ml-auto">
+                            {orders > 0 ? (
+                              <span className="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-500">
+                                예매 {orders}건
+                              </span>
+                            ) : isRemoved ? (
+                              <button
+                                type="button"
+                                onClick={() => toggleRemove(slot.slot_id)}
+                                className="flex items-center gap-1 text-xs font-medium text-primary-700 hover:text-primary-800"
+                              >
+                                <RotateCcw size={13} />
+                                되돌리기
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => toggleRemove(slot.slot_id)}
+                                aria-label="회차 제거"
+                                className="flex size-7 items-center justify-center rounded-lg text-gray-400 hover:bg-danger-100 hover:text-danger-700"
+                              >
+                                <X size={16} />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       );
                     })}

@@ -20,6 +20,7 @@ interface EventUpdateBody {
   thumbnail?: unknown;
   images?: unknown;
   slots?: unknown;
+  removedSlotIds?: unknown;
 }
 
 const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -151,6 +152,24 @@ export async function PATCH(
         .insert(rows);
       if (insertError) return fail("이미지 업데이트 실패(삽입)", 500);
     }
+  }
+
+  if (Array.isArray(body.removedSlotIds) && body.removedSlotIds.length > 0) {
+    const removedIds = body.removedSlotIds.map(text).filter(Boolean);
+
+    const { data: booked } = await supabase
+      .from("orders")
+      .select("slot_id")
+      .in("slot_id", removedIds)
+      .limit(1);
+    if (booked && booked.length > 0) return fail("slot_has_orders");
+
+    const { error: removeError } = await supabase
+      .from("slot")
+      .delete()
+      .in("slot_id", removedIds)
+      .eq("event_id", id);
+    if (removeError) return fail("slot_delete_failed", 500);
   }
 
   if (Array.isArray(body.slots)) {
