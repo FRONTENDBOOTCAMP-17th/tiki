@@ -11,18 +11,27 @@ export default function MobileDrawer({ children }: { children: ReactNode }) {
 
   return (
     <div className="lg:hidden">
-      <button onClick={() => setOpen(true)} aria-label="메뉴 열기" className="p-2">
+      <button
+        onClick={() => setOpen(true)}
+        aria-label="메뉴 열기"
+        className="p-2"
+      >
         <Menu size={24} />
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setOpen(false)} />
+        <div
+          className="fixed inset-0 top-0 z-40 bg-black/40"
+          onClick={() => setOpen(false)}
+        />
       )}
 
       <aside
-        className={`fixed right-0 top-0 z-50 h-full w-[85%] max-w-sm transition-transform duration-300 ${
-          open ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed right-0 top-0 z-50 
+          h-[calc(100%-64px)] min-[744px]:h-full w-[85%] 
+          max-w-sm transition-transform duration-300
+        ${open ? "translate-x-0" : "translate-x-full"}
+      `}
       >
         {children}
       </aside>
