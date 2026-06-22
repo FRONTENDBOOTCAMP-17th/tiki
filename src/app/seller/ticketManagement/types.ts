@@ -3,6 +3,8 @@ export interface OrderRow {
   event_id: string;
   event_title: string;
   buyer_name: string;
+  buyer_email: string;
+  buyer_phone: string;
   grade_name: string;
   slot_label: string;
   quantity: number;
