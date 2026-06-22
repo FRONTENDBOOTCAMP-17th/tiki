@@ -20,7 +20,7 @@ interface SellerSidebarProps {
 }
 
 const SELLER_MENU: SidebarItem[] = [
-  { label: "대시보드", href: "/seller/dashboard", icon: LayoutGrid },
+  { label: "대시보드", href: "/seller", icon: LayoutGrid },
   { label: "이벤트 관리", href: "/seller/list", icon: CalendarDays },
   { label: "새 이벤트 등록", href: "/seller/registration", icon: Plus },
   { label: "예매 관리", href: "/seller/ticketManagement", icon: Ticket },
