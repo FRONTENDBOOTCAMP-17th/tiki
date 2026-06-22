@@ -48,24 +48,19 @@ export function isCancelled(status: string | null | undefined) {
   return (
     value.includes("취소") ||
     value.includes("cancel") ||
+    value === "failed" ||
     value === "refunded" ||
     value === "expired"
   );
 }
 
+export function isBooked(status: string | null | undefined) {
+  return !isCancelled(status);
+}
+
 export function orderStatusLabel(status: string | null | undefined) {
-  if (!status) return "결제됨";
-
-  const value = status.toLowerCase();
-  if (isCancelled(status)) return "취소됨";
-  if (value.includes("pending") || status.includes("대기")) return "결제 대기";
-  if (value === "paid" || status.includes("완료")) return "결제됨";
-  if (value === "draft") return "주문 생성";
-  if (value === "failed") return "결제 실패";
-  if (value === "entered") return "입장 완료";
-  if (value === "shared") return "공유됨";
-
-  return status;
+  if (isCancelled(status)) return "취소";
+  return "예매";
 }
 
 export function serviceFee(amount: number) {

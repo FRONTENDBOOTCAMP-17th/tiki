@@ -173,7 +173,6 @@ export default function EventDetailPage() {
         slotId: selection.slotId,
         ticketGradeId: selection.gradeId,
         quantity: selection.quantity,
-        status: "ordered",
       }),
     });
     const json = await res.json();
@@ -187,7 +186,9 @@ export default function EventDetailPage() {
       const { orderId } = await createOrder(selection);
       router.push(`/payment/${orderId}`);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "예매 처리에 실패했습니다.");
+      alert(
+        error instanceof Error ? error.message : "예매 처리에 실패했습니다.",
+      );
     }
   }
 

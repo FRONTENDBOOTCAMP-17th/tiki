@@ -27,6 +27,7 @@ export default async function TicketManagementPage() {
           "order_id, event_id, slot_id, ticket_grade_id, user_id, quantity, total_price, status, created_at",
         )
         .in("event_id", eventIds)
+        .neq("status", "cart")
         .order("created_at", { ascending: false }),
       supabase
         .from("slot")

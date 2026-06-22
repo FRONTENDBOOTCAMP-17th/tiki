@@ -16,7 +16,11 @@ import Dialog from "@/components/modal/Dialog";
 import Select from "@/components/Select";
 import PageHeader from "@/app/seller/_components/PageHeader";
 import useToast from "@/hooks/useToast";
-import { isCancelled, orderStatusLabel } from "../../_lib/stats";
+import {
+  isBooked,
+  isCancelled,
+  orderStatusLabel,
+} from "../../_lib/stats";
 import { cancelOrder } from "../actions";
 import type { EventOption, OrderRow } from "../types";
 
@@ -25,12 +29,10 @@ interface Props {
   events: EventOption[];
 }
 
-type StatusTab = "전체" | "결제완료" | "취소";
+type StatusTab = "전체" | "예매" | "취소";
 
 function statusStyle(status: string) {
   if (isCancelled(status)) return "bg-danger-100 text-danger-700";
-  if (status.includes("대기") || status.toLowerCase().includes("pending"))
-    return "bg-amber-50 text-amber-600";
   return "bg-green-50 text-green-700";
 }
 
@@ -98,11 +100,11 @@ export default function OrderTable({ orders, events }: Props) {
   }, [openMenu]);
 
   const statusTabs = useMemo(() => {
-    const paid = rows.filter((o) => !isCancelled(o.status)).length;
-    const cancelled = rows.length - paid;
+    const booked = rows.filter((order) => isBooked(order.status)).length;
+    const cancelled = rows.filter((order) => isCancelled(order.status)).length;
     return [
       { label: "전체" as const, count: rows.length },
-      { label: "결제완료" as const, count: paid },
+      { label: "예매" as const, count: booked },
       { label: "취소" as const, count: cancelled },
     ];
   }, [rows]);
@@ -118,15 +120,14 @@ export default function OrderTable({ orders, events }: Props) {
           order.buyer_email.toLowerCase().includes(lowered);
         const matchStatus =
           statusTab === "전체" ||
-          (statusTab === "취소"
-            ? isCancelled(order.status)
-            : !isCancelled(order.status));
+          (statusTab === "예매" && isBooked(order.status)) ||
+          (statusTab === "취소" && isCancelled(order.status));
         return matchEvent && matchKeyword && matchStatus;
       }),
     [rows, eventId, keyword, statusTab],
   );
 
-  const validOrders = rows.filter((order) => !isCancelled(order.status));
+  const validOrders = rows.filter((order) => isBooked(order.status));
   const totalQuantity = validOrders.reduce((sum, o) => sum + o.quantity, 0);
   const totalRevenue = validOrders.reduce((sum, o) => sum + o.total_price, 0);
 
@@ -328,7 +329,7 @@ export default function OrderTable({ orders, events }: Props) {
                               <Copy size={15} />
                               이메일 복사
                             </button>
-                            {!isCancelled(order.status) && (
+                            {isBooked(order.status) && (
                               <button
                                 type="button"
                                 onClick={() => {
@@ -393,7 +394,7 @@ export default function OrderTable({ orders, events }: Props) {
               </span>
             </div>
 
-            {!isCancelled(receipt.status) && (
+            {isBooked(receipt.status) && (
               <button
                 type="button"
                 onClick={() => {
