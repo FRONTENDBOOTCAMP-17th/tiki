@@ -42,7 +42,10 @@ export default async function TicketManagementPage() {
 
   const buyerIds = [...new Set(orders.map((order) => order.user_id))];
   const { data: buyerRows } = buyerIds.length
-    ? await supabase.from("users").select("id, name").in("id", buyerIds)
+    ? await supabase
+        .from("users")
+        .select("id, name, email, phone")
+        .in("id", buyerIds)
     : { data: [] };
 
   const eventTitleMap = new Map(events.map((e) => [e.event_id, e.title]));
@@ -55,13 +58,15 @@ export default async function TicketManagementPage() {
   const gradeMap = new Map(
     (gradeRows ?? []).map((g) => [g.grade_id, g.grade_name]),
   );
-  const buyerMap = new Map((buyerRows ?? []).map((b) => [b.id, b.name]));
+  const buyerMap = new Map((buyerRows ?? []).map((b) => [b.id, b]));
 
   const rows: OrderRow[] = orders.map((order) => ({
     order_id: order.order_id,
     event_id: order.event_id,
     event_title: eventTitleMap.get(order.event_id) ?? "알 수 없음",
-    buyer_name: buyerMap.get(order.user_id) ?? "구매자",
+    buyer_name: buyerMap.get(order.user_id)?.name ?? "구매자",
+    buyer_email: buyerMap.get(order.user_id)?.email ?? "-",
+    buyer_phone: buyerMap.get(order.user_id)?.phone ?? "-",
     grade_name: order.ticket_grade_id
       ? (gradeMap.get(order.ticket_grade_id) ?? "-")
       : "-",
