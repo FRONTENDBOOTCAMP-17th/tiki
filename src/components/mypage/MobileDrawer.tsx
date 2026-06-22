@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 
@@ -7,7 +7,11 @@ export default function MobileDrawer({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  useEffect(() => setOpen(false), [pathname]); // 페이지 이동 시 자동 닫힘
+  const [prevPath, setPrevPath] = useState(pathname);
+  if (prevPath !== pathname) {
+    setPrevPath(pathname);
+    setOpen(false);
+  }
 
   return (
     <div className="lg:hidden">

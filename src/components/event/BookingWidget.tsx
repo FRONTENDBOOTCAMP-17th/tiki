@@ -77,7 +77,7 @@ export default function BookingWidget({
           max-h 에서 10rem 은 상단 헤더(로고/카테고리)+목록버튼 높이만큼 빼서
           스크롤 0 위치에서도 패널 바닥(합계+버튼)이 화면 안에 들어오게 함. */}
       <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
-        <div className="flex max-h-[calc(100vh-10rem)] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="flex max-h-[calc(100vh-8rem)] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
           <BookingPanel {...panelProps} onBookNow={handleBookNow} />
         </div>
       </aside>

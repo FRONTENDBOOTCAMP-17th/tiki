@@ -83,19 +83,21 @@ export default function BookingPanel({
       </h2>
 
       {/* 스크롤 영역 : 날짜/회차/등급/수량 */}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 pb-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-6 pb-4">
         {/* 1. 날짜 및 회차 선택 */}
         <section className="flex flex-col gap-3">
           <p className="text-sm font-semibold text-gray-700">
             1. 날짜 및 회차 선택
           </p>
-          <BookingCalendar
-            month={month}
-            selectedDate={selectedDate}
-            availableDates={availableDates}
-            onMonthChange={setMonth}
-            onSelectDate={handleSelectDate}
-          />
+          <div className="flex justify-center">
+            <BookingCalendar
+              month={month}
+              selectedDate={selectedDate}
+              availableDates={availableDates}
+              onMonthChange={setMonth}
+              onSelectDate={handleSelectDate}
+            />
+          </div>
 
           {/* 선택 날짜의 회차 가로 나열 (많으면 가로 스크롤) */}
           {selectedDate &&
