@@ -17,6 +17,9 @@ interface EventUpdateBody {
   startTime?: unknown;
   duration?: unknown;
   intermission?: unknown;
+  thumbnail?: unknown;
+  images?: unknown;
+  slots?: unknown;
 }
 
 const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -113,6 +116,8 @@ export async function PATCH(
     fields.intermission = intermission;
   }
 
+  if (body.thumbnail !== undefined) fields.thumbnail = text(body.thumbnail);
+
   const { error } = await supabase
     .from("event")
     .update(fields)
@@ -120,6 +125,50 @@ export async function PATCH(
     .eq("seller_id", user.id);
 
   if (error) return fail("event_update_failed", 500);
+
+  if (Array.isArray(body.images)) {
+    const images = body.images.map(text).filter(Boolean);
+    if (images.length > SELLER_EVENT_LIMITS.maxImagesPerEvent - 1) {
+      return fail("이미지 개수가 많습니다");
+    }
+
+    const { error: deleteError } = await supabase
+      .from("event_image")
+      .delete()
+      .eq("event_id", id);
+    if (deleteError) return fail("이미지 업데이트 실패(삭제)", 500);
+
+    if (images.length > 0) {
+      const now = new Date().toISOString();
+      const rows = images.map((url, i) => ({
+        event_id: id,
+        url,
+        order: i,
+        created_at: now,
+      }));
+      const { error: insertError } = await supabase
+        .from("event_image")
+        .insert(rows);
+      if (insertError) return fail("이미지 업데이트 실패(삽입)", 500);
+    }
+  }
+
+  if (Array.isArray(body.slots)) {
+    for (const raw of body.slots) {
+      const slotId = text((raw as { slotId?: unknown }).slotId);
+      const startTime = text((raw as { startTime?: unknown }).startTime);
+      const endTime = text((raw as { endTime?: unknown }).endTime);
+      if (!slotId || !timePattern.test(startTime) || !timePattern.test(endTime)) {
+        return fail("invalid_slot_time");
+      }
+      const { error: slotError } = await supabase
+        .from("slot")
+        .update({ start_time: startTime, end_time: endTime })
+        .eq("slot_id", slotId)
+        .eq("event_id", id);
+      if (slotError) return fail("slot_update_failed", 500);
+    }
+  }
 
   return success(null, "updated");
 }
