@@ -3,6 +3,9 @@ export type LibraryCategory = "concert" | "exhibition" | "musical" | "class";
 export interface LibraryEvent {
   date: number; // 해당 월의 일(day)
   category: LibraryCategory;
+  eventId: string;   // 디테일 연결용
+  imageUrl: string;  // 셀에 뜰 사진
+  title?: string;
 }
 
 export const CATEGORY_META: Record<
