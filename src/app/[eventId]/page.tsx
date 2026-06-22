@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, MapPin, User, Star, Clock, Calendar } from "lucide-react";
 
 import Header from "@/components/Header";
-import useAuthStatus from "@/hooks/useAuthStatus";
 import Spinner from "@/components/Spinner";
 import EventImg from "@/components/event/EventImg";
 import Notice from "@/components/Notice";
@@ -143,7 +142,6 @@ function formatPeriod(start: string, end: string) {
 export default function EventDetailPage() {
   const router = useRouter();
   const { eventId } = useParams<{ eventId: string }>();
-  const loggedIn = useAuthStatus();
 
   // 로딩 중에는 스피너만 노출. fetch 실패/데이터 없을 때만 예시 데이터로 폴백 (나중에 예시데이터 삭제 필요)
   const [event, setEvent] = useState<EventDetail | null>(null);
@@ -166,10 +164,7 @@ export default function EventDetailPage() {
       ) / 10
     : 0;
 
-  async function createOrder(
-    selection: BookingSelection,
-    status: "cart" | "ordered",
-  ) {
+  async function createOrder(selection: BookingSelection) {
     const res = await fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -178,7 +173,7 @@ export default function EventDetailPage() {
         slotId: selection.slotId,
         ticketGradeId: selection.gradeId,
         quantity: selection.quantity,
-        status,
+        status: "ordered",
       }),
     });
     const json = await res.json();
@@ -187,19 +182,9 @@ export default function EventDetailPage() {
     }
     return json.data as { orderId: string };
   }
-  async function handleAddToCart(selection: BookingSelection) {
-    try {
-      await createOrder(selection, "cart");
-      alert("장바구니에 담았습니다.");
-    } catch (error) {
-      alert(
-        error instanceof Error ? error.message : "장바구니 담기에 실패했습니다.",
-      );
-    }
-  }
   async function handleBookNow(selection: BookingSelection) {
     try {
-      const { orderId } = await createOrder(selection, "ordered");
+      const { orderId } = await createOrder(selection);
       router.push(`/payment/${orderId}`);
     } catch (error) {
       alert(error instanceof Error ? error.message : "예매 처리에 실패했습니다.");
@@ -293,7 +278,7 @@ export default function EventDetailPage() {
   return (
     <>
       {/* Header: 풀폭 (max-width 밖) */}
-      <Header loggedIn={loggedIn} />
+      <Header />
 
       <main className="mx-auto w-full max-w-7xl pb-24">
         {/* 목록으로 */}
@@ -450,7 +435,6 @@ export default function EventDetailPage() {
                 slots={displaySlots}
                 grades={displayGrades}
                 soldOut={event.status === "closed"}
-                onAddToCart={handleAddToCart}
                 onBookNow={handleBookNow}
               />
             </div>

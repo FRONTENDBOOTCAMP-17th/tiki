@@ -19,7 +19,6 @@ export interface BookingSelection {
 interface BookingPanelProps {
   slots: Slot[];
   grades: Grade[]; // 이벤트 등급
-  onAddToCart: (selection: BookingSelection) => void;
   onBookNow: (selection: BookingSelection) => void;
 }
 
@@ -30,7 +29,6 @@ function weekdayOf(date: string) {
 export default function BookingPanel({
   slots,
   grades,
-  onAddToCart,
   onBookNow,
 }: BookingPanelProps) {
   // 회차 있는 날짜 (마감 제외)
@@ -80,7 +78,7 @@ export default function BookingPanel({
   // 높이 제한은 부모(데스크탑 카드 / 모바일 시트)가 줌.
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <h2 className="shrink-0 px-6 pt-4 pb-2 text-lg font-bold text-mirage">
+      <h2 className="shrink-0 px-6 pt-4 pb-2 text-lg font-bold text-mirage lg:pt-6">
         예매하기
       </h2>
 
@@ -203,7 +201,7 @@ export default function BookingPanel({
       </div>
 
       {/* 고정 푸터 : 합계 + 버튼 (스크롤 없이 항상 보임) */}
-      <div className="shrink-0 border-t border-gray-100 px-6 py-3">
+      <div className="shrink-0 border-t border-gray-100 px-6 py-3 lg:py-5">
         <div className="flex flex-col gap-2 text-sm">
           <div className="flex justify-between text-gray-600">
             <span>티켓 금액 ({quantity}매)</span>
@@ -219,15 +217,7 @@ export default function BookingPanel({
           </div>
         </div>
 
-        <div className="mt-3 flex gap-2">
-          <Button
-            variant="outlinePrimary"
-            fullWidth
-            disabled={!ready}
-            onClick={() => submit(onAddToCart)}
-          >
-            장바구니
-          </Button>
+        <div className="mt-3">
           <Button
             variant="primary"
             fullWidth
