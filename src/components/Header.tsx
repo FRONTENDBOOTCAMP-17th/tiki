@@ -8,7 +8,6 @@ import Button from "@/components/Button";
 import { categoryItem } from "./Header.styles";
 import Logo from "@/components/Logo";
 import NotificationBell from "@/components/NotificationBell";
-import useAuthStatus from "@/hooks/useAuthStatus";
 
 function SearchIcon() {
   return (
@@ -127,14 +126,13 @@ const categories = [
 ];
 
 interface HeaderProps extends ComponentPropsWithRef<"header"> {
-  /** 명시하면 그 값을 우선 사용(서버에서 계산한 값 등). 생략하면 헤더가 직접 로그인 여부를 감지한다. */
   loggedIn?: boolean;
   showCategory?: boolean;
   current?: string;
 }
 
 export default function Header({
-  loggedIn: loggedInProp,
+  loggedIn = false,
   showCategory = true,
   current,
   className,
@@ -142,10 +140,6 @@ export default function Header({
 }: HeaderProps) {
   const pathname = usePathname();
   const path = current ?? pathname;
-
-  // 페이지마다 로그인 여부를 검사해 넘길 필요 없이 헤더가 스스로 감지한다.
-  const detectedLoggedIn = useAuthStatus();
-  const loggedIn = loggedInProp ?? detectedLoggedIn;
 
   return (
     <header

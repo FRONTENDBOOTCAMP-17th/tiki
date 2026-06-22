@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, MapPin, User, Star, Clock, Calendar } from "lucide-react";
 
 import Header from "@/components/Header";
+import useAuthStatus from "@/hooks/useAuthStatus";
 import Spinner from "@/components/Spinner";
 import EventImg from "@/components/event/EventImg";
 import Notice from "@/components/Notice";
@@ -142,6 +143,7 @@ function formatPeriod(start: string, end: string) {
 export default function EventDetailPage() {
   const router = useRouter();
   const { eventId } = useParams<{ eventId: string }>();
+  const loggedIn = useAuthStatus();
 
   // 로딩 중에는 스피너만 노출. fetch 실패/데이터 없을 때만 예시 데이터로 폴백 (나중에 예시데이터 삭제 필요)
   const [event, setEvent] = useState<EventDetail | null>(null);
@@ -279,7 +281,7 @@ export default function EventDetailPage() {
   return (
     <>
       {/* Header: 풀폭 (max-width 밖) */}
-      <Header />
+      <Header loggedIn={loggedIn} />
 
       <main className="mx-auto w-full max-w-7xl pb-24">
         {/* 목록으로 */}

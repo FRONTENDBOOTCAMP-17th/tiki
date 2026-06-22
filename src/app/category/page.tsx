@@ -21,7 +21,7 @@ export default async function CategoryPage() {
 
   return (
     <>
-      <Header showCategory={false} />
+      <Header loggedIn={loggedIn} showCategory={false} />
       <main className="flex-1 bg-white pb-20 min-[744px]:pb-0">
         <div className="mx-auto w-full max-w-3xl px-6 py-6 min-[744px]:max-w-5xl lg:max-w-6xl">
           {/* 카테고리: 모바일 2열(5행) → 태블릿/데스크탑 5열(2행) 세로 카드형 */}
