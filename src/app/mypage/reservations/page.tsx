@@ -13,7 +13,6 @@ const FILTERS = [
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
-// "2026-05-18" → "2026.05.18 (월)"
 function formatDate(date: string) {
   const d = new Date(date);
   const y = d.getFullYear();
@@ -22,7 +21,6 @@ function formatDate(date: string) {
   return `${y}.${m}.${day} (${DAYS[d.getDay()]})`;
 }
 
-// "2026-04-15T..." → "2026.04.15"
 function formatShort(date: string) {
   const d = new Date(date);
   const y = d.getFullYear();
@@ -40,17 +38,16 @@ export default async function ReservationsPage({
   const user = await requireUser();
   const supabase = await createClient();
 
-  // 1) 내 주문 (장바구니 cart 제외, 결제된 ordered만)
+  // 내 주문 (장바구니 cart 제외 → ordered + cancelled)
   const { data: orders } = await supabase
     .from("orders")
     .select(
       "order_id, quantity, status, total_price, created_at, event_id, slot_id, ticket_grade_id",
     )
     .eq("user_id", user.id)
-    .eq("status", "ordered")
+    .neq("status", "cart")
     .order("created_at", { ascending: false });
 
-  // 2) 연관 테이블 모아서 조회 (FK 없어서 수동 조인)
   const eventIds = [...new Set((orders ?? []).map((o) => o.event_id))];
   const slotIds = [
     ...new Set(
@@ -89,19 +86,19 @@ export default async function ReservationsPage({
   const slotMap = new Map((slots ?? []).map((s) => [s.slot_id, s]));
   const gradeMap = new Map((grades ?? []).map((g) => [g.grade_id, g]));
 
-  // 3) 카드 데이터로 매핑
   const reservations: Reservation[] = (orders ?? []).map((o) => {
     const ev = eventMap.get(o.event_id);
     const sl = o.slot_id ? slotMap.get(o.slot_id) : null;
     const gr = o.ticket_grade_id ? gradeMap.get(o.ticket_grade_id) : null;
     const place = [ev?.venue_address, ev?.venue_name].filter(Boolean).join(" ");
+    const cancelled = o.status === "cancelled";
 
     return {
       id: o.order_id,
       eventId: o.event_id,
       title: ev?.title ?? "",
-      status: "confirmed",
-      statusLabel: "예매 확정",
+      status: cancelled ? "cancelled" : "confirmed",
+      statusLabel: cancelled ? "예매 취소" : "예매 확정",
       seat: gr?.grade_name ?? "",
       count: o.quantity,
       bookedAt: o.created_at ? formatShort(o.created_at) : "",
