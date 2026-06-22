@@ -5,15 +5,20 @@ import Dialog from "@/components/modal/Dialog";
 import Modal from "@/components/modal/Modal";
 import { Input } from "@/components/Input";
 import Button from "@/components/Button";
+import { withdraw } from "@/app/action";
 
 export default function WithdrawButton() {
   // none → confirm(의도 확인) → password(비밀번호 재인증)
   const [step, setStep] = useState<"none" | "confirm" | "password">("none");
+  const [error, setError] = useState("");
 
-  const handleWithdraw = (formData: FormData) => {
-    const password = formData.get("password");
-    // TODO: 비밀번호 검증 + 회원 탈퇴 server action
-    setStep("none");
+  const handleWithdraw = async (formData: FormData) => {
+    const result = await withdraw(formData);
+    if (result?.error) {
+      setError(result.error);
+      return;
+    }
+    // 성공 시 server action이 / 로 리다이렉트
   };
 
   return (
@@ -52,6 +57,7 @@ export default function WithdrawButton() {
               label="비밀번호"
               name="password"
               type="password"
+              error={error}
               className="focus:border-gray-300 focus:ring-gray-200"
             />
           </Modal.Body>
