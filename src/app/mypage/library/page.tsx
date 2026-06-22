@@ -4,10 +4,9 @@ import type { LibraryEvent } from "@/lib/mypage/library";
 
 // TODO: Supabase 연동 시 server에서 fetch
 const mockEvents: LibraryEvent[] = [
-  { date: 7, category: "concert" },
-  { date: 11, category: "exhibition" },
-  { date: 18, category: "musical" },
-  { date: 25, category: "class" },
+  { date: 10, category: "exhibition", eventId: "1", imageUrl: "https://picsum.photos/seed/ex/240" },
+  { date: 17, category: "concert",    eventId: "2", imageUrl: "https://picsum.photos/seed/concert/240" },
+  { date: 20, category: "class",      eventId: "3", imageUrl: "https://picsum.photos/seed/class/240" },
 ];
 
 export default async function LibraryPage({
