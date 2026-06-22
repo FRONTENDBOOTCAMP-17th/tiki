@@ -31,7 +31,7 @@ export default async function ProfilePage() {
     .single();
 
   const joinedAt = account?.created_at
-    ? new Date(account.created_at).toLocaleDateString("ko-KR") // 2026. 1. 15.
+    ? new Date(account.created_at).toLocaleDateString("ko-KR")
     : "-";
 
   return (
@@ -67,7 +67,7 @@ export default async function ProfilePage() {
         />
 
         <div className="flex gap-2 pt-2">
-          <Button type="button" variant="outlinePrimary" fullWidth>
+          <Button type="reset" variant="outlinePrimary" fullWidth>
             취소
           </Button>
           <Button type="submit" fullWidth>
