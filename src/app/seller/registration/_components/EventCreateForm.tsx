@@ -1,13 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type SyntheticEvent,
-} from "react";
+import { useRef, useState, type SyntheticEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import Button from "@/components/Button";
@@ -22,16 +15,16 @@ import {
 } from "@/app/seller/events/date";
 import Notice from "@/components/Notice";
 import { SELLER_EVENT_LIMITS } from "@/app/seller/_lib/limits";
+import EventImageFields, {
+  type EventImageFieldsHandle,
+} from "@/app/seller/_components/EventImageFields";
+import PageHeader from "@/app/seller/_components/PageHeader";
 import SectionCard from "./SectionCard";
 import LabelBox from "./LabelBox";
-import { uploadEventImages } from "../actions";
 import type { CategoryOption } from "@/app/seller/events/types";
 
 const inputClass =
   "rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500";
-
-const fileClass =
-  "text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-primary-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-primary-700";
 
 type FormErrors = Partial<Record<string, string>>;
 
@@ -64,8 +57,18 @@ export default function EventCreateForm({
 
   const [startMonth, setStartMonth] = useState(thisMonth);
   const [startDate, setStartDate] = useState<string | null>(null);
-  const [endMonth, setEndMonth] = useState(thisMonth);
   const [endDate, setEndDate] = useState<string | null>(null);
+
+  const selectRange = (date: string) => {
+    if (!startDate || endDate) {
+      setStartDate(date);
+      setEndDate(null);
+    } else if (date < startDate) {
+      setStartDate(date);
+    } else {
+      setEndDate(date);
+    }
+  };
 
   const [banMonth, setBanMonth] = useState(thisMonth);
   const [banned, setBanned] = useState<string[]>([]);
@@ -73,17 +76,7 @@ export default function EventCreateForm({
   const [times, setTimes] = useState<string[]>([""]);
 
   const [address, setAddress] = useState("");
-  const [images, setImages] = useState<File[]>([]);
-  const imagePreviews = useMemo(
-    () => images.map((file) => URL.createObjectURL(file)),
-    [images],
-  );
-
-  useEffect(() => {
-    return () => {
-      imagePreviews.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [imagePreviews]);
+  const imageRef = useRef<EventImageFieldsHandle>(null);
 
   const endOf = (start: string) => (start ? toTime(toMin(start) + run) : "");
 
@@ -159,32 +152,6 @@ export default function EventCreateForm({
     setTimes(next);
     syncTimeError(next);
   };
-
-  const pickImages = (files: FileList | null) => {
-    if (!files) return;
-    const selected = Array.from(files);
-    const oversized = selected.some(
-      (file) => file.size > SELLER_EVENT_LIMITS.maxImageSizeMb * 1024 * 1024,
-    );
-
-    if (oversized) {
-      toast.error(`이미지는 ${SELLER_EVENT_LIMITS.maxImageSizeMb}MB 이하만 등록할 수 있어요`);
-      return;
-    }
-
-    setImages((prev) => {
-      const next = [...prev, ...selected].slice(
-        0,
-        SELLER_EVENT_LIMITS.maxImagesPerEvent,
-      );
-      if (prev.length + selected.length > SELLER_EVENT_LIMITS.maxImagesPerEvent) {
-        toast.error(`이미지는 최대 ${SELLER_EVENT_LIMITS.maxImagesPerEvent}장까지 등록할 수 있어요`);
-      }
-      return next;
-    });
-  };
-  const removeImage = (i: number) =>
-    setImages((prev) => prev.filter((_, idx) => idx !== i));
 
   function validateForm(formData: FormData) {
     const nextErrors: FormErrors = {};
@@ -287,15 +254,15 @@ export default function EventCreateForm({
 
     setUploading(true);
     try {
-      // 이미지는 서버 액션에서 webp 변환·리사이즈 후 업로드하고 URL만 받아옵니다.
-      let urls: string[] = [];
-      if (images.length > 0) {
-        try {
-          urls = await uploadEventImages(images);
-        } catch {
-          toast.error("이미지 업로드에 실패했습니다");
-          return;
-        }
+      let thumbnail = "";
+      let detailImages: string[] = [];
+      try {
+        const resolved = await imageRef.current!.resolve();
+        thumbnail = resolved.thumbnail;
+        detailImages = resolved.images;
+      } catch {
+        toast.error("이미지 업로드에 실패했습니다");
+        return;
       }
 
       const res = await fetch("/api/seller/event", {
@@ -310,8 +277,8 @@ export default function EventCreateForm({
           venueName: formData.get("venueName"),
           venueAddress: formData.get("venueAddress"),
           venueDetailAddress: formData.get("venueDetailAddress"),
-          thumbnail: urls[0] ?? null,
-          images: urls.slice(1),
+          thumbnail,
+          images: detailImages,
           slots,
           grades: [
             {
@@ -341,9 +308,7 @@ export default function EventCreateForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold text-gray-900">새 이벤트 등록</h1>
-      </header>
+      <PageHeader title="새 이벤트 등록" />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         <div className="flex flex-col gap-6">
@@ -385,71 +350,88 @@ export default function EventCreateForm({
           <SectionCard step={2} title="공연 일정">
             <div className="grid gap-6 sm:grid-cols-2">
               <div>
-                <p className="mb-3 text-sm font-medium text-gray-700">시작일</p>
-                <BookingCalendar
-                  month={startMonth}
-                  selectedDate={startDate}
-                  availableDates={monthDates(startMonth)}
-                  onMonthChange={setStartMonth}
-                  onSelectDate={setStartDate}
-                />
-                {errors.startDate && (
-                  <p className="mt-2 text-xs text-danger-700">
-                    {errors.startDate}
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-sm font-medium text-gray-700">공연 기간</p>
+                  <p className="text-xs text-gray-500">
+                    {startDate ?? "시작일"} ~ {endDate ?? "종료일"}
                   </p>
-                )}
-              </div>
-              <div>
-                <p className="mb-3 text-sm font-medium text-gray-700">종료일</p>
-                <BookingCalendar
-                  month={endMonth}
-                  selectedDate={endDate}
-                  availableDates={monthDates(endMonth)}
-                  onMonthChange={setEndMonth}
-                  onSelectDate={setEndDate}
-                />
-                {errors.endDate && (
-                  <p className="mt-2 text-xs text-danger-700">
-                    {errors.endDate}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <p className="mb-2 text-sm font-medium text-gray-700">
-                금지일 (회차 제외할 날짜, 여러 개)
-              </p>
-              {rangeDates.size === 0 ? (
-                <p className="text-sm text-gray-400">
-                  시작일·종료일을 먼저 골라주세요
-                </p>
-              ) : (
-                <>
+                </div>
+                <div className="flex justify-center">
                   <BookingCalendar
-                    month={banMonth}
-                    selectedDate={null}
-                    availableDates={rangeDates}
-                    onMonthChange={setBanMonth}
-                    onSelectDate={toggleBan}
+                    month={startMonth}
+                    rangeStart={startDate}
+                    rangeEnd={endDate}
+                    availableDates={monthDates(startMonth)}
+                    onMonthChange={setStartMonth}
+                    onSelectDate={selectRange}
                   />
-                  {banned.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {banned.map((d) => (
-                        <span
-                          key={d}
-                          className="flex items-center gap-1 rounded-full bg-red-50 px-3 py-1 text-xs text-red-600"
-                        >
-                          {d}
-                          <button type="button" onClick={() => toggleBan(d)}>
-                            <X size={12} />
-                          </button>
-                        </span>
-                      ))}
+                </div>
+                {(errors.startDate || errors.endDate) && (
+                  <p className="mt-2 text-xs text-danger-700">
+                    {errors.startDate ?? errors.endDate}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <p className="mb-3 text-sm font-medium text-gray-700">
+                  금지일 (회차 제외할 날짜)
+                </p>
+                {rangeDates.size === 0 ? (
+                  <div className="flex min-h-52 items-center justify-center rounded-xl border border-dashed border-gray-200 px-4 text-center text-sm text-gray-400">
+                    공연 기간을 먼저 선택하면
+                    <br />
+                    제외할 날짜를 고를 수 있어요
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex justify-center">
+                      <BookingCalendar
+                        month={banMonth}
+                        selectedDate={null}
+                        markedDates={new Set(banned)}
+                        availableDates={rangeDates}
+                        onMonthChange={setBanMonth}
+                        onSelectDate={toggleBan}
+                      />
                     </div>
-                  )}
-                </>
-              )}
+                    {banned.length > 0 && (
+                      <div className="mt-3">
+                        <div className="mb-2 flex items-center justify-between">
+                          <span className="text-xs font-medium text-gray-500">
+                            선택한 금지일 {banned.length}개
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setBanned([])}
+                            className="text-xs text-gray-400 hover:text-danger-700"
+                          >
+                            모두 해제
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[...banned].sort().map((d) => (
+                            <span
+                              key={d}
+                              className="flex items-center gap-1 rounded-full bg-danger-100 py-1 pl-2.5 pr-1 text-xs font-medium text-danger-700"
+                            >
+                              {+d.slice(5, 7)}/{+d.slice(8, 10)}
+                              <button
+                                type="button"
+                                onClick={() => toggleBan(d)}
+                                aria-label="금지일 해제"
+                                className="flex size-4 items-center justify-center rounded-full hover:bg-danger-200"
+                              >
+                                <X size={11} />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
 
             <div className="mt-6 flex flex-col gap-3">
@@ -593,41 +575,7 @@ export default function EventCreateForm({
           </SectionCard>
 
           <SectionCard step={5} title="이미지">
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => pickImages(e.target.files)}
-              className={fileClass}
-            />
-            {images.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-3">
-                {images.map((file, i) => (
-                  <div key={i} className="relative">
-                    <Image
-                      src={imagePreviews[i]}
-                      alt={`${file.name} 미리보기`}
-                      width={96}
-                      height={96}
-                      unoptimized
-                      className="h-24 w-24 rounded-lg object-cover"
-                    />
-                    {i === 0 && (
-                      <span className="absolute left-1 top-1 rounded bg-primary-700 px-1.5 py-0.5 text-[10px] text-white">
-                        대표
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => removeImage(i)}
-                      className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-white"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+            <EventImageFields ref={imageRef} />
           </SectionCard>
         </div>
 

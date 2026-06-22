@@ -11,6 +11,7 @@ import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import Button from "@/components/Button";
 import StatCard from "@/components/StatCard";
+import PageHeader from "../_components/PageHeader";
 import {
   sumCapacityByEvent,
   sumOrdersByEvent,
@@ -56,7 +57,8 @@ export default async function SellerDashboardPage() {
   const totalOrders = orders.reduce((sum, o) => sum + o.quantity, 0);
   const totalCapacity = [...capacityMap.values()].reduce((a, b) => a + b, 0);
   const remainingSeats = Math.max(0, totalCapacity - totalOrders);
-  const publicCount = events.filter((e) => e.status === "공개").length;
+  const publicEvents = events.filter((e) => e.status === "공개");
+  const publicCount = publicEvents.length;
 
   const performance = events
     .map((event) => ({
@@ -69,18 +71,18 @@ export default async function SellerDashboardPage() {
   const topRevenue = performance[0]?.revenue ?? 0;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 py-6">
-      <header className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">대시보드</h1>
-        </div>
-        <Link href="/seller/registration">
-          <Button>
-            <Plus size={16} />
-            새 이벤트 등록
-          </Button>
-        </Link>
-      </header>
+    <div className="mx-auto max-w-6xl space-y-8 py-8">
+      <PageHeader
+        title="대시보드"
+        actions={
+          <Link href="/seller/registration">
+            <Button>
+              <Plus size={16} />
+              새 이벤트 등록
+            </Button>
+          </Link>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -114,7 +116,7 @@ export default async function SellerDashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <section className="rounded-2xl border border-gray-200 bg-white p-6">
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">이벤트별 매출</h2>
             <Link href="/seller/settlement">
@@ -127,22 +129,22 @@ export default async function SellerDashboardPage() {
           {performance.length === 0 ? (
             <EmptyHint />
           ) : (
-            <ul className="space-y-1">
+            <ul className="space-y-3">
               {performance.slice(0, 5).map((event) => (
                 <li key={event.event_id}>
                   <Link
                     href={`/seller/events/${event.event_id}`}
-                    className="block rounded-xl border border-gray-100 px-4 py-3 transition-colors hover:bg-gray-50"
+                    className="block rounded-xl px-3 py-2.5 transition-colors hover:bg-gray-50"
                   >
-                    <div className="mb-2 flex items-center justify-between text-sm">
+                    <div className="mb-2 flex items-center justify-between gap-3 text-sm">
                       <span className="truncate font-medium text-gray-800">
                         {event.title}
                       </span>
-                      <span className="shrink-0 pl-3 font-semibold text-gray-900">
+                      <span className="shrink-0 font-semibold text-gray-900">
                         {event.revenue.toLocaleString()}원
                       </span>
                     </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
                       <div
                         className="h-full rounded-full bg-primary-500"
                         style={{
@@ -157,7 +159,7 @@ export default async function SellerDashboardPage() {
           )}
         </section>
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-6">
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">최근 이벤트</h2>
             <Link href="/seller/list">
@@ -168,15 +170,15 @@ export default async function SellerDashboardPage() {
             </Link>
           </div>
 
-          {events.length === 0 ? (
+          {publicEvents.length === 0 ? (
             <EmptyHint />
           ) : (
-            <ul className="space-y-3">
-              {events.slice(0, 4).map((event) => (
+            <ul className="space-y-1">
+              {publicEvents.slice(0, 4).map((event) => (
                 <li key={event.event_id}>
                   <Link
                     href={`/seller/events/${event.event_id}`}
-                    className="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3 hover:bg-gray-50"
+                    className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50"
                   >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-gray-900">
@@ -186,15 +188,7 @@ export default async function SellerDashboardPage() {
                         {event.venue_name} · {event.start_date}
                       </p>
                     </div>
-                    <span
-                      className={`ml-3 shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
-                        event.status === "공개"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      {event.status}
-                    </span>
+                    <ArrowRight size={15} className="shrink-0 text-gray-300" />
                   </Link>
                 </li>
               ))}
@@ -208,7 +202,7 @@ export default async function SellerDashboardPage() {
 
 function EmptyHint() {
   return (
-    <div className="py-10 text-center text-sm text-gray-400">
+    <div className="py-12 text-center text-sm text-gray-400">
       아직 데이터가 없습니다
     </div>
   );

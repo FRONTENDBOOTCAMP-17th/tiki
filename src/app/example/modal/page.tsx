@@ -5,7 +5,6 @@ import Dialog from "@/components/modal/Dialog";
 import Button from "@/components/Button";
 import Profile from "@/components/Profile";
 import { Input } from "@/components/Input";
-import NotifModal from "@/components/modal/NotifModal";
 import OrderContent from "@/components/modal/OrderContent";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,7 +27,6 @@ const labelText = "text-sm font-medium text-gray-700";
 export default function ModalExamplePage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
-  const [notiOpen, setNotiOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
 
   // 친구 추가
@@ -48,42 +46,6 @@ export default function ModalExamplePage() {
   const [scheduledAt, setScheduledAt] = useState("");
   const [target, setTarget] = useState<"all" | "buyers">("all");
   const sendValid = Boolean(message.trim() && linkUrl);
-
-  // GET /api/notifications 연결 예정
-  const notifications = [
-    {
-      id: "notif_01HXYZ",
-      type: "friend_request",
-      message: "'멋사'님이 친구 요청을 보냈습니다",
-      linkUrl: "/mypage/friend",
-      createdAt: "2026-06-09T09:41:00Z",
-      isRead: false,
-    },
-    {
-      id: "notif_01HXYW",
-      type: "order",
-      message: "'레베카' 예매가 완료되었습니다",
-      linkUrl: "/mypage/orders",
-      createdAt: "2026-06-09T09:30:00Z",
-      isRead: true,
-    },
-    {
-      id: "notif_01HXYV",
-      type: "ad",
-      message: "(광고) '멋진 사자의 모험'을 만나보세요!",
-      linkUrl: "/category",
-      createdAt: "2026-06-09T08:00:00Z",
-      isRead: false,
-    },
-    {
-      id: "notif_01HXYU",
-      type: "ad",
-      message: "(광고) 라이브러리를 둘러보세요!",
-      linkUrl: "/mypage/library",
-      createdAt: "2026-06-08T20:00:00Z",
-      isRead: true,
-    },
-  ];
 
   // GET /api/slots 연결 예정
   const bookingDates = [
@@ -150,41 +112,6 @@ export default function ModalExamplePage() {
             <Profile direction="row" name={friendEmail} />
           )}
         </Dialog>
-      </section>
-
-      <section className="flex flex-col gap-2">
-        <h2 className="text-lg font-semibold">알림 모달</h2>
-        <div className="flex justify-end">
-          <div className="relative">
-            <button
-              type="button"
-              aria-label="알림"
-              onClick={() => setNotiOpen((v) => !v)}
-              className="text-gray-600"
-            >
-              <svg
-                width="24"
-                height="24"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-                />
-              </svg>
-            </button>
-            <NotifModal
-              open={notiOpen}
-              onClose={() => setNotiOpen(false)}
-              notifications={notifications}
-            />
-          </div>
-        </div>
       </section>
 
       <section className="flex flex-col items-start gap-2">

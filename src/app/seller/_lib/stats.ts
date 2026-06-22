@@ -57,7 +57,7 @@ export function orderStatusLabel(status: string | null | undefined) {
   if (!status) return "결제됨";
 
   const value = status.toLowerCase();
-  if (isCancelled(status)) return "취소";
+  if (isCancelled(status)) return "취소됨";
   if (value.includes("pending") || status.includes("대기")) return "결제 대기";
   if (value === "paid" || status.includes("완료")) return "결제됨";
   if (value === "draft") return "주문 생성";

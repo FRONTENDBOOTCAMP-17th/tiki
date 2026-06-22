@@ -6,6 +6,7 @@ import { Plus, CalendarDays, Ticket, Banknote } from "lucide-react";
 
 import Button from "@/components/Button";
 import StatCard from "@/components/StatCard";
+import PageHeader from "@/app/seller/_components/PageHeader";
 import EventCard from "./EventCard";
 
 import type { EventListItem } from "../types";
@@ -35,16 +36,17 @@ export default function EventList({ events }: { events: EventListItem[] }) {
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 py-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">이벤트 관리</h1>
-
-        <Link href="/seller/registration">
-          <Button>
-            <Plus size={16} />새 이벤트 등록
-          </Button>
-        </Link>
-      </div>
+    <div className="mx-auto max-w-6xl space-y-8 py-8">
+      <PageHeader
+        title="이벤트 관리"
+        actions={
+          <Link href="/seller/registration">
+            <Button>
+              <Plus size={16} />새 이벤트 등록
+            </Button>
+          </Link>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
