@@ -2,9 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { EventDetail, Slot, Grade } from "@/types/domain/event";
 import { ReviewListData } from "@/types/api/event";
 
-// 이벤트 상세 페이지가 쓰는 데이터 접근 계층.
-// API 라우트(GET /api/events/...)와 서버 컴포넌트(app/[eventId]/page.tsx)가 함께 사용한다.
-// supabase 에러는 throw → 호출부(라우트는 500, 페이지는 에러 바운더리)에서 처리.
+// 이벤트 상세 페이지(서버 컴포넌트 app/[eventId]/page.tsx)가 쓰는 데이터 접근 계층.
+// supabase 에러는 throw → 호출부(페이지의 에러 바운더리)에서 처리.
 
 // 잘못된 id 가 uuid 컬럼 캐스팅 에러를 일으키기 전에 형식 검증
 const UUID_RE =
