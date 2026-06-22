@@ -7,7 +7,7 @@ import { test, expect, type Page } from "@playwright/test";
 //  - 500이 나도 abort 하지 않고 캡처 후 status 로깅
 //  - 스크린샷은 ../images/2026-06-16/ 에 fullPage 저장
 
-const IMG = "../images/2026-06-19";
+const IMG = "../images/2026-06-22";
 const SETTLE = 1500;
 
 async function goto(page: Page, path: string, id: string) {
@@ -237,4 +237,19 @@ test("T27 /api/orders — 비로그인 401", async ({ request }) => {
     data: { eventId: "x", slotId: "y", ticketGradeId: "z", quantity: 1 },
   });
   console.log(`[T27] /api/orders status=${res.status()} body=${(await res.text()).slice(0, 200)}`);
+});
+
+// 결제 승인 API(신규) — 비로그인 401 (서버측 금액검증 전 인증 가드)
+test("T28 /api/payments/confirm — 비로그인 401", async ({ request }) => {
+  const res = await request.post("/api/payments/confirm", {
+    data: { orderId: "00000000-0000-0000-0000-000000000000" },
+  });
+  console.log(`[T28] /api/payments/confirm status=${res.status()} body=${(await res.text()).slice(0, 200)}`);
+});
+
+// 결제 페이지(신규) — 비로그인 진입 시 렌더/리다이렉트 확인(캡처)
+test("T29 /payment/[orderId] — 비로그인 진입", async ({ page }) => {
+  const status = await goto(page, "/payment/00000000-0000-0000-0000-000000000000", "T29-payment");
+  await shot(page, "T29-payment");
+  console.log(`[T29] final url = ${page.url()} (status ${status})`);
 });
