@@ -4,7 +4,7 @@ import { fail, success } from "@/lib/api/api-response";
 import { createClient } from "@/lib/supabase/server";
 import type { TablesInsert } from "@/types/database";
 
-const ORDER_STATUSES = new Set(["cart", "ordered"]);
+const ORDER_STATUSES = new Set(["ordered"]);
 const FEE_RATE = 0.05;
 
 interface OrderRequestBody {

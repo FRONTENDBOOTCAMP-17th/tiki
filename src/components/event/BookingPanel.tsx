@@ -19,7 +19,6 @@ export interface BookingSelection {
 interface BookingPanelProps {
   slots: Slot[];
   grades: Grade[]; // 이벤트 등급
-  onAddToCart: (selection: BookingSelection) => void;
   onBookNow: (selection: BookingSelection) => void;
 }
 
@@ -30,7 +29,6 @@ function weekdayOf(date: string) {
 export default function BookingPanel({
   slots,
   grades,
-  onAddToCart,
   onBookNow,
 }: BookingPanelProps) {
   // 회차 있는 날짜 (마감 제외)
@@ -219,15 +217,7 @@ export default function BookingPanel({
           </div>
         </div>
 
-        <div className="mt-3 flex gap-2">
-          <Button
-            variant="outlinePrimary"
-            fullWidth
-            disabled={!ready}
-            onClick={() => submit(onAddToCart)}
-          >
-            장바구니
-          </Button>
+        <div className="mt-3">
           <Button
             variant="primary"
             fullWidth

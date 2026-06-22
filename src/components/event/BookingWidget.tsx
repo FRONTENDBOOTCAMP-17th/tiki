@@ -10,7 +10,6 @@ interface BookingWidgetProps {
   slots: Slot[];
   grades: Grade[];
   soldOut?: boolean; // event.status 마감 시 예매 차단
-  onAddToCart: (selection: BookingSelection) => void;
   onBookNow: (selection: BookingSelection) => void;
 }
 

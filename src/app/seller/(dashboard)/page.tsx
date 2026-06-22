@@ -15,7 +15,7 @@ import PageHeader from "../_components/PageHeader";
 import {
   sumCapacityByEvent,
   sumOrdersByEvent,
-  isCancelled,
+  isBooked,
 } from "../_lib/stats";
 import type { EventRow } from "./types";
 
@@ -49,7 +49,7 @@ export default async function SellerDashboardPage() {
       : Promise.resolve({ data: [] }),
   ]);
 
-  const orders = (orderRows ?? []).filter((o) => !isCancelled(o.status));
+  const orders = (orderRows ?? []).filter((order) => isBooked(order.status));
   const orderStats = sumOrdersByEvent(orders);
   const capacityMap = sumCapacityByEvent(gradeRows ?? []);
 
