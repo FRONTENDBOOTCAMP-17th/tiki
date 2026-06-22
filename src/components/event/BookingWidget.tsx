@@ -2,22 +2,56 @@
 
 import { useState } from "react";
 import { ChevronUp } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Modal from "@/components/modal/Modal";
 import { Slot, Grade } from "@/types/domain/event";
 import BookingPanel, { BookingSelection } from "./BookingPanel";
 
 interface BookingWidgetProps {
+  eventId: string;
   slots: Slot[];
   grades: Grade[];
   soldOut?: boolean; // event.status 마감 시 예매 차단
-  onBookNow: (selection: BookingSelection) => void;
 }
 
 export default function BookingWidget({
+  eventId,
   soldOut = false,
   ...panelProps
 }: BookingWidgetProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+
+  // 주문 생성(POST /api/orders) 후 결제 페이지로 이동.
+  // 서버 컴포넌트에서 함수를 props 로 내릴 수 없어 예매 로직을 위젯이 직접 소유한다.
+  async function createOrder(selection: BookingSelection) {
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        eventId,
+        slotId: selection.slotId,
+        ticketGradeId: selection.gradeId,
+        quantity: selection.quantity,
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      throw new Error(json.message || "예매 처리에 실패했습니다.");
+    }
+    return json.data as { orderId: string };
+  }
+
+  async function handleBookNow(selection: BookingSelection) {
+    try {
+      const { orderId } = await createOrder(selection);
+      router.push(`/payment/${orderId}`);
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : "예매 처리에 실패했습니다.",
+      );
+    }
+  }
 
   // 마감(매진) 시 예매 UI 대신 안내
   if (soldOut) {
@@ -44,7 +78,7 @@ export default function BookingWidget({
           스크롤 0 위치에서도 패널 바닥(합계+버튼)이 화면 안에 들어오게 함. */}
       <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
         <div className="flex max-h-[calc(100vh-10rem)] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <BookingPanel {...panelProps} />
+          <BookingPanel {...panelProps} onBookNow={handleBookNow} />
         </div>
       </aside>
 
@@ -68,7 +102,7 @@ export default function BookingWidget({
         className="max-h-[95vh] animate-slide-in-from-bottom"
       >
         {/* Modal.Body 대신 BookingPanel 을 직접 → 시트 높이를 채워 푸터 버튼 고정 */}
-        <BookingPanel {...panelProps} />
+        <BookingPanel {...panelProps} onBookNow={handleBookNow} />
       </Modal>
     </>
   );
