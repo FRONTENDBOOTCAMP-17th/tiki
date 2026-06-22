@@ -11,9 +11,9 @@ export default function BackButton() {
     <button
       type="button"
       onClick={() => router.back()}
-      className="flex items-center gap-1 px-4 py-3 text-sm text-gray-600"
+      className="group -ml-1 my-2 flex cursor-pointer items-center gap-1 py-2 text-sm text-gray-500 transition-colors hover:text-primary-700"
     >
-      <ChevronLeft className="h-4 w-4" />
+      <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
       목록으로
     </button>
   );
