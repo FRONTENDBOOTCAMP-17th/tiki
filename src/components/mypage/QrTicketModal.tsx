@@ -1,5 +1,7 @@
 "use client";
+import { useRef } from "react";
 import { Calendar, MapPin, Ticket } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
 import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
 import type { Reservation } from "./ReservationCard";
@@ -13,6 +15,17 @@ export default function QrTicketModal({
   onClose: () => void;
   reservation: Reservation;
 }) {
+  const qrRef = useRef<HTMLDivElement>(null);
+
+  const handleSave = () => {
+    const canvas = qrRef.current?.querySelector("canvas");
+    if (!canvas) return;
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = `ticket-${r.orderNo}.png`;
+    a.click();
+  };
+
   return (
     <Modal open={open} onClose={onClose}>
       <Modal.Header>QR 티켓</Modal.Header>
@@ -33,9 +46,11 @@ export default function QrTicketModal({
           </span>
         </div>
 
-        {/* QR placeholder — 나중에 qrcode 라이브러리로 실제 생성 */}
+        {/* QR 코드 */}
         <div className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 p-6">
-          <div className="size-40 rounded-lg border-2 border-gray-900" />
+          <div ref={qrRef} className="rounded-lg border-2 border-gray-900 p-2">
+            <QRCodeCanvas value={r.id} size={160} level="M" />
+          </div>
           <p className="text-sm text-gray-500">QR 코드</p>
           <p className="text-xs text-gray-400">{r.orderNo}</p>
         </div>
@@ -61,6 +76,7 @@ export default function QrTicketModal({
         </Button>
         <button
           type="button"
+          onClick={handleSave}
           className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
         >
           저장하기
