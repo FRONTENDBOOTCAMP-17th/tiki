@@ -4,12 +4,32 @@ import Navigation from "@/components/Navigation";
 import MyPageSidebar from "@/components/sidebar/MyPageSidebar";
 import MobileDrawer from "@/components/mypage/MobileDrawer";
 import MobileProfileCard from "@/components/mypage/MobileProfileCard";
+import { requireUser } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
-export default function MyPageLayout({
+export default async function MyPageLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await requireUser();
+  const supabase = await createClient();
+  const { data: account } = await supabase
+    .from("users")
+    .select("name, email, role")
+    .eq("id", user.id)
+    .single();
+
+  const profile = {
+    name: account?.name ?? "",
+    email: account?.email ?? "",
+    role: account?.role ?? "buyer",
+  };
+
+  if (!account) {
+    throw new Error("User not found");
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header loggedIn showCategory={false} />
@@ -19,14 +39,14 @@ export default function MyPageLayout({
           {/* 모바일+태블릿: 햄버거 */}
           <div className="mb-4 flex justify-end lg:hidden">
             <MobileDrawer>
-              <MyPageSidebar />
+              <MyPageSidebar {...profile} />
             </MobileDrawer>
           </div>
-          <MobileProfileCard />
+          <MobileProfileCard {...profile} />
           <div className="flex gap-6">
             {/* 데스크탑(lg+): 세로 사이드바 */}
             <div className="hidden w-64 shrink-0 lg:block">
-              <MyPageSidebar />
+              <MyPageSidebar {...profile} />
             </div>
             <main className="min-w-0 flex-1 pb-20 min-[744px]:pb-0">
               {children}
