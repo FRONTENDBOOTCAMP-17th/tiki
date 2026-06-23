@@ -8,6 +8,7 @@ import {
   LogOut,
   CalendarCheck,
 } from "lucide-react";
+import Image from "next/image";
 import SidebarMenuItem from "./SidebarMenuItem";
 import type { SidebarItem } from "./types";
 import { logout } from "@/app/action";
@@ -43,13 +44,14 @@ export default function MyPageSidebar({
   return (
     <aside className="flex h-full w-full flex-col rounded-l-2xl border border-gray-100 bg-white p-4 shadow-sm">
       <div className="flex flex-col items-center gap-2 pb-4">
-        <div className="size-16 overflow-hidden rounded-full bg-gradient-to-br from-primary-300 to-secondary-300">
+        <div className="relative size-16 overflow-hidden rounded-full bg-gradient-to-br from-primary-300 to-secondary-300">
           {avatarUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={avatarUrl}
               alt="프로필"
-              className="size-16 object-cover"
+              fill
+              sizes="64px"
+              className="object-cover"
             />
           )}
         </div>
