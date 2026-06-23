@@ -3,9 +3,10 @@ import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PosterSlider from "./PosterSlider";
-import EventList from "./EventList";
+import RankingList from "@/components/RankingList";
 import { isAuthenticated } from "@/lib/auth";
 import { fetchCategoryEvents } from "@/lib/api/categories";
+import { fetchRanking } from "@/lib/event/ranking";
 import { categories } from "../_categories";
 
 // 고정 카테고리라 slug 목록을 미리 정적 생성
@@ -23,9 +24,10 @@ export default async function CategoryDetailPage({
 
   if (!category) notFound();
 
-  // 해당 카테고리의 공개 공연을 DB에서 조회 (슬라이더/리스트가 공유)
-  const [events, loggedIn] = await Promise.all([
+  // 슬라이더용 공개순 목록 + 인기 랭킹을 병렬 조회
+  const [events, ranking, loggedIn] = await Promise.all([
     fetchCategoryEvents(category.slug),
+    fetchRanking({ slug: category.slug, limit: 10 }),
     isAuthenticated(),
   ]);
 
@@ -41,10 +43,16 @@ export default async function CategoryDetailPage({
           </p>
         ) : (
           <>
-            {/* 상단: "{카테고리} 공개순" + 세로 포스터 무한 슬라이드 */}
+            {/* 상단: "{카테고리} 공개순" 세로 포스터 무한 슬라이드 */}
             <PosterSlider items={events} title={`${category.name} 공개순`} />
-            {/* 하단: 같은 데이터를 "인기순" 리스트로 나열 */}
-            <EventList events={events} />
+            {/* 하단: 최근 30일 예매 수량 기준 인기 랭킹 */}
+            <div className="px-4 py-6 md:px-8 lg:px-16">
+              <RankingList
+                items={ranking}
+                title={`${category.name} 인기 랭킹`}
+                columns={2}
+              />
+            </div>
           </>
         )}
       </main>

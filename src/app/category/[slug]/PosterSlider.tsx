@@ -58,6 +58,12 @@ export default function PosterSlider({
                   sizes="(min-width: 768px) 288px, 224px"
                   className="object-cover"
                 />
+                <span
+                  aria-hidden="true"
+                  className="absolute bottom-2 left-3 text-5xl font-black leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] md:text-6xl"
+                >
+                  {(i % items.length) + 1}
+                </span>
               </div>
               <div className="flex flex-col gap-0.5">
                 <h3 className="line-clamp-2 text-sm font-semibold text-gray-900">
