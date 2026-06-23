@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from "next/cache";
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function logout() {
   const supabase = await createClient();
@@ -86,9 +87,7 @@ export async function uploadAvatar(formData: FormData) {
   if (!file || file.size === 0) return { error: "파일이 없습니다" };
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return { error: "로그인이 필요합니다" };
 
   const path = `${user.id}/avatar.webp`;
@@ -117,9 +116,7 @@ export async function uploadAvatar(formData: FormData) {
 
 export async function resetAvatar() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return { error: "로그인이 필요합니다" };
 
   // Storage 파일 삭제 (없어도 에러 무시)
