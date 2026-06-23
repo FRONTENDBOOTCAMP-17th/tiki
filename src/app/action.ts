@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from "next/cache";
 import { createClient } from '@/lib/supabase/server';
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 export async function logout() {
   const supabase = await createClient();
@@ -54,6 +54,7 @@ export async function withdraw(formData: FormData) {
   if (signInError) return { error: "비밀번호가 올바르지 않습니다" };
 
   // 계정 삭제 (service role)
+  const supabaseAdmin = getSupabaseAdmin();
   await supabaseAdmin.from("users").delete().eq("id", user.id);
   const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id);
   if (error) return { error: error.message };
