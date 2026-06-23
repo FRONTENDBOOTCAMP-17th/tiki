@@ -126,3 +126,14 @@ export async function resetAvatar() {
   revalidatePath("/mypage", "layout");
   return { success: true };
 }
+
+export async function sendFriendRequest(email: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("send_friend_request", {
+    p_email: email,
+  });
+  if (error) return { error: error.message };
+
+  revalidatePath("/mypage/friends");
+  return data as { success?: boolean; error?: string };
+}
