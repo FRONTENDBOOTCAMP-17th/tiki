@@ -80,3 +80,57 @@ export async function cancelReservation(orderId: string) {
   revalidatePath("/mypage/reservations");
   return { success: true };
 }
+
+export async function uploadAvatar(formData: FormData) {
+  const file = formData.get("avatar") as File;
+  if (!file || file.size === 0) return { error: "파일이 없습니다" };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다" };
+
+  const path = `${user.id}/avatar.webp`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(path, file, { upsert: true, contentType: "image/webp" });
+  if (uploadError) return { error: uploadError.message };
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("avatars").getPublicUrl(path);
+
+  // 같은 경로 덮어쓰기 시 캐시 갱신용 timestamp
+  const url = `${publicUrl}?t=${Date.now()}`;
+
+  const { error } = await supabase
+    .from("users")
+    .update({ avatar_url: url })
+    .eq("id", user.id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/mypage", "layout");
+  return { url };
+}
+
+export async function resetAvatar() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다" };
+
+  // Storage 파일 삭제 (없어도 에러 무시)
+  await supabase.storage.from("avatars").remove([`${user.id}/avatar.webp`]);
+
+  const { error } = await supabase
+    .from("users")
+    .update({ avatar_url: null })
+    .eq("id", user.id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/mypage", "layout");
+  return { success: true };
+}

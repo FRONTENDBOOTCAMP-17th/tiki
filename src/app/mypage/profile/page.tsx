@@ -3,6 +3,7 @@ import Button from "@/components/Button";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import AvatarUpload from "@/components/mypage/AvatarUpload";
 
 async function updateProfile(formData: FormData) {
   "use server";
@@ -26,7 +27,7 @@ export default async function ProfilePage() {
 
   const { data: account } = await supabase
     .from("users")
-    .select("name, email, phone, created_at")
+    .select("name, email, phone, created_at, avatar_url")
     .eq("id", user.id)
     .single();
 
@@ -40,11 +41,7 @@ export default async function ProfilePage() {
 
       <form action={updateProfile} className="flex flex-col gap-5">
         <div className="flex flex-col items-center gap-2">
-          <div className="size-20 rounded-full bg-gradient-to-br from-primary-300 to-secondary-300" />
-          <button type="button" className="text-sm text-primary-600">
-            사진 변경
-          </button>
-          <p className="text-xs text-gray-400">JPG, PNG 5MB 이하</p>
+          <AvatarUpload initialUrl={account?.avatar_url ?? null} />
         </div>
 
         <Input label="이름" name="name" defaultValue={account?.name ?? ""} />
