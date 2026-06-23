@@ -43,6 +43,16 @@ export function useDragScroll<T extends HTMLElement>() {
     draggedDistance.current = 0;
   }
 
+  // 가로 스크롤만 있는 목록 위에서는 마우스 휠(세로)도 가로 스크롤로 바꿔준다.
+  function onWheel(e: React.WheelEvent) {
+    const el = ref.current;
+    if (!el) return;
+    if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // 트랙패드 가로 스와이프는 기본 동작 유지
+
+    e.preventDefault();
+    el.scrollLeft += e.deltaY;
+  }
+
   return {
     ref,
     onMouseDown,
@@ -50,5 +60,6 @@ export function useDragScroll<T extends HTMLElement>() {
     onMouseUp: endDrag,
     onMouseLeave: endDrag,
     onClickCapture,
+    onWheel,
   };
 }
