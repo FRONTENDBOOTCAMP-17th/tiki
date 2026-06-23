@@ -55,12 +55,16 @@ export default function HeroSlider({ slides }: { slides: EventCardItem[] }) {
               href={`/${slide.eventId}`}
               className="group relative flex h-full w-full shrink-0 flex-col items-center justify-center gap-4 p-6 text-center md:flex-row md:justify-center md:gap-10 md:p-12 md:text-left"
             >
-              {/* 확대 + 블러 배경: 카드 전체를 채우는 모던한 느낌의 배경 (장식용, 로딩 처리 불필요) */}
+              {/* 확대 + 블러 배경: 카드 전체를 채우는 모던한 느낌의 배경 (장식용, 로딩 처리 불필요).
+                  포스터보다 차지하는 면적이 커서 실제 LCP 후보가 되는 경우가 많으므로,
+                  첫 슬라이드는 priority로 즉시 fetch하도록 한다. */}
               <Image
                 src={slide.thumbnail}
                 alt=""
                 fill
                 aria-hidden
+                sizes="100vw"
+                priority={index === 0}
                 className="scale-125 object-cover blur-2xl brightness-90"
               />
               <div className="absolute inset-0 bg-black/20" />

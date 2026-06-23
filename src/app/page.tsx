@@ -59,25 +59,27 @@ function toCardItem(
 }
 
 export default async function Home() {
-  const loggedIn = await isAuthenticated();
   const supabase = await createClient();
 
-  // 공개된 공연을 최근 등록순으로 가져와 랭킹/티켓오픈/히어로 섹션의 후보 풀로 쓴다.
-  const { data: eventRows, error: eventError } = await supabase
-    .from("event")
-    .select("event_id, title, thumbnail, start_date, venue_name")
-    .eq("status", PUBLISHED_STATUS)
-    .order("created_at", { ascending: false })
-    .limit(EVENT_POOL_LIMIT);
+  // 서로 의존성이 없는 조회(로그인 여부/이벤트 풀/카테고리)는 직렬로 기다리지 않고
+  // 한 번에 병렬로 보내야 첫 응답까지의 시간(FCP/LCP)이 늘어지지 않는다.
+  const [loggedIn, { data: eventRows, error: eventError }, categories] =
+    await Promise.all([
+      isAuthenticated(),
+      supabase
+        .from("event")
+        .select("event_id, title, thumbnail, start_date, venue_name")
+        .eq("status", PUBLISHED_STATUS)
+        .order("created_at", { ascending: false })
+        .limit(EVENT_POOL_LIMIT),
+      fetchCategories().catch((error) => {
+        console.error("[HOME] fetchCategories failed:", error);
+        return [];
+      }),
+    ]);
   if (eventError) console.error("[HOME] event pool query failed:", eventError);
 
   const pool = eventRows ?? [];
-
-  // 카테고리는 display_order 순으로 가져와 홈에는 앞에서 N개만 노출한다.
-  const categories = await fetchCategories().catch((error) => {
-    console.error("[HOME] fetchCategories failed:", error);
-    return [];
-  });
   const topCategories = categories.slice(0, CATEGORY_SECTION_LIMIT);
   const categoryIds = topCategories.map((c) => c.category_id);
 

@@ -22,7 +22,9 @@ export default function ThumbnailImage({
   className,
   priority,
 }: ThumbnailImageProps) {
-  const [loaded, setLoaded] = useState(false);
+  // priority 이미지(LCP 후보)는 onLoad로 opacity가 풀리길 기다리면 하이드레이션 이후로
+  // 표시 시점이 밀려 LCP가 늦어진다. 처음부터 보이는 상태로 시작해 지연을 없앤다.
+  const [loaded, setLoaded] = useState(!!priority);
 
   if (!src) {
     return (
