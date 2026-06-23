@@ -53,7 +53,7 @@ export default function HeroSlider({ slides }: { slides: EventCardItem[] }) {
             <Link
               key={slide.eventId}
               href={`/${slide.eventId}`}
-              className="relative flex h-full w-full shrink-0 flex-col items-center justify-center gap-4 p-6 text-center md:flex-row md:justify-center md:gap-10 md:p-12 md:text-left"
+              className="group relative flex h-full w-full shrink-0 flex-col items-center justify-center gap-4 p-6 text-center md:flex-row md:justify-center md:gap-10 md:p-12 md:text-left"
             >
               {/* 확대 + 블러 배경: 카드 전체를 채우는 모던한 느낌의 배경 (장식용, 로딩 처리 불필요) */}
               <Image
@@ -65,8 +65,8 @@ export default function HeroSlider({ slides }: { slides: EventCardItem[] }) {
               />
               <div className="absolute inset-0 bg-black/20" />
 
-              {/* 포스터: 슬라이드 높이의 대부분을 차지하도록 크게 */}
-              <div className="relative z-10 aspect-3/4 h-[55%] shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/20 md:h-[80%]">
+              {/* 포스터: 슬라이드 높이의 대부분을 차지하도록 크게, hover 시 살짝 확대 */}
+              <div className="relative z-10 aspect-3/4 h-[55%] shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/20 transition-transform duration-300 group-hover:scale-[1.03] md:h-[80%]">
                 <ThumbnailImage
                   src={slide.thumbnail}
                   alt={slide.title}
@@ -98,7 +98,7 @@ export default function HeroSlider({ slides }: { slides: EventCardItem[] }) {
                 aria-label={`${index + 1}번째 배너로 이동`}
                 onClick={() => setActiveIndex(index)}
                 className={cn(
-                  "size-1.5 rounded-full transition-colors",
+                  "size-1.5 rounded-full transition-all hover:scale-125 active:scale-90",
                   index === activeIndex ? "bg-white" : "bg-white/40",
                 )}
               />

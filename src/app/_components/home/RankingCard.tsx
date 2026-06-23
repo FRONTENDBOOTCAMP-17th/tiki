@@ -13,15 +13,17 @@ export default function RankingCard({ item }: { item: RankingCardItem }) {
   return (
     <Link
       href={`/${item.eventId}`}
-      className="flex w-36 shrink-0 flex-col gap-2 md:w-44"
+      className="group flex w-36 shrink-0 flex-col gap-2 transition-transform active:scale-95 md:w-44"
     >
-      <div className="relative aspect-3/4 w-full overflow-hidden rounded-xl">
-        <ThumbnailImage
-          src={item.thumbnail}
-          alt={item.title}
-          sizes="200px"
-          className="object-cover"
-        />
+      <div className="relative aspect-3/4 w-full overflow-hidden rounded-xl shadow-sm transition-shadow group-hover:shadow-lg">
+        <div className="size-full transition-transform duration-300 group-hover:scale-105">
+          <ThumbnailImage
+            src={item.thumbnail}
+            alt={item.title}
+            sizes="200px"
+            className="object-cover"
+          />
+        </div>
         {item.rank != null && (
           <span className="absolute left-2 top-2 flex size-6 items-center justify-center rounded-full bg-black/60 text-xs font-bold text-white">
             {item.rank}
@@ -29,7 +31,7 @@ export default function RankingCard({ item }: { item: RankingCardItem }) {
         )}
       </div>
       <div className="flex flex-col gap-1">
-        <h4 className="truncate text-sm font-semibold text-gray-900">
+        <h4 className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-primary-700">
           {item.title}
         </h4>
         <p className="text-xs text-gray-500">

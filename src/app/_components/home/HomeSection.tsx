@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface HomeSectionProps {
@@ -16,9 +17,10 @@ export default function HomeSection({ title, moreHref, children }: HomeSectionPr
         {moreHref && (
           <Link
             href={moreHref}
-            className="text-sm text-gray-400 transition-colors hover:text-primary-700"
+            className="group flex items-center gap-0.5 text-sm text-gray-400 transition-colors hover:text-primary-700"
           >
             더보기
+            <ChevronRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
           </Link>
         )}
       </div>

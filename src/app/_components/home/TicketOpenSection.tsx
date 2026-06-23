@@ -15,7 +15,7 @@ export default function TicketOpenSection({ events }: { events: EventCardItem[] 
           <li key={event.eventId}>
             <Link
               href={`/${event.eventId}`}
-              className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-primary-400 to-secondary-400 p-4 transition-opacity hover:opacity-90"
+              className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-primary-400 to-secondary-400 p-4 transition-transform duration-200 hover:scale-[1.02] hover:opacity-90 active:scale-[0.98]"
             >
               <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-lg bg-white/40">
                 <ThumbnailImage
