@@ -1,6 +1,15 @@
+import Image from "next/image";
 import Link from "next/link";
-import type { EventCardItem } from "@/types/domain/event";
-import ThumbnailImage from "@/app/_components/home/ThumbnailImage";
+
+export interface CategoryEventItem {
+  eventId: string;
+  title: string;
+  startDate: string;
+  venueName: string;
+  thumbnail: string;
+  minPrice: number | null;
+  discountRate?: number;
+}
 
 // "2026-07-17" -> "26.07.17"
 function formatDate(date: string) {
@@ -9,7 +18,7 @@ function formatDate(date: string) {
 }
 
 // 카테고리 상세 하단: 배너와 동일한 데이터를 가로형 카드 리스트로 나열한다.
-export default function EventList({ events }: { events: EventCardItem[] }) {
+export default function EventList({ events }: { events: CategoryEventItem[] }) {
   if (events.length === 0) return null;
 
   return (
@@ -22,12 +31,17 @@ export default function EventList({ events }: { events: EventCardItem[] }) {
               className="flex gap-3 rounded-xl p-2 transition-colors hover:bg-gray-50"
             >
               <div className="relative aspect-3/4 w-24 shrink-0 overflow-hidden rounded-lg">
-                <ThumbnailImage
-                  src={event.thumbnail}
-                  alt={event.title}
-                  sizes="96px"
-                  className="object-cover"
-                />
+                {event.thumbnail ? (
+                  <Image
+                    src={event.thumbnail}
+                    alt={event.title}
+                    fill
+                    sizes="96px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-linear-to-br from-accent-300 to-primary-500" />
+                )}
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-1 py-1">
                 <h3 className="truncate text-sm font-semibold text-gray-900">
