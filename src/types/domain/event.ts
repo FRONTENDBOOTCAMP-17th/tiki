@@ -48,6 +48,17 @@ export interface Grade {
   quantity: number; // 잔여 수량 (0 이면 매진)
 }
 
+/** 홈/카테고리 화면에서 공통으로 쓰는 이벤트 카드 데이터 (랭킹/오픈/카테고리 리스트 등) */
+export interface EventCardItem {
+  eventId: string;
+  title: string;
+  startDate: string; // "2026-06-14"
+  thumbnail: string;
+  venueName?: string;
+  minPrice?: number | null;
+  discountRate?: number;
+}
+
 /** 관람 후기 (REVIEW-04 reviews[]) */
 export interface Review {
   reviewId: string;
