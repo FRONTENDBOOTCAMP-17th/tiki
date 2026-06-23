@@ -3,8 +3,9 @@ import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
 import HeroSlider from "@/app/_components/home/HeroSlider";
 import { isAuthenticated } from "@/lib/auth";
+import type { EventCardItem } from "@/types/domain/event";
 import { categories } from "../_categories";
-import EventList, { CategoryEventItem } from "./EventList";
+import EventList from "./EventList";
 
 // 고정 카테고리라 slug 목록을 미리 정적 생성
 export function generateStaticParams() {
@@ -26,7 +27,7 @@ const EXAMPLE_IMAGES = [
 ];
 
 // TODO: 카테고리별 공연 API 연동 시 교체 (임시 예시 데이터)
-function getMockEvents(slug: string, name: string): CategoryEventItem[] {
+function getMockEvents(slug: string, name: string): EventCardItem[] {
   const venues = [
     "서울대공원 주차장광장",
     "올림픽홀",
