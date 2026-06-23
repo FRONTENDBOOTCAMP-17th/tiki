@@ -26,14 +26,14 @@ export default function TicketOpenSection({ events }: { events: EventCardItem[] 
                 />
               </div>
               <div className="flex min-w-0 flex-col gap-1">
-                <p className="truncate text-sm font-semibold text-white">
+                <p className="truncate text-sm font-semibold text-gray-900">
                   {event.title}
                 </p>
-                <p className="text-xs text-white/80">
+                <p className="text-xs text-gray-700">
                   {formatShortDate(event.startDate, "오픈")}
                 </p>
                 {event.minPrice != null && (
-                  <p className="text-xs text-white/80">
+                  <p className="text-xs text-gray-700">
                     {formatPriceFrom(event.minPrice, "부터")}
                   </p>
                 )}
