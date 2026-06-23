@@ -4,7 +4,7 @@ import Navigation from "@/components/Navigation";
 import MyPageSidebar from "@/components/sidebar/MyPageSidebar";
 import MobileDrawer from "@/components/mypage/MobileDrawer";
 import MobileProfileCard from "@/components/mypage/MobileProfileCard";
-import { requireUser } from "@/lib/auth";
+import { requireUser, isAuthenticated } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function MyPageLayout({
@@ -16,7 +16,7 @@ export default async function MyPageLayout({
   const supabase = await createClient();
   const { data: account } = await supabase
     .from("users")
-    .select("name, email, role")
+    .select("name, email, role, avatar_url")
     .eq("id", user.id)
     .single();
 
@@ -24,15 +24,18 @@ export default async function MyPageLayout({
     name: account?.name ?? "",
     email: account?.email ?? "",
     role: account?.role ?? "buyer",
+    avatarUrl: account?.avatar_url ?? null,
   };
 
   if (!account) {
     throw new Error("User not found");
   }
 
+  const loggedIn = await isAuthenticated();
+
   return (
     <div className="flex min-h-screen flex-col">
-      <Header loggedIn showCategory={false} />
+      <Header loggedIn={loggedIn} showCategory={false} />
 
       <div className="flex-1 bg-gray-50">
         <div className="mx-auto max-w-screen-xl p-4 md:p-6">
