@@ -10,6 +10,7 @@ import { success, fail } from "@/lib/api/api-response";
 
 const DEFAULT_LIMIT = 24;
 const MAX_LIMIT = 50;
+const PUBLISHED_STATUS = "공개"; // 비공개(테스트 포함) 공연은 검색 결과에서 제외
 
 // 조인 결과는 to-one 이라 객체지만, 방어적으로 배열도 허용
 type EventRow = {
@@ -53,6 +54,7 @@ export async function GET(request: Request) {
       "event_id, title, thumbnail, start_date, end_date, venue_address, category:category_id ( category_name )",
       { count: "exact" }, // 개수 카운트
     )
+    .eq("status", PUBLISHED_STATUS) // 공개 공연만 노출
     .or(`title.ilike.%${safe}%,venue_name.ilike.%${safe}%`)
     .order(sortColumn, { ascending })
     // 같은 날짜나 제목이어도 고유키로 2차 정렬

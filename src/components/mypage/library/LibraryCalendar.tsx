@@ -41,7 +41,7 @@ export default function LibraryCalendar({
               <span className="text-sm text-gray-700">{date}</span>
               {event && (
                 <Link
-                  href={`/events/${event.eventId}`}
+                  href={`/${event.eventId}`}
                   className="relative mt-1 flex-1 overflow-hidden rounded-md"
                 >
                   <Image

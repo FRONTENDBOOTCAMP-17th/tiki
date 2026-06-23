@@ -8,7 +8,7 @@ interface EventImgProps {
 export default function EventImg({ poster, title = "" }: EventImgProps) {
   return (
     // fill 기준 박스 + 배경 클립
-    <div className="relative mx-4 h-70 overflow-hidden rounded-2xl md:h-90">
+    <div className="relative h-64 overflow-hidden rounded-lg md:h-80 lg:h-[420px]">
       {/* 배경: 확대 + 블러 */}
       <Image
         src={poster}
@@ -21,8 +21,8 @@ export default function EventImg({ poster, title = "" }: EventImgProps) {
       />
 
       {/* 원본: 포스터 비율 박스 (rounded 위해 overflow-hidden) */}
-      <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
-        <div className="relative aspect-5/7 h-full overflow-hidden rounded-2xl shadow-md">
+      <div className="absolute inset-0 z-10 flex items-center justify-center p-3 lg:p-5">
+        <div className="relative aspect-5/7 h-full overflow-hidden rounded-lg shadow-md">
           <Image
             src={poster}
             alt={title}

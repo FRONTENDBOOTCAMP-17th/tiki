@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Bell, UserPlus, Ticket, Megaphone } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
-interface Noti {
+interface NotificationItem {
   notification_id: string;
   type: string;
   title: string;
@@ -31,11 +31,13 @@ function iconFor(type: string) {
 }
 
 function styleFor(type: string) {
-  return TYPE_STYLE[type as keyof typeof TYPE_STYLE] ?? "bg-gray-100 text-gray-500";
+  return (
+    TYPE_STYLE[type as keyof typeof TYPE_STYLE] ?? "bg-gray-100 text-gray-500"
+  );
 }
 
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-US", {
+function formatTime(dateString: string) {
+  return new Date(dateString).toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
   });
@@ -43,7 +45,7 @@ function formatTime(iso: string) {
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
-  const [items, setItems] = useState<Noti[]>([]);
+  const [items, setItems] = useState<NotificationItem[]>([]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -52,15 +54,15 @@ export default function NotificationBell() {
       .select("notification_id, type, title, link, is_read, created_at")
       .order("created_at", { ascending: false })
       .limit(20)
-      .then(({ data }) => setItems((data as Noti[] | null) ?? []));
+      .then(({ data }) => setItems((data as NotificationItem[] | null) ?? []));
   }, []);
 
-  const unread = items.filter((n) => !n.is_read).length;
+  const unreadCount = items.filter((item) => !item.is_read).length;
 
   async function openPanel() {
     setOpen(true);
-    if (unread === 0) return;
-    setItems((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    if (unreadCount === 0) return;
+    setItems((prev) => prev.map((item) => ({ ...item, is_read: true })));
     const supabase = createClient();
     await supabase
       .from("notification")
@@ -77,7 +79,7 @@ export default function NotificationBell() {
         className="relative flex items-center transition-colors hover:text-white"
       >
         <Bell size={24} strokeWidth={1.5} />
-        {unread > 0 && (
+        {unreadCount > 0 && (
           <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-red-500" />
         )}
       </button>
@@ -96,28 +98,28 @@ export default function NotificationBell() {
               </p>
             ) : (
               <ul className="max-h-96 divide-y divide-gray-50 overflow-auto">
-                {items.map((noti) => {
-                  const Icon = iconFor(noti.type);
+                {items.map((item) => {
+                  const Icon = iconFor(item.type);
                   const row = (
                     <div className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50">
                       <span
-                        className={`flex size-9 shrink-0 items-center justify-center rounded-full ${styleFor(noti.type)}`}
+                        className={`flex size-9 shrink-0 items-center justify-center rounded-full ${styleFor(item.type)}`}
                       >
                         <Icon size={16} />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm text-gray-800">{noti.title}</p>
+                        <p className="text-sm text-gray-800">{item.title}</p>
                         <p className="mt-0.5 text-xs text-gray-400">
-                          {formatTime(noti.created_at)}
+                          {formatTime(item.created_at)}
                         </p>
                       </div>
                     </div>
                   );
 
                   return (
-                    <li key={noti.notification_id}>
-                      {noti.link ? (
-                        <Link href={noti.link} onClick={() => setOpen(false)}>
+                    <li key={item.notification_id}>
+                      {item.link ? (
+                        <Link href={item.link} onClick={() => setOpen(false)}>
                           {row}
                         </Link>
                       ) : (

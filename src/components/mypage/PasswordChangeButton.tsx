@@ -4,20 +4,25 @@ import { ChevronRight } from "lucide-react";
 import Modal from "@/components/modal/Modal";
 import { Input } from "@/components/Input";
 import Button from "@/components/Button";
+import { changePassword } from "@/app/action";
 
 export default function PasswordChangeButton() {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (formData: FormData) => {
+  const handleSubmit = async (formData: FormData) => {
     const next = formData.get("newPassword");
     const confirm = formData.get("confirmPassword");
     if (next !== confirm) {
       setError("새 비밀번호가 일치하지 않습니다");
       return;
     }
+    const result = await changePassword(formData);
+    if (result?.error) {
+      setError(result.error);
+      return;
+    }
     setError("");
-    // TODO: 현재 비밀번호 검증 + 변경 server action
     setOpen(false);
   };
 
