@@ -13,7 +13,7 @@ export default function RankingCard({ item }: { item: RankingCardItem }) {
   return (
     <Link
       href={`/${item.eventId}`}
-      className="flex w-36 shrink-0 flex-col gap-2 md:w-full"
+      className="flex w-36 shrink-0 flex-col gap-2 md:w-44"
     >
       <div className="relative aspect-3/4 w-full overflow-hidden rounded-xl">
         <ThumbnailImage

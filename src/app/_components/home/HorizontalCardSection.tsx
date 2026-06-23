@@ -41,7 +41,7 @@ export default function HorizontalCardSection({
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseLeave}
         onClickCapture={onClickCapture}
-        className="scrollbar-thin flex cursor-grab gap-3 overflow-x-auto pb-2 select-none md:grid md:grid-cols-5 md:cursor-auto md:gap-4 md:overflow-visible md:pb-0"
+        className="scrollbar-thin flex cursor-grab gap-3 overflow-x-auto pb-2 select-none md:gap-4"
       >
         {events.map((event, index) => (
           <li key={event.eventId}>
