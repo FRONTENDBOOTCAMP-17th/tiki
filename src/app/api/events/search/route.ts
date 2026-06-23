@@ -4,15 +4,12 @@ import { success, fail } from "@/lib/api/api-response";
 // EVENT-03 이벤트 검색 (통합 필터) + 페이지네이션
 // GET /api/events/search?keyword=...&sortKey=date|name&direction=asc|desc&page=1&limit=12
 // 응답: { success, message, data: { items, total, page, limit } }
-//
-//  - 정렬: 서버에서 처리. sortKey=date→start_date, name→title
-//  - minPrice: ticket_grades 미구현
 
 const DEFAULT_LIMIT = 24;
 const MAX_LIMIT = 50;
 const PUBLISHED_STATUS = "공개"; // 비공개(테스트 포함) 공연은 검색 결과에서 제외
 
-// 조인 결과는 to-one 이라 객체지만, 방어적으로 배열도 허용
+// 조인 결과: category는 to-one이라 객체지만 방어적으로 배열도 허용
 type EventRow = {
   event_id: string;
   title: string;
@@ -21,6 +18,7 @@ type EventRow = {
   end_date: string;
   venue_address: string | null;
   category: { category_name: string } | { category_name: string }[] | null;
+  ticket_grade: { price: number }[] | null;
 };
 
 export async function GET(request: Request) {
@@ -51,7 +49,7 @@ export async function GET(request: Request) {
   const { data, error, count } = await supabase
     .from("event")
     .select(
-      "event_id, title, thumbnail, start_date, end_date, venue_address, category:category_id ( category_name )",
+      "event_id, title, thumbnail, start_date, end_date, venue_address, category:category_id ( category_name ), ticket_grade ( price )",
       { count: "exact" }, // 개수 카운트
     )
     .eq("status", PUBLISHED_STATUS) // 공개 공연만 노출
@@ -67,12 +65,13 @@ export async function GET(request: Request) {
 
   const items = ((data ?? []) as EventRow[]).map((e) => {
     const cat = Array.isArray(e.category) ? e.category[0] : e.category;
+    const prices = (e.ticket_grade ?? []).map((g) => g.price);
     return {
       eventId: e.event_id,
       title: e.title,
       thumbnail: e.thumbnail,
       category: cat?.category_name ?? null,
-      minPrice: null, // 검색 결과에 띄울 가격은 미정
+      minPrice: prices.length > 0 ? Math.min(...prices) : null,
       startDate: e.start_date,
       endDate: e.end_date,
       venue: { address: e.venue_address },

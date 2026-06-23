@@ -20,6 +20,7 @@ export type SortItem = {
   date: string; // ISO 문자열 ("2026-01-15")
   location?: string;
   image?: string;
+  minPrice?: number | null; // ticket_grade 최저가 (없으면 null)
 };
 
 // ── 날짜,이름순 정렬 ── key=식별자, label=버튼 글자, compare=정렬 함수
