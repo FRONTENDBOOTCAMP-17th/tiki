@@ -104,6 +104,17 @@
   --animate-slide-out-to-bottom: slide-out-to-bottom 0.5s ease-out forwards;
   --animate-fade-in: fade-in 0.5s ease-out;
   --animate-fade-out: fade-out 0.5s ease-out forwards;
+  --animate-marquee: marquee-x 30s linear infinite;
+
+  /* 끊김 없는 가로 무한 스크롤(마퀴). 아이템을 두 벌 이어붙이고 -50% 이동 → 이음새 없이 순환 */
+  @keyframes marquee-x {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
 
   @keyframes slide-in-from-left {
     from {
