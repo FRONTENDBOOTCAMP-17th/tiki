@@ -16,7 +16,7 @@ export default function RankingCard({ item }: { item: RankingCardItem }) {
       className="group flex w-36 shrink-0 flex-col gap-2 transition-transform active:scale-95 md:w-44"
     >
       <div className="relative aspect-3/4 w-full overflow-hidden rounded-xl shadow-sm transition-shadow group-hover:shadow-lg">
-        <div className="size-full transition-transform duration-300 group-hover:scale-105">
+        <div className="relative size-full transition-transform duration-300 group-hover:scale-105">
           <ThumbnailImage
             src={item.thumbnail}
             alt={item.title}
