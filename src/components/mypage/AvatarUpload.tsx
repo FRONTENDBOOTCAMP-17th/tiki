@@ -14,6 +14,7 @@ async function toWebp(file: File, maxSize = 512): Promise<Blob> {
   canvas.width = w;
   canvas.height = h;
   canvas.getContext("2d")!.drawImage(bitmap, 0, 0, w, h);
+  bitmap.close();
 
   return new Promise((resolve, reject) => {
     canvas.toBlob(
