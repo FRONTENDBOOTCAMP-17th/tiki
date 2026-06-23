@@ -33,9 +33,9 @@ export default async function CategoryPage() {
                 <li key={category.category_id}>
                   <Link
                     href={`/category/${category.slug}`}
-                    className="flex items-center gap-3 py-1 min-[744px]:flex-col min-[744px]:justify-center min-[744px]:gap-3 min-[744px]:rounded-2xl min-[744px]:bg-primary-100 min-[744px]:py-7 min-[744px]:text-center lg:gap-4 lg:py-10"
+                    className="flex items-center gap-3 py-1 transition-colors min-[744px]:flex-col min-[744px]:justify-center min-[744px]:gap-3 min-[744px]:rounded-2xl min-[744px]:bg-primary-100 min-[744px]:py-7 min-[744px]:text-center min-[744px]:hover:bg-primary-200 lg:gap-4 lg:py-10"
                   >
-                    <span className="flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-700 min-[744px]:size-auto min-[744px]:rounded-none min-[744px]:bg-transparent">
+                    <span className="flex size-12 items-center justify-center rounded-full bg-primary-100 text-primary-700 min-[744px]:size-auto min-[744px]:rounded-none min-[744px]:bg-transparent">
                       <Icon
                         className="size-6 min-[744px]:size-9 lg:size-10"
                         strokeWidth={1.5}
@@ -57,9 +57,13 @@ export default async function CategoryPage() {
               <Link
                 key={href}
                 href={href}
-                className="flex items-center justify-center gap-1.5 rounded-2xl bg-primary-200 py-4 text-gray-700 min-[744px]:px-8"
+                className="flex items-center justify-center gap-1.5 rounded-2xl bg-primary-200 py-4 text-primary-900 transition-colors hover:bg-primary-300 min-[744px]:px-8"
               >
-                <Icon className="size-5" strokeWidth={1.5} aria-hidden="true" />
+                <Icon
+                  className="size-5 text-primary-700"
+                  strokeWidth={1.5}
+                  aria-hidden="true"
+                />
                 <span className="text-sm font-medium">{label}</span>
               </Link>
             ))}
