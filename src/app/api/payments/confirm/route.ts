@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { fail, success } from "@/lib/api/api-response";
 import { createClient } from "@/lib/supabase/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { portone } from "@/lib/portone/server";
 
 interface ConfirmRequestBody {
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   const isPaid =
     payment.status === "PAID" && payment.amount.total === order.total_price;
 
-  await supabaseAdmin
+  await getSupabaseAdmin()
     .from("orders")
     .update({ status: isPaid ? "paid" : "failed" })
     .eq("order_id", orderId);
