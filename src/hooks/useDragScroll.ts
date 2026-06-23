@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const CLICK_SUPPRESS_THRESHOLD_PX = 5;
 
@@ -44,14 +44,21 @@ export function useDragScroll<T extends HTMLElement>() {
   }
 
   // 가로 스크롤만 있는 목록 위에서는 마우스 휠(세로)도 가로 스크롤로 바꿔준다.
-  function onWheel(e: React.WheelEvent) {
+  // React의 onWheel은 내부적으로 passive 리스너로 등록되어 preventDefault가 무시되므로,
+  // 네이티브 리스너를 직접 non-passive로 붙여야 페이지 전체 스크롤을 실제로 막을 수 있다.
+  useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // 트랙패드 가로 스와이프는 기본 동작 유지
 
-    e.preventDefault();
-    el.scrollLeft += e.deltaY;
-  }
+    function handleWheel(e: WheelEvent) {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // 트랙패드 가로 스와이프는 기본 동작 유지
+      e.preventDefault();
+      el!.scrollLeft += e.deltaY;
+    }
+
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheel);
+  }, []);
 
   return {
     ref,
@@ -60,6 +67,5 @@ export function useDragScroll<T extends HTMLElement>() {
     onMouseUp: endDrag,
     onMouseLeave: endDrag,
     onClickCapture,
-    onWheel,
   };
 }

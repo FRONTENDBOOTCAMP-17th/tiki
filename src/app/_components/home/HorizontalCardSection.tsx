@@ -28,7 +28,6 @@ export default function HorizontalCardSection({
     onMouseUp,
     onMouseLeave,
     onClickCapture,
-    onWheel,
   } = useDragScroll<HTMLUListElement>();
 
   if (events.length === 0) return null;
@@ -42,7 +41,6 @@ export default function HorizontalCardSection({
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseLeave}
         onClickCapture={onClickCapture}
-        onWheel={onWheel}
         className="scrollbar-thin flex cursor-grab gap-3 overflow-x-auto pb-2 select-none md:gap-4"
       >
         {events.map((event, index) => (
