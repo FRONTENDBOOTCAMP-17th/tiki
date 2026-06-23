@@ -2,6 +2,7 @@
 import { useRef, useState, useEffect, useTransition } from "react";
 import { Camera, ImageUp, RotateCcw } from "lucide-react";
 import { uploadAvatar, resetAvatar } from "@/app/action";
+import Image from "next/image";
 
 // 이미지를 webp로 변환 + 리사이즈 (최대 512px)
 async function toWebp(file: File, maxSize = 512): Promise<Blob> {
@@ -98,10 +99,9 @@ export default function AvatarUpload({
           disabled={pending}
           className="relative block disabled:opacity-50"
         >
-          <div className="size-20 overflow-hidden rounded-full bg-gradient-to-br from-primary-300 to-secondary-300">
+          <div className="relative size-20 overflow-hidden rounded-full bg-gradient-to-br from-primary-300 to-secondary-300">
             {url && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={url} alt="프로필" className="size-20 object-cover" />
+              <Image src={url} alt="프로필" fill sizes="80px" className="object-cover" />
             )}
           </div>
           <span className="absolute bottom-0 right-0 flex size-7 items-center justify-center rounded-full bg-primary-500 text-white shadow-md">
