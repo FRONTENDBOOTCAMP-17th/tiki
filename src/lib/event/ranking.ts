@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 export type RankingItem = {
   eventId: string;
@@ -71,7 +71,7 @@ export async function fetchRanking(options?: {
   const eventIds = events.map((e) => e.event_id);
 
   // 2) 최근 N일 주문을 service role로 집계 (RLS 우회)
-  const { data: orderRows } = await supabaseAdmin
+  const { data: orderRows } = await getSupabaseAdmin()
     .from("orders")
     .select("event_id, quantity")
     .in("event_id", eventIds)
