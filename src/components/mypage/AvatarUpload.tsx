@@ -1,7 +1,8 @@
 "use client";
 import { useRef, useState, useTransition } from "react";
-import { Camera } from "lucide-react";
+import { Camera, ImageUp, RotateCcw } from "lucide-react";
 import { uploadAvatar, resetAvatar } from "@/app/action";
+import Modal from "@/components/modal/Modal";
 
 // 이미지를 webp로 변환 + 리사이즈 (최대 512px)
 async function toWebp(file: File, maxSize = 512): Promise<Blob> {
@@ -31,6 +32,7 @@ export default function AvatarUpload({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [url, setUrl] = useState(initialUrl);
+  const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +59,6 @@ export default function AvatarUpload({
   };
 
   const handleReset = () => {
-    if (!confirm("기본 이미지로 변경하시겠어요?")) return;
     startTransition(async () => {
       const result = await resetAvatar();
       if (result?.error) {
@@ -65,6 +66,7 @@ export default function AvatarUpload({
         return;
       }
       setUrl(null);
+      setOpen(false);
     });
   };
 
@@ -72,7 +74,7 @@ export default function AvatarUpload({
     <div className="flex flex-col items-center gap-2">
       <button
         type="button"
-        onClick={() => inputRef.current?.click()}
+        onClick={() => setOpen(true)}
         disabled={pending}
         className="relative disabled:opacity-50"
       >
@@ -91,15 +93,36 @@ export default function AvatarUpload({
         {pending ? "업로드 중..." : "10MB 이하 이미지만 업로드 가능합니다."}
       </p>
 
-      {url && !pending && (
-        <button
-          type="button"
-          onClick={handleReset}
-          className="text-xs text-gray-400 underline hover:text-gray-600"
-        >
-          기본 이미지로 변경
-        </button>
-      )}
+      <Modal open={open} onClose={() => setOpen(false)} position="sheet">
+        <Modal.Header>프로필 사진</Modal.Header>
+        <Modal.Body>
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              disabled={pending}
+              className="flex items-center gap-3 rounded-xl border border-gray-100 p-4 text-left transition-colors hover:bg-gray-50 disabled:opacity-50"
+            >
+              <ImageUp size={20} className="text-primary-600" />
+              <span className="font-medium text-gray-900">사진 변경</span>
+            </button>
+
+            {url && (
+              <button
+                type="button"
+                onClick={handleReset}
+                disabled={pending}
+                className="flex items-center gap-3 rounded-xl border border-gray-100 p-4 text-left transition-colors hover:bg-gray-50 disabled:opacity-50"
+              >
+                <RotateCcw size={20} className="text-danger-500" />
+                <span className="font-medium text-danger-600">
+                  기본 이미지로 변경
+                </span>
+              </button>
+            )}
+          </div>
+        </Modal.Body>
+      </Modal>
 
       <input
         ref={inputRef}
