@@ -1,21 +1,67 @@
 "use client";
 
-import { ChevronLeft, Search } from "lucide-react";
+import { ChevronLeft, Search, SearchX, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import RecentSearchList from "@/components/Search/RecentSearchList";
-import EventCard from "@/components/Search/EventCard";
-import Filter from "@/components/Search/Filter";
-import SortedList from "@/components/Search/SortedList";
-import {
-  type SortItem,
-  type SortKey,
-  type Direction,
-} from "@/components/Search/filterSort";
 import Navigation from "@/components/Navigation";
 import MobileDrawer from "@/components/mypage/MobileDrawer";
 import MyPageSidebar from "@/components/sidebar/MyPageSidebar";
+import {
+  type Direction,
+  type SortItem,
+  type SortKey,
+} from "@/components/Search/filterSort";
+import RecentKeywords from "./_components/RecentKeywords";
+import PopularList, { type PopularEvent } from "./_components/PopularList";
+import SortFilter from "./_components/SortFilter";
+import { ResultsGrid, ResultsSkeleton } from "./_components/ResultsGrid";
+import { useRecentKeywords } from "@/hooks/useRecentKeywords";
 
 const LIMIT = 25; // 한 번에 불러올 개수
+
+// 인기공연 API 미구현으로 예시데이터
+const POPULAR_EVENTS: PopularEvent[] = [
+  {
+    id: 1,
+    title: "뮤지컬 '레미제라블'",
+    date: "2026-01-20",
+    location: "서울 마포구 홍대 라이브홀",
+    image: "https://picsum.photos/seed/1/200/300",
+    minPrice: 39000,
+  },
+  {
+    id: 2,
+    title: "콘서트 'BTS 월드 투어'",
+    date: "2026-01-22",
+    location: "서울 송파구 올림픽공원",
+    image: "https://picsum.photos/seed/2/200/300",
+    minPrice: 99000,
+  },
+  {
+    id: 3,
+    title: "연극 '햄릿'",
+    date: "2026-01-25",
+    location: "서울 종로구 예술의전당",
+    image: "https://picsum.photos/seed/3/200/300",
+    minPrice: 25000,
+  },
+  {
+    id: 4,
+    title: "발레 '백조의 호수'",
+    date: "2026-01-28",
+    location: "서울 서초구 국립극장",
+    image: "https://picsum.photos/seed/4/200/300",
+    minPrice: 45000,
+  },
+  {
+    id: 5,
+    title: "오페라 '카르멘'",
+    date: "2026-01-30",
+    location: "서울 중구 세종문화회관",
+    image: "https://picsum.photos/seed/5/200/300",
+    minPrice: 55000,
+  },
+];
 
 // 서버 응답 item → 카드/리스트가 쓰는 SortItem 형태로 변환
 function toSortItems(items: unknown[]): SortItem[] {
@@ -26,6 +72,7 @@ function toSortItems(items: unknown[]): SortItem[] {
       startDate: string;
       venue?: { address?: string };
       thumbnail?: string;
+      minPrice?: number | null;
     }>
   ).map((it) => ({
     id: it.eventId,
@@ -33,10 +80,14 @@ function toSortItems(items: unknown[]): SortItem[] {
     date: it.startDate,
     location: it.venue?.address,
     image: it.thumbnail,
+    minPrice: it.minPrice ?? null,
   }));
 }
 
 export default function SearchPage() {
+  const router = useRouter();
+
+  // ── 검색 입력/검색 로직 (기존 동작 보존) ───────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [direction, setDirection] = useState<Direction>("desc");
@@ -51,6 +102,14 @@ export default function SearchPage() {
   const trimmed = searchQuery.trim();
   const requestKey = `${trimmed}|${sortKey}|${direction}`;
   const loadingRef = useRef(false);
+
+  // ── 최근 검색어 (localStorage) ────────────────────────────────────────
+  const {
+    keywords: recentKeywords,
+    add: addKeyword,
+    remove: removeKeyword,
+    clear: clearKeywords,
+  } = useRecentKeywords();
 
   // 정렬 버튼 클릭
   const changeSort = useCallback(
@@ -153,137 +212,117 @@ export default function SearchPage() {
     return () => observer.disconnect();
   }, [hasMore, loading, loadMore]);
 
-  // 첫 페이지 로딩중인지 — 검색중 표시
+  // 첫 페이지 로딩중인지 — 스켈레톤 표시
   const isInitialLoading = trimmed !== "" && !isCurrent;
 
-  // 검색어 없을 때 예시코드
-  const popularEvents = [
-    {
-      id: 1,
-      title: "뮤지컬 '레미제라블'",
-      date: "2026-01-20",
-      location: "서울 마포구 홍대 라이브홀",
-    },
-    {
-      id: 2,
-      title: "콘서트 'BTS 월드 투어'",
-      date: "2026-01-22",
-      location: "서울 송파구 올림픽공원",
-    },
-    {
-      id: 3,
-      title: "연극 '햄릿'",
-      date: "2026-01-25",
-      location: "서울 종로구 예술의전당",
-    },
-    {
-      id: 4,
-      title: "발레 '백조의 호수'",
-      date: "2026-01-28",
-      location: "서울 서초구 국립극장",
-    },
-    {
-      id: 5,
-      title: "오페라 '카르멘'",
-      date: "2026-01-30",
-      location: "서울 중구 세종문화회관",
-    },
-  ];
-
   return (
-    <div className="lg:min-h-screen lg:bg-gray-50">
-      {/* 검색 상단 헤더 */}
-      <header className="bg-white lg:sticky lg:top-0 lg:z-40 lg:border-b lg:border-gray-200">
-        <div className="flex items-center gap-3 px-4 py-3 lg:mx-auto lg:max-w-6xl lg:gap-4 lg:px-8 lg:py-4">
-          <ChevronLeft className="w-7 h-7 shrink-0 cursor-pointer text-gray-700" />
-          <div className="flex items-center flex-1 border border-gray-200 rounded-full px-4 py-2 gap-2 bg-white lg:py-2.5">
+    <div className="min-h-screen bg-white lg:bg-gray-50">
+      {/* ── 검색 헤더 (입력 동작 보존, 레이아웃은 리뉴얼) ── */}
+      <header className="sticky top-0 z-40 border-b border-gray-100 bg-white">
+        <div className="flex items-center gap-2 px-4 py-3 lg:mx-auto lg:max-w-6xl lg:gap-4 lg:px-8 lg:py-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            aria-label="뒤로 가기"
+            className="shrink-0 cursor-pointer rounded-full p-1 text-gray-700 transition-colors hover:bg-gray-100"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+
+          <div className="flex flex-1 items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 transition-colors focus-within:border-primary-400 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary-100">
+            <Search className="h-5 w-5 shrink-0 text-gray-400" />
             <input
               type="text"
-              placeholder="검색어를 입력하세요"
-              className="flex-1 border-none outline-none bg-transparent text-base text-gray-900 placeholder:text-gray-400"
+              placeholder="공연, 아티스트, 장소를 검색해보세요"
+              className="flex-1 border-none bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && trimmed) addKeyword(trimmed);
+              }}
+              autoFocus
             />
-            <Search className="w-5 h-5 text-gray-400 shrink-0" />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                aria-label="검색어 지우기"
+                className="shrink-0 cursor-pointer rounded-full p-0.5 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
-          {/* 햄버거 → 우측 슬라이드 사이드바(마이페이지). 데스크탑(lg)에선 MobileDrawer 자체가 숨김 */}
+
+          {/* 햄버거 → 우측 슬라이드 사이드바(마이페이지). 데스크탑(lg)에선 숨김 */}
           <MobileDrawer>
             <MyPageSidebar />
           </MobileDrawer>
         </div>
       </header>
 
-      <main className="lg:mx-auto lg:max-w-6xl lg:px-8 lg:py-8">
-        {searchQuery.length === 0 ? (
-          <div className="lg:grid lg:grid-cols-[280px_1fr] lg:items-start lg:gap-8">
-            {/* 최근 검색어 리스트 */}
-            <div className="flex flex-col px-5 py-2 gap-3 lg:px-5 lg:py-5 lg:rounded-2xl lg:border lg:border-gray-100 lg:bg-white lg:shadow-sm">
-              <div className="flex justify-between items-center">
-                <div className="text-xl font-bold ">최근 검색어</div>
-                <button className="font-semibold text-base">전체 삭제</button>
-              </div>
-              <RecentSearchList
-                initialKeywords={["티셔츠", "청바지", "운동화"]}
-              />
-            </div>
-
-            {/* 인기 공연 리스트 */}
-            <div className=" flex flex-col p-5 gap-2 lg:p-0 lg:gap-4">
-              <div className="font-bold lg:text-xl">이번주 인기공연 TOP5</div>
-              <ul className="flex flex-col gap-3 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-4">
-                {popularEvents.map((event, index) => (
-                  <EventCard
-                    key={event.id}
-                    rank={index + 1}
-                    item={{
-                      id: event.id,
-                      title: event.title,
-                      date: event.date,
-                      location: event.location,
-                      image: `https://picsum.photos/seed/${event.id}/200/300`,
-                    }}
-                  />
-                ))}
-              </ul>
-            </div>
+      <main className="pb-6 lg:mx-auto lg:max-w-6xl lg:px-8 lg:py-8">
+        {trimmed.length === 0 ? (
+          // ── 검색 전: 최근 검색어 + 인기공연 ──
+          <div className="lg:grid lg:grid-cols-[300px_1fr] lg:items-start lg:gap-6 lg:pt-2">
+            <RecentKeywords
+              keywords={recentKeywords}
+              onSelect={setSearchQuery}
+              onRemove={removeKeyword}
+              onClear={clearKeywords}
+            />
+            <PopularList events={POPULAR_EVENTS} />
           </div>
         ) : (
-          <>
-            <div className="flex flex-col gap-3 px-4 pt-3 pb-2 lg:px-0 lg:pt-0">
-              <span className="text-base font-medium text-gray-800 lg:text-lg lg:font-semibold">
+          // ── 검색 결과 ──
+          <section className="flex flex-col gap-4 px-4 pt-4 lg:px-0 lg:pt-0">
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-gray-500 lg:text-base">
+                <span className="font-semibold text-gray-900">‘{trimmed}’</span>{" "}
                 검색결과
-              </span>
-              <Filter
+                {isCurrent && (
+                  <span className="ml-1 font-semibold text-primary-700">
+                    {total}건
+                  </span>
+                )}
+              </p>
+              <SortFilter
                 sortKey={sortKey}
                 direction={direction}
                 onChange={changeSort}
               />
             </div>
+
             {isInitialLoading ? (
-              <p className="px-4 py-10 text-center text-sm text-gray-400">
-                검색 중...
-              </p>
+              <ResultsSkeleton />
             ) : results.length === 0 ? (
-              <p className="px-4 py-10 text-center text-sm text-gray-400">
-                &lsquo;{trimmed}&rsquo;에 대한 검색결과가 없습니다.
-              </p>
+              <div className="flex flex-col items-center gap-3 py-20 text-center">
+                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                  <SearchX className="h-8 w-8 text-gray-300" />
+                </span>
+                <p className="text-sm text-gray-500">
+                  <span className="font-medium text-gray-700">‘{trimmed}’</span>
+                  에 대한 검색결과가 없습니다.
+                </p>
+              </div>
             ) : (
               <>
-                <SortedList items={results} />
+                <ResultsGrid items={results} />
                 {/* 무한스크롤 감시 지점: 화면에 들어오면 다음 페이지 로드 */}
                 {hasMore && (
                   <div ref={sentinelRef} aria-hidden className="h-10" />
                 )}
                 {loading && (
-                  <p className="px-4 py-4 text-center text-sm text-gray-400">
+                  <p className="py-4 text-center text-sm text-gray-400">
                     불러오는 중...
                   </p>
                 )}
               </>
             )}
-          </>
+          </section>
         )}
       </main>
+
       <Navigation />
     </div>
   );
