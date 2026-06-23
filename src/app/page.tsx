@@ -3,7 +3,6 @@ import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
 import { isAuthenticated } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { fetchCategories } from "@/lib/api/categories";
 import type { EventCardItem } from "@/types/domain/event";
 import HeroSlider from "./_components/home/HeroSlider";
@@ -29,23 +28,19 @@ type EventRow = {
 
 type CategoryEventRow = EventRow & { category_id: string };
 
-// 예매 랭킹 집계용 주문 조회. orders는 본인 주문만 보이는 RLS가 걸려 있어
-// service role로 조회하는데, 키가 없거나 조회에 실패해도 랭킹만 기본 정렬로
+// 예매 랭킹 집계용 주문 수량 합계 조회. orders 자체는 본인 주문만 보이는
+// RLS가 걸려 있지만, event_id별 합계만 돌려주는 RPC(event_booking_counts)는
+// anon 키로도 호출 가능하므로 이걸 쓴다. 조회에 실패해도 랭킹만 기본 정렬로
 // 대체될 뿐 홈 화면 자체는 그대로 떠야 하므로 여기서 에러를 삼킨다.
-async function fetchBookingCounts(eventIds: string[]) {
-  if (eventIds.length === 0) return [];
-
-  try {
-    const { data, error } = await getSupabaseAdmin()
-      .from("orders")
-      .select("event_id, quantity")
-      .in("event_id", eventIds);
-    if (error) throw error;
-    return data ?? [];
-  } catch (error) {
-    console.error("[HOME] orders query failed (랭킹은 기본 정렬로 대체됨):", error);
+async function fetchBookingCounts(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<{ event_id: string; total_quantity: number }[]> {
+  const { data, error } = await supabase.rpc("event_booking_counts");
+  if (error) {
+    console.error("[HOME] event_booking_counts rpc failed (랭킹은 기본 정렬로 대체됨):", error);
     return [];
   }
+  return data ?? [];
 }
 
 // event 테이블 행을 카드에서 쓰는 형태로 변환 (랭킹/티켓오픈/카테고리 섹션 공통)
@@ -106,12 +101,11 @@ export default async function Home() {
     ]),
   ];
 
-  // orders는 본인 주문만 보이는 RLS가 걸려 있어, 비로그인 사용자도 보는
-  // "전체 예매 랭킹" 집계는 service role 클라이언트로 조회한다.
-  // (사용자 식별 정보 없이 event_id별 수량만 합산해서 쓰므로 안전하다.)
-  const [orderRows, { data: gradeRows, error: gradeError }] = eventIds.length
+  // orders는 본인 주문만 보이는 RLS가 걸려 있지만, 비로그인 사용자도 보는
+  // "전체 예매 랭킹" 집계는 event_id별 합계만 돌려주는 RPC로 anon 키로도 조회한다.
+  const [bookingCountRows, { data: gradeRows, error: gradeError }] = eventIds.length
     ? await Promise.all([
-        fetchBookingCounts(eventIds),
+        fetchBookingCounts(supabase),
         supabase
           .from("ticket_grade")
           .select("event_id, price")
@@ -120,14 +114,10 @@ export default async function Home() {
     : [[], { data: [], error: null }];
   if (gradeError) console.error("[HOME] ticket_grade query failed:", gradeError);
 
-  // event_id별 누적 예매 수량 (집계용 DB 뷰가 없어 애플리케이션 레벨에서 합산)
-  const bookingCountByEvent = new Map<string, number>();
-  for (const order of orderRows ?? []) {
-    bookingCountByEvent.set(
-      order.event_id,
-      (bookingCountByEvent.get(order.event_id) ?? 0) + order.quantity,
-    );
-  }
+  // event_id별 누적 예매 수량 (RPC가 이미 DB에서 합산해 돌려준다)
+  const bookingCountByEvent = new Map<string, number>(
+    bookingCountRows.map((row) => [row.event_id, row.total_quantity]),
+  );
 
   // event_id별 최저 티켓 가격
   const minPriceByEvent = new Map<string, number>();
