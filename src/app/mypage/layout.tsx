@@ -16,7 +16,7 @@ export default async function MyPageLayout({
   const supabase = await createClient();
   const { data: account } = await supabase
     .from("users")
-    .select("name, email, role")
+    .select("name, email, role, avatar_url")
     .eq("id", user.id)
     .single();
 
@@ -24,6 +24,7 @@ export default async function MyPageLayout({
     name: account?.name ?? "",
     email: account?.email ?? "",
     role: account?.role ?? "buyer",
+    avatarUrl: account?.avatar_url ?? null,
   };
 
   if (!account) {

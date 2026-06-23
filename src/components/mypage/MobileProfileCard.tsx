@@ -12,9 +12,15 @@ interface Props {
   name: string;
   email: string;
   role: string;
+  avatarUrl?: string | null;
 }
 
-export default function MobileProfileCard({ name, email, role }: Props) {
+export default function MobileProfileCard({
+  name,
+  email,
+  role,
+  avatarUrl = null,
+}: Props) {
   const pathname = usePathname();
   if (HIDDEN_ROUTES.some((r) => pathname.startsWith(r))) return null;
 
@@ -24,7 +30,16 @@ export default function MobileProfileCard({ name, email, role }: Props) {
   if (compact) {
     return (
       <div className="mb-6 flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm lg:hidden">
-        <div className="size-14 shrink-0 rounded-full bg-gradient-to-br from-primary-300 to-secondary-300" />
+        <div className="size-14 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-primary-300 to-secondary-300">
+          {avatarUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={avatarUrl}
+              alt="프로필"
+              className="size-14 object-cover"
+            />
+          )}
+        </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <p className="font-bold text-gray-900">{name}님</p>
@@ -40,7 +55,12 @@ export default function MobileProfileCard({ name, email, role }: Props) {
 
   return (
     <div className="mb-6 flex flex-col items-center gap-2 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm lg:hidden">
-      <div className="size-16 rounded-full bg-gradient-to-br from-primary-300 to-secondary-300" />
+      <div className="size-16 overflow-hidden rounded-full bg-gradient-to-br from-primary-300 to-secondary-300">
+        {avatarUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={avatarUrl} alt="프로필" className="size-16 object-cover" />
+        )}
+      </div>
       <p className="text-lg font-bold text-gray-900">{name}님</p>
       <p className="text-sm text-gray-400">{email}</p>
       <span className="rounded-full bg-primary-100 px-3 py-0.5 text-xs font-medium text-primary-700">

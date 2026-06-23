@@ -1,7 +1,5 @@
 "use client";
 
-import { logout } from "@/app/action";
-
 import {
   User,
   Library,
@@ -12,6 +10,7 @@ import {
 } from "lucide-react";
 import SidebarMenuItem from "./SidebarMenuItem";
 import type { SidebarItem } from "./types";
+import { logout } from "@/app/action";
 
 const MY_MENU: SidebarItem[] = [
   { label: "프로필", href: "/mypage/profile", icon: User },
@@ -30,15 +29,30 @@ interface Props {
   name?: string;
   email?: string;
   role?: string;
+  avatarUrl?: string | null;
 }
 
-export default function MyPageSidebar({ name = "", email = "", role = "buyer" }: Props) {
+export default function MyPageSidebar({
+  name = "",
+  email = "",
+  role = "buyer",
+  avatarUrl = null,
+}: Props) {
   const roleLabel = ROLE_LABEL[role] ?? "구매자";
 
   return (
     <aside className="flex h-full w-full flex-col rounded-l-2xl border border-gray-100 bg-white p-4 shadow-sm">
       <div className="flex flex-col items-center gap-2 pb-4">
-        <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary-300 to-secondary-300" />
+        <div className="size-16 overflow-hidden rounded-full bg-gradient-to-br from-primary-300 to-secondary-300">
+          {avatarUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={avatarUrl}
+              alt="프로필"
+              className="size-16 object-cover"
+            />
+          )}
+        </div>
         <p className="text-lg font-bold text-gray-900">{name}님</p>
         <p className="text-sm text-gray-400">{email}</p>
         <span className="rounded-full bg-primary-100 px-3 py-0.5 text-xs font-medium text-primary-800">
