@@ -73,6 +73,12 @@ export async function cancelReservation(orderId: string) {
     .eq('user_id', user.id);
   if (error) return { error: error.message };
 
+  await supabase
+    .from('review')
+    .delete()
+    .eq('order_id', orderId)
+    .eq('user_id', user.id);
+
   revalidatePath('/mypage/reservations');
   return { success: true };
 }

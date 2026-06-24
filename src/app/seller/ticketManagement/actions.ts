@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 export async function cancelOrder(orderId: string) {
   const user = await getCurrentUser();
@@ -15,6 +16,8 @@ export async function cancelOrder(orderId: string) {
     .eq("order_id", orderId);
 
   if (error) throw new Error("cancel_failed");
+
+  await getSupabaseAdmin().from("review").delete().eq("order_id", orderId);
 
   revalidatePath("/seller/ticketManagement");
 }
