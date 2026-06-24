@@ -8,6 +8,7 @@ import {
   Store,
   LogOut,
   CalendarDays,
+  Star,
 } from "lucide-react";
 import SidebarMenuItem from "./SidebarMenuItem";
 import Avatar from "@/components/Avatar";
@@ -24,6 +25,7 @@ const SELLER_MENU: SidebarItem[] = [
   { label: "이벤트 관리", href: "/seller/list", icon: CalendarDays },
   { label: "새 이벤트 등록", href: "/seller/registration", icon: Plus },
   { label: "예매 관리", href: "/seller/ticketManagement", icon: Ticket },
+  { label: "리뷰 관리", href: "/seller/reviews", icon: Star },
 ];
 
 const SELLER_SETTINGS: SidebarItem[] = [
