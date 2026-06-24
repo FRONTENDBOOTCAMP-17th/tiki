@@ -157,3 +157,19 @@ export async function rejectFriendRequest(friendId: string) {
   revalidatePath("/mypage/friends");
   return data as { success?: boolean; error?: string };
 }
+
+export async function deleteFriend(friendId: string) {
+  const supabase = await createClient();
+  const me = await getCurrentUser();
+  if (!me) return { error: "로그인이 필요합니다" };
+
+  // friend 테이블 delete 정책: 내가 requester든 addressee든 삭제 가능
+  const { error } = await supabase
+    .from("friend")
+    .delete()
+    .eq("friend_id", friendId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/mypage/friends");
+  return { success: true };
+}
