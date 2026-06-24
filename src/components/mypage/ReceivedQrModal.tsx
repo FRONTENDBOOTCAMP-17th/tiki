@@ -1,4 +1,5 @@
 "use client";
+import { QRCodeCanvas } from "qrcode.react";
 import { Calendar, MapPin, Ticket } from "lucide-react";
 import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
@@ -14,6 +15,8 @@ export default function ReceivedQrModal({
   ticket: ReceivedTicket;
 }) {
   const place = [t.venue_address, t.venue_name].filter(Boolean).join(" ");
+  // QR에 담을 값 (입장 식별용)
+  const qrValue = `TIKI-SHARE-${t.share_id}`;
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -35,10 +38,11 @@ export default function ReceivedQrModal({
           </span>
         </div>
 
-        {/* QR placeholder — 기존 예매 QR과 동일 (추후 qrcode 라이브러리) */}
-        <div className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 p-6">
-          <div className="size-40 rounded-lg border-2 border-gray-900" />
-          <p className="text-sm text-gray-500">QR 코드</p>
+        {/* 실제 QR 코드 */}
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-gray-200 p-6">
+          <div className="rounded-lg bg-white p-3">
+            <QRCodeCanvas value={qrValue} size={160} level="M" />
+          </div>
           <p className="text-xs text-gray-400">
             {t.share_id.slice(0, 8).toUpperCase()}
           </p>
