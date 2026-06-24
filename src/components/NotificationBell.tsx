@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bell, UserPlus, Ticket, Megaphone } from "lucide-react";
+import { Bell, UserPlus, Ticket, Megaphone, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { acceptFriendRequest, rejectFriendRequest } from "@/app/action";
 
@@ -98,6 +98,21 @@ export default function NotificationBell() {
     );
   }
 
+  async function handleDelete(item: NotificationItem) {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("notification")
+      .delete()
+      .eq("notification_id", item.notification_id);
+    if (error) {
+      alert("삭제에 실패했습니다");
+      return;
+    }
+    setItems((prev) =>
+      prev.filter((n) => n.notification_id !== item.notification_id),
+    );
+  }
+
   return (
     <div className="relative">
       <button
@@ -141,6 +156,18 @@ export default function NotificationBell() {
                           {formatTime(item.created_at)}
                         </p>
                       </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDelete(item);
+                        }}
+                        aria-label="알림 삭제"
+                        className="shrink-0 rounded-md p-1 text-gray-300 transition hover:bg-gray-100 hover:text-gray-500"
+                      >
+                        <X size={16} />
+                      </button>
                     </div>
                   );
 
