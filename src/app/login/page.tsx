@@ -2,6 +2,7 @@ import Link from 'next/link';
 import OAuthContainer from '@/components/OAuthContainer';
 import EmailAuthContainer from '@/components/EmailAuthContainer';
 import { signInWithEmail, signInWithOAuth } from './action';
+import { ChevronLeft } from 'lucide-react';
 
 export default function LoginPage() {
   const googleAction = signInWithOAuth.bind(null, 'google');
@@ -14,7 +15,13 @@ export default function LoginPage() {
         </div>
       </header>
       <div className='flex w-full flex-1 items-center justify-center px-4 py-10'>
-        <div className='w-full max-w-sm space-y-6 rounded-2xl bg-white p-8 shadow-lg md:max-w-md'>
+        <div className='reative w-full max-w-sm space-y-6 rounded-2xl bg-white p-8 shadow-lg md:max-w-md'>
+          <Link
+            href='/'
+            className='flex gap-1 font-semibold absolute text-primary-900 hover:text-primary-700 translate-y-2'
+          >
+            <ChevronLeft />홈
+          </Link>
           <h1 className='text-center text-3xl font-extrabold text-primary-700'>
             tiki
           </h1>

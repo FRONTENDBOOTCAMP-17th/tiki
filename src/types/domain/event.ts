@@ -62,9 +62,11 @@ export interface EventCardItem {
 /** 관람 후기 (REVIEW-04 reviews[]) */
 export interface Review {
   reviewId: string;
+  userId: string;
   userName: string;
-  userProfileImage: string;
   rating: number;
   memo: string;
   createdAt: string;
+  likeCount: number;
+  likedByMe: boolean;
 }

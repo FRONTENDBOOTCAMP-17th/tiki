@@ -102,7 +102,7 @@ export default function StoreInfoForm({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6 py-6">
       <header>
         <h1 className="text-3xl text-gray-900 font-bold">스토어 정보</h1>
       </header>

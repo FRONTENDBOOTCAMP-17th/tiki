@@ -9,12 +9,13 @@ export async function cancelOrder(orderId: string) {
   if (!user) throw new Error("unauthorized");
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("orders")
-    .update({ status: "cancelled" })
-    .eq("order_id", orderId);
+  const { data: cancelled, error } = await supabase.rpc("cancel_order", {
+    p_order_id: orderId,
+  });
 
-  if (error) throw new Error("cancel_failed");
+  if (error || !cancelled) throw new Error("cancel_failed");
 
   revalidatePath("/seller/ticketManagement");
+  revalidatePath("/seller/settlement");
+  revalidatePath("/mypage/reservations");
 }
