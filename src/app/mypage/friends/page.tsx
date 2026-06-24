@@ -13,18 +13,22 @@ interface FriendRow {
   meet_count: number;
 }
 
-// 공유한 티켓 — 아직 더미 (티켓 공유 기능 미구현)
-const sharedTickets = [
-  {
-    id: "1",
-    title: "재즈 피아노 콘서트",
-    date: "2026.05.20 (화) 20:00",
-    sharedWith: "김연수",
-    sharedAt: "2026.05.02",
-  },
-];
+interface SharedTicketRow {
+  share_id: string;
+  event_title: string | null;
+  slot_date: string | null;
+  slot_time: string | null;
+  shared_with_name: string | null;
+  quantity: number;
+  created_at: string;
+}
 
-// 아바타 색 순환 (친구 수에 따라 색이 반복되도록)
+function formatShareDate(date: string | null) {
+  if (!date) return "";
+  const d = new Date(date);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+}
+
 const AVATAR_COLORS = ["bg-primary-400", "bg-secondary-400", "bg-accent-400"];
 
 const GUIDE = [
@@ -37,8 +41,12 @@ const GUIDE = [
 export default async function FriendsPage() {
   await requireUser();
   const supabase = await createClient();
+
   const { data } = await supabase.rpc("get_my_friends");
   const friends = (data as FriendRow[] | null) ?? [];
+
+  const { data: sharedData } = await supabase.rpc("get_my_shared_tickets");
+  const sharedTickets = (sharedData as SharedTicketRow[] | null) ?? [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -101,38 +109,53 @@ export default async function FriendsPage() {
         )}
       </section>
 
-      {/* 공유한 티켓 — 아직 더미 */}
+      {/* 공유한 티켓 */}
       <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
         <h2 className="flex items-center gap-2 text-base font-bold text-gray-900">
           <Ticket size={18} className="text-accent-500" />
           공유한 티켓 ({sharedTickets.length}개)
         </h2>
 
-        <div className="mt-4 flex flex-col gap-3">
-          {sharedTickets.map((ticket) => (
-            <div
-              key={ticket.id}
-              className="flex items-start gap-4 rounded-xl border border-gray-100 p-4"
-            >
-              <div className="size-14 shrink-0 rounded-lg bg-gradient-to-br from-accent-200 to-primary-200" />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-gray-900">{ticket.title}</p>
-                  <span className="shrink-0 rounded-full bg-accent-100 px-2.5 py-0.5 text-xs font-medium text-accent-700">
-                    공유됨
-                  </span>
+        {sharedTickets.length === 0 ? (
+          <p className="mt-4 rounded-xl border border-gray-100 p-8 text-center text-sm text-gray-400">
+            아직 공유한 티켓이 없습니다
+          </p>
+        ) : (
+          <div className="mt-4 flex flex-col gap-3">
+            {sharedTickets.map((ticket) => (
+              <div
+                key={ticket.share_id}
+                className="flex items-start gap-4 rounded-xl border border-gray-100 p-4"
+              >
+                <div className="size-14 shrink-0 rounded-lg bg-gradient-to-br from-accent-200 to-primary-200" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-semibold text-gray-900">
+                      {ticket.event_title}
+                    </p>
+                    <span className="shrink-0 rounded-full bg-accent-100 px-2.5 py-0.5 text-xs font-medium text-accent-700">
+                      {ticket.quantity}매 공유됨
+                    </span>
+                  </div>
+                  {ticket.slot_date && (
+                    <p className="mt-1 text-sm text-gray-500">
+                      {formatShareDate(ticket.slot_date)}
+                      {ticket.slot_time
+                        ? ` ${ticket.slot_time.slice(0, 5)}`
+                        : ""}
+                    </p>
+                  )}
+                  <p className="mt-0.5 text-xs text-gray-400">
+                    공유 대상: {ticket.shared_with_name}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    공유일: {formatShareDate(ticket.created_at)}
+                  </p>
                 </div>
-                <p className="mt-1 text-sm text-gray-500">{ticket.date}</p>
-                <p className="mt-0.5 text-xs text-gray-400">
-                  공유 대상: {ticket.sharedWith}
-                </p>
-                <p className="text-xs text-gray-400">
-                  공유일: {ticket.sharedAt}
-                </p>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* 안내 */}
