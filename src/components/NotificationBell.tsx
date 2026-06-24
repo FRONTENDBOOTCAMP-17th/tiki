@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Bell, UserPlus, Ticket, Megaphone } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { acceptFriendRequest, rejectFriendRequest } from "@/app/action";
 
 interface NotificationItem {
   notification_id: string;
@@ -12,16 +13,19 @@ interface NotificationItem {
   link: string | null;
   is_read: boolean;
   created_at: string;
+  ref_id: string | null;
 }
 
 const TYPE_ICON = {
   friend: UserPlus,
+  friend_request: UserPlus,
   order: Ticket,
   ad: Megaphone,
 } as const;
 
 const TYPE_STYLE = {
   friend: "bg-secondary-100 text-secondary-700",
+  friend_request: "bg-secondary-100 text-secondary-700",
   order: "bg-primary-100 text-primary-700",
   ad: "bg-accent-100 text-accent-700",
 } as const;
@@ -51,7 +55,7 @@ export default function NotificationBell() {
     const supabase = createClient();
     supabase
       .from("notification")
-      .select("notification_id, type, title, link, is_read, created_at")
+      .select("notification_id, type, title, link, is_read, created_at, ref_id")
       .order("created_at", { ascending: false })
       .limit(20)
       .then(({ data }) => setItems((data as NotificationItem[] | null) ?? []));
@@ -68,6 +72,30 @@ export default function NotificationBell() {
       .from("notification")
       .update({ is_read: true })
       .eq("is_read", false);
+  }
+
+  async function handleAccept(item: NotificationItem) {
+    if (!item.ref_id) return;
+    const result = await acceptFriendRequest(item.ref_id);
+    if (result?.error) {
+      alert(result.error);
+      return;
+    }
+    setItems((prev) =>
+      prev.filter((n) => n.notification_id !== item.notification_id),
+    );
+  }
+
+  async function handleReject(item: NotificationItem) {
+    if (!item.ref_id) return;
+    const result = await rejectFriendRequest(item.ref_id);
+    if (result?.error) {
+      alert(result.error);
+      return;
+    }
+    setItems((prev) =>
+      prev.filter((n) => n.notification_id !== item.notification_id),
+    );
   }
 
   return (
@@ -118,7 +146,41 @@ export default function NotificationBell() {
 
                   return (
                     <li key={item.notification_id}>
-                      {item.link ? (
+                      {item.type === "friend_request" && item.ref_id ? (
+                        <div className="px-4 py-3 hover:bg-gray-50">
+                          <div className="flex items-start gap-3">
+                            <span
+                              className={`flex size-9 shrink-0 items-center justify-center rounded-full ${styleFor(item.type)}`}
+                            >
+                              <Icon size={16} />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm text-gray-800">
+                                {item.title}
+                              </p>
+                              <p className="mt-0.5 text-xs text-gray-400">
+                                {formatTime(item.created_at)}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="mt-2 flex gap-2 pl-12">
+                            <button
+                              type="button"
+                              onClick={() => handleAccept(item)}
+                              className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+                            >
+                              수락
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleReject(item)}
+                              className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+                            >
+                              거절
+                            </button>
+                          </div>
+                        </div>
+                      ) : item.link ? (
                         <Link href={item.link} onClick={() => setOpen(false)}>
                           {row}
                         </Link>
