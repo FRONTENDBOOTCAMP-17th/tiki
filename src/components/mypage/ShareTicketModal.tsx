@@ -1,15 +1,18 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { Minus, Plus } from "lucide-react";
 import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
+import { createClient } from "@/lib/supabase/client";
+import { shareTicket } from "@/app/action";
 import type { Reservation } from "./ReservationCard";
 
-const friends = [
-  { id: "1", name: "강재훈", email: "ex1@gmail.com" },
-  { id: "2", name: "이선우", email: "ex2@gmail.com" },
-  { id: "3", name: "방효진", email: "ex3@gmail.com" },
-];
+interface Friend {
+  user_id: string;
+  name: string | null;
+  email: string | null;
+}
+
 const AVATAR_COLORS = ["bg-primary-400", "bg-secondary-400", "bg-accent-400"];
 
 export default function ShareTicketModal({
@@ -24,10 +27,28 @@ export default function ShareTicketModal({
   const max = Math.max(1, r.count - 1);
   const [qty, setQty] = useState(1);
   const [selected, setSelected] = useState<string | null>(null);
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [pending, startTransition] = useTransition();
+
+  // 모달 열릴 때 내 친구 목록 로드
+  useEffect(() => {
+    if (!open) return;
+    const supabase = createClient();
+    supabase.rpc("get_my_friends").then(({ data }) => {
+      setFriends((data as Friend[] | null) ?? []);
+    });
+  }, [open]);
 
   const handleShare = () => {
-    // TODO: 티켓 공유 server action (selected, qty)
-    onClose();
+    if (!selected) return;
+    startTransition(async () => {
+      const result = await shareTicket(r.id, selected, qty);
+      if (result?.error) {
+        alert(result.error);
+        return;
+      }
+      onClose();
+    });
   };
 
   return (
@@ -78,30 +99,36 @@ export default function ShareTicketModal({
           <p className="mb-2 text-sm font-medium text-gray-700">
             티켓을 공유할 친구 선택
           </p>
-          <div className="flex flex-col gap-2">
-            {friends.map((f, i) => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setSelected(f.id)}
-                className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
-                  selected === f.id
-                    ? "border-primary-400 bg-primary-100"
-                    : "border-gray-100 hover:bg-gray-50"
-                }`}
-              >
-                <div
-                  className={`flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}
+          {friends.length === 0 ? (
+            <p className="rounded-xl border border-gray-100 p-4 text-center text-sm text-gray-400">
+              공유할 친구가 없습니다
+            </p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {friends.map((f, i) => (
+                <button
+                  key={f.user_id}
+                  type="button"
+                  onClick={() => setSelected(f.user_id)}
+                  className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
+                    selected === f.user_id
+                      ? "border-primary-400 bg-primary-100"
+                      : "border-gray-100 hover:bg-gray-50"
+                  }`}
                 >
-                  {f.name.charAt(0)}
-                </div>
-                <div className="min-w-0">
-                  <p className="font-medium text-gray-900">{f.name}</p>
-                  <p className="truncate text-xs text-gray-400">{f.email}</p>
-                </div>
-              </button>
-            ))}
-          </div>
+                  <div
+                    className={`flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}
+                  >
+                    {f.name?.charAt(0) ?? "?"}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900">{f.name}</p>
+                    <p className="truncate text-xs text-gray-400">{f.email}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="rounded-xl bg-secondary-100 p-4 text-sm text-secondary-700">
@@ -118,11 +145,11 @@ export default function ShareTicketModal({
         </Button>
         <button
           type="button"
-          disabled={!selected}
+          disabled={!selected || pending}
           onClick={handleShare}
           className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          공유하기
+          {pending ? "공유 중..." : "공유하기"}
         </button>
       </Modal.Footer>
     </Modal>
