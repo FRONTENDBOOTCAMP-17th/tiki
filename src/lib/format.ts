@@ -11,3 +11,8 @@ export function formatShortDate(date: string, suffix = "") {
 export function formatPriceFrom(price: number, suffix = "~") {
   return `${price.toLocaleString("ko-KR")}원${suffix}`;
 }
+
+// "2026-06-14T..." -> "2026.06.14"
+export function formatDotDate(iso: string) {
+  return iso.slice(0, 10).replace(/-/g, ".");
+}

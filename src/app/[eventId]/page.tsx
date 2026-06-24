@@ -1,16 +1,23 @@
 import { MapPin, Star, Clock, Calendar } from "lucide-react";
 
 import Header from "@/components/Header";
-import { isAuthenticated } from "@/lib/auth";
-import { getEventDetail, getSlots, getGrades, getReviews } from "@/lib/event/queries";
+import { getCurrentUser } from "@/lib/auth";
+import {
+  getEventDetail,
+  getSlots,
+  getGrades,
+  getReviews,
+  getWritableReviewSlots,
+} from "@/lib/event/queries";
 import EventImg from "@/components/event/EventImg";
 import Notice from "@/components/Notice";
 import BookingWidget from "@/components/event/BookingWidget";
-import ReviewSection from "@/components/event/ReviewSection";
 import EventIntro from "@/components/event/EventIntro";
 import { Slot } from "@/types/domain/event";
 import BackButton from "./_components/BackButton";
 import DetailTabs from "./_components/DetailTabs";
+import ReviewComposer from "./_components/reviews/ReviewComposer";
+import ReviewSection from "./_components/reviews/ReviewSection";
 
 // 최초 공연 날짜 (가장 이른 회차)
 function formatFirstDate(slots: Slot[]) {
@@ -32,18 +39,23 @@ function formatPeriod(start: string, end: string) {
 
 export default async function EventDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ eventId: string }>;
+  searchParams: Promise<{ reviewSort?: string; reviewDirection?: string }>;
 }) {
   const { eventId } = await params;
-  const loggedIn = await isAuthenticated();
+  const { reviewSort, reviewDirection } = await searchParams;
+  const user = await getCurrentUser();
+  const loggedIn = !!user;
 
   // 상세/회차/등급/리뷰를 서버에서 병렬 조회 (존재하지 않는 공연이면 event 가 null)
-  const [event, slots, grades, reviewData] = await Promise.all([
+  const [event, slots, grades, reviewData, writableSlots] = await Promise.all([
     getEventDetail(eventId),
     getSlots(eventId),
     getGrades(eventId),
     getReviews(eventId),
+    getWritableReviewSlots(eventId),
   ]);
 
   const firstShowDate = formatFirstDate(slots);
@@ -175,11 +187,21 @@ export default async function EventDetailPage({
                       )}
                     </section>
 
-                    <section className="min-w-0">
+                    <section className="flex min-w-0 flex-col gap-5">
+                      {writableSlots.length > 0 && (
+                        <ReviewComposer
+                          eventId={eventId}
+                          slots={writableSlots}
+                        />
+                      )}
                       <ReviewSection
+                        eventId={eventId}
                         rating={averageRating}
                         reviewCount={reviewCount}
                         reviews={reviews}
+                        currentUserId={user?.id}
+                        sortKey={reviewSort}
+                        sortDirection={reviewDirection}
                       />
                     </section>
 
