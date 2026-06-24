@@ -1,20 +1,25 @@
 import { Users, Ticket, Mail } from "lucide-react";
 import AddFriendButton from "@/components/mypage/AddFriendButton";
 import DeleteFriendButton from "@/components/mypage/DeleteFriendButton";
+import { requireUser } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
-// 더미 (나중에 Supabase 조회로 교체)
-const friends = [
-  { id: "1", name: "강재훈", email: "ex1@gmail.com", meetCount: 5 },
-  { id: "2", name: "이선우", email: "ex2@gmail.com", meetCount: 3 },
-  { id: "3", name: "방효진", email: "ex3@gmail.com", meetCount: 8 },
-];
+interface FriendRow {
+  friend_id: string;
+  user_id: string;
+  name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  meet_count: number;
+}
 
+// 공유한 티켓 — 아직 더미 (티켓 공유 기능 미구현)
 const sharedTickets = [
   {
     id: "1",
     title: "재즈 피아노 콘서트",
     date: "2026.05.20 (화) 20:00",
-    sharedWith: "강재훈",
+    sharedWith: "김연수",
     sharedAt: "2026.05.02",
   },
 ];
@@ -29,7 +34,12 @@ const GUIDE = [
   "친구와 함께 갈 수 있는 이벤트를 추천받을 수 있습니다",
 ];
 
-export default function FriendsPage() {
+export default async function FriendsPage() {
+  await requireUser();
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("get_my_friends");
+  const friends = (data as FriendRow[] | null) ?? [];
+
   return (
     <div className="flex flex-col gap-6">
       {/* 헤더 */}
@@ -50,40 +60,48 @@ export default function FriendsPage() {
           {friends.length}명)
         </h2>
 
-        <div className="mt-4 flex flex-col gap-3">
-          {friends.map((friend, i) => (
-            <div
-              key={friend.id}
-              className="flex items-center gap-3 rounded-xl border border-gray-100 p-4"
-            >
-              {/* 아바타 (이니셜 + 색 순환) */}
+        {friends.length === 0 ? (
+          <p className="mt-4 rounded-xl border border-gray-100 p-8 text-center text-sm text-gray-400">
+            아직 친구가 없습니다. 친구를 추가해보세요!
+          </p>
+        ) : (
+          <div className="mt-4 flex flex-col gap-3">
+            {friends.map((friend, i) => (
               <div
-                className={`flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}
+                key={friend.friend_id}
+                className="flex items-center gap-3 rounded-xl border border-gray-100 p-4"
               >
-                {friend.name.charAt(0)}
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-gray-900">{friend.name}</p>
-                <div className="mt-0.5 flex flex-col gap-0.5 text-sm text-gray-500 md:flex-row md:items-center md:gap-2">
-                  <span className="flex items-center gap-1 truncate">
-                    <Mail size={14} className="shrink-0" />
-                    {friend.email}
-                  </span>
-                  <span className="hidden md:inline">·</span>
-                  <span className="shrink-0">
-                    함께 간 공연 {friend.meetCount}회
-                  </span>
+                <div
+                  className={`flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}
+                >
+                  {friend.name?.charAt(0) ?? "?"}
                 </div>
-              </div>
 
-              <DeleteFriendButton name={friend.name} />
-            </div>
-          ))}
-        </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-gray-900">{friend.name}</p>
+                  <div className="mt-0.5 flex flex-col gap-0.5 text-sm text-gray-500 md:flex-row md:items-center md:gap-2">
+                    <span className="flex items-center gap-1 truncate">
+                      <Mail size={14} className="shrink-0" />
+                      {friend.email}
+                    </span>
+                    <span className="hidden md:inline">·</span>
+                    <span className="shrink-0">
+                      함께 간 공연 {friend.meet_count}회
+                    </span>
+                  </div>
+                </div>
+
+                <DeleteFriendButton
+                  friendId={friend.friend_id}
+                  name={friend.name ?? "친구"}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* 공유한 티켓 */}
+      {/* 공유한 티켓 — 아직 더미 */}
       <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
         <h2 className="flex items-center gap-2 text-base font-bold text-gray-900">
           <Ticket size={18} className="text-accent-500" />
@@ -96,9 +114,7 @@ export default function FriendsPage() {
               key={ticket.id}
               className="flex items-start gap-4 rounded-xl border border-gray-100 p-4"
             >
-              {/* 포스터 placeholder (나중에 실제 이미지로) */}
               <div className="size-14 shrink-0 rounded-lg bg-gradient-to-br from-accent-200 to-primary-200" />
-
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-semibold text-gray-900">{ticket.title}</p>
