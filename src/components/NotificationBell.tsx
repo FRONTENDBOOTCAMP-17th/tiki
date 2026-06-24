@@ -41,10 +41,24 @@ function styleFor(type: string) {
 }
 
 function formatTime(dateString: string) {
-  return new Date(dateString).toLocaleTimeString("en-US", {
+  const date = new Date(dateString);
+  const now = new Date();
+  const isToday = date.toDateString() === now.toDateString();
+
+  const time = date.toLocaleTimeString("ko-KR", {
     hour: "numeric",
     minute: "2-digit",
   });
+
+  if (isToday) return time; // 오늘: "오전 ㅇㅇ:ㅇㅇ"
+
+  const sameYear = date.getFullYear() === now.getFullYear();
+  const dateStr = date.toLocaleDateString("ko-KR", {
+    year: sameYear ? undefined : "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  return `${dateStr} ${time}`; // "ㅇㅇ월 ㅇㅇ일 오전/오후 ㅇㅇ:ㅇㅇ"
 }
 
 export default function NotificationBell() {
@@ -166,7 +180,7 @@ export default function NotificationBell() {
                         aria-label="알림 삭제"
                         className="shrink-0 rounded-md p-1 text-gray-300 transition hover:bg-gray-100 hover:text-gray-500"
                       >
-                        <X size={16} />
+                        <X size={15} />
                       </button>
                     </div>
                   );
