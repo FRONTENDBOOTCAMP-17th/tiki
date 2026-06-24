@@ -41,3 +41,8 @@ export interface SignupContextValue {
   toggleAge: () => void;
   toggleMarketing: () => void;
 }
+
+export type SignInState = {
+  success: boolean;
+  error: string | null;
+} | null;
