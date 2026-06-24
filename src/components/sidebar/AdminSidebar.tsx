@@ -3,6 +3,7 @@
 import { LayoutGrid, LogOut, Tags, CalendarDays, UserCog } from "lucide-react";
 import SidebarMenuItem from "./SidebarMenuItem";
 import type { SidebarItem } from "./types";
+import { logout } from "@/app/action";
 
 const ADMIN_MENU: SidebarItem[] = [
   { label: "대시보드", href: "/admin", icon: LayoutGrid },
@@ -34,10 +35,15 @@ export default function AdminSidebar() {
             <p className="text-xs text-gray-400">admin@tiki.com</p>
           </div>
         </div>
-        <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">
-          <LogOut size={18} />
-          로그아웃
-        </button>
+        <form action={logout}>
+          <button
+            type="submit"
+            className="flex w-full items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+          >
+            <LogOut size={18} />
+            로그아웃
+          </button>
+        </form>
       </div>
     </aside>
   );
