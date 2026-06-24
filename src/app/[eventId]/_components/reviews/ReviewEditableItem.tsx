@@ -1,0 +1,199 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+
+import Avatar from "@/components/Avatar";
+import Button from "@/components/Button";
+import { cn } from "@/lib/cn";
+import { formatDotDate } from "@/lib/format";
+import {
+  deleteReviewAction,
+  updateReviewAction,
+} from "@/lib/reviews/actions";
+import {
+  REVIEW_MEMO_MAX_LENGTH,
+  REVIEW_MEMO_MIN_LENGTH,
+} from "@/lib/reviews/validation";
+import type { Review } from "@/types/domain/event";
+import RatingInput from "./RatingInput";
+import ReviewLikeButton from "./ReviewLikeButton";
+import ReviewStars from "./ReviewStars";
+
+export default function ReviewEditableItem({
+  eventId,
+  review,
+  canLike,
+}: {
+  eventId: string;
+  review: Review;
+  canLike: boolean;
+}) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [editing, setEditing] = useState(false);
+  const [rating, setRating] = useState(review.rating);
+  const [memo, setMemo] = useState(review.memo);
+  const [message, setMessage] = useState("");
+
+  const memoValid = memo.trim().length >= REVIEW_MEMO_MIN_LENGTH;
+
+  function resetEdit() {
+    setEditing(false);
+    setRating(review.rating);
+    setMemo(review.memo);
+    setMessage("");
+  }
+
+  function handleSave() {
+    if (!memoValid || rating < 1 || isPending) return;
+
+    startTransition(async () => {
+      const result = await updateReviewAction({
+        eventId,
+        reviewId: review.reviewId,
+        rating,
+        memo,
+      });
+
+      if (!result.success) {
+        setMessage(result.message);
+        return;
+      }
+
+      setEditing(false);
+      router.refresh();
+    });
+  }
+
+  function handleDelete() {
+    if (isPending || !confirm("후기를 삭제할까요?")) return;
+
+    startTransition(async () => {
+      const result = await deleteReviewAction({
+        eventId,
+        reviewId: review.reviewId,
+      });
+
+      if (!result.success) {
+        setMessage(result.message);
+        return;
+      }
+
+      router.refresh();
+    });
+  }
+
+  return (
+    <li className="py-5">
+      <div className="flex items-start gap-3">
+        <Avatar seed={review.userName} className="size-9 text-sm" />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="font-semibold text-gray-900">
+                {review.userName}
+              </span>
+              <span className="rounded-full bg-primary-50 px-2 py-0.5 text-[11px] font-semibold text-primary-700">
+                내 후기
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <span className="text-xs text-gray-400">
+                {formatDotDate(review.createdAt)}
+              </span>
+              {!editing && (
+                <>
+                  <ReviewLikeButton
+                    eventId={eventId}
+                    reviewId={review.reviewId}
+                    initialLiked={review.likedByMe}
+                    initialCount={review.likeCount}
+                    disabled={!canLike}
+                  />
+                  <button
+                    type="button"
+                    className="text-sm text-gray-400 underline underline-offset-2 transition-colors hover:text-gray-600"
+                    onClick={() => setEditing(true)}
+                  >
+                    수정
+                  </button>
+                  <button
+                    type="button"
+                    className="text-sm text-gray-400 underline underline-offset-2 transition-colors hover:text-gray-600"
+                    onClick={handleDelete}
+                  >
+                    삭제
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {editing ? (
+            <div className="mt-3 flex flex-col gap-3">
+              <RatingInput value={rating} onChange={setRating} size="sm" />
+              <textarea
+                value={memo}
+                onChange={(event) => {
+                  setMemo(event.target.value);
+                  setMessage("");
+                }}
+                maxLength={REVIEW_MEMO_MAX_LENGTH}
+                rows={3}
+                className="resize-none rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm leading-relaxed outline-none transition-colors focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100"
+              />
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <p
+                  className={cn(
+                    "min-h-4 text-xs text-gray-400",
+                    (message || !memoValid) && "text-danger-500",
+                  )}
+                >
+                  {message ||
+                    (!memoValid
+                      ? `최소 ${REVIEW_MEMO_MIN_LENGTH}자 이상 입력해 주세요.`
+                      : `${memo.length}/${REVIEW_MEMO_MAX_LENGTH}`)}
+                </p>
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isPending}
+                    onClick={resetEdit}
+                  >
+                    취소
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    disabled={!memoValid}
+                    loading={isPending}
+                    onClick={handleSave}
+                  >
+                    저장
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="mt-1 flex items-center gap-2">
+                <ReviewStars rating={review.rating} size="sm" />
+                <span className="text-xs font-semibold text-gray-500">
+                  {review.rating.toFixed(1)}
+                </span>
+              </div>
+              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-gray-700">
+                {review.memo}
+              </p>
+              {message && (
+                <p className="mt-2 text-xs text-danger-500">{message}</p>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </li>
+  );
+}
