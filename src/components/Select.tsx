@@ -54,7 +54,7 @@ export default function Select({
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute z-20 mt-1 max-h-64 w-full min-w-max overflow-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg">
+          <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg">
             {options.map((opt) => {
               const active = opt.value === value;
               return (
