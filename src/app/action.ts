@@ -137,3 +137,23 @@ export async function sendFriendRequest(email: string) {
   revalidatePath("/mypage/friends");
   return data as { success?: boolean; error?: string };
 }
+
+export async function acceptFriendRequest(friendId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("accept_friend_request", {
+    p_friend_id: friendId,
+  });
+  if (error) return { error: error.message };
+  revalidatePath("/mypage/friends");
+  return data as { success?: boolean; error?: string };
+}
+
+export async function rejectFriendRequest(friendId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("reject_friend_request", {
+    p_friend_id: friendId,
+  });
+  if (error) return { error: error.message };
+  revalidatePath("/mypage/friends");
+  return data as { success?: boolean; error?: string };
+}
