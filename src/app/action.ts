@@ -173,3 +173,20 @@ export async function deleteFriend(friendId: string) {
   revalidatePath("/mypage/friends");
   return { success: true };
 }
+
+export async function shareTicket(
+  orderId: string,
+  sharedWith: string,
+  quantity: number,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("share_ticket", {
+    p_order_id: orderId,
+    p_shared_with: sharedWith,
+    p_quantity: quantity,
+  });
+  if (error) return { error: error.message };
+
+  revalidatePath("/mypage/friends");
+  return data as { success?: boolean; error?: string };
+}
