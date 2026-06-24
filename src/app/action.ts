@@ -30,7 +30,16 @@ export async function changePassword(formData: FormData) {
 
   // 변경
   const { error } = await supabase.auth.updateUser({ password: next });
-  if (error) return { error: error.message };
+  if (error) {
+    // Supabase 영문 에러 → 한글 매핑
+    if (error.message.includes("should be different")) {
+      return { error: "새 비밀번호는 현재 비밀번호와 달라야 합니다" };
+    }
+    if (error.message.includes("at least")) {
+      return { error: "비밀번호는 6자 이상이어야 합니다" };
+    }
+    return { error: "비밀번호 변경에 실패했습니다" };
+  }
 
   return { success: true };
 }
