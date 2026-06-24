@@ -1,8 +1,23 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
-import { Plus, Pencil, Trash2, Check, X } from "lucide-react";
-import { addCategory, updateCategory, deleteCategory } from "../actions";
+import { useState, useTransition } from "react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical, Pencil, Trash2, Check, X } from "lucide-react";
+import { reorderCategories, updateCategory, deleteCategory } from "../actions";
 
 interface Category {
   category_id: string;
@@ -14,37 +29,167 @@ interface Category {
   eventCount: number;
 }
 
+function SortableRow({
+  category,
+  index,
+  onEdit,
+  onDelete,
+  isPendingDelete,
+}: {
+  category: Category;
+  index: number;
+  onEdit: (id: string) => void;
+  onDelete: (id: string, count: number) => void;
+  isPendingDelete: boolean;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: category.category_id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  };
+
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className={`border-b border-gray-100 bg-white ${isDragging ? "shadow-lg" : "hover:bg-gray-50/50"}`}
+    >
+      <td className="w-10 px-4 py-4">
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab touch-none text-gray-300 hover:text-gray-500 active:cursor-grabbing"
+          tabIndex={-1}
+        >
+          <GripVertical size={18} />
+        </button>
+      </td>
+      <td className="w-16 px-4 py-4 text-gray-400">{index + 1}</td>
+      <td className="px-4 py-4 font-medium text-gray-900">{category.category_name}</td>
+      <td className="px-4 py-4 text-gray-500">{category.eventCount}개</td>
+      <td className="px-4 py-4">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => onEdit(category.category_id)}
+            className="flex items-center gap-1 text-sm font-medium text-primary-500 hover:text-primary-700"
+          >
+            <Pencil size={13} />
+            수정
+          </button>
+          <button
+            onClick={() => onDelete(category.category_id, category.eventCount)}
+            disabled={isPendingDelete}
+            className="flex items-center gap-1 text-sm font-medium text-red-500 hover:text-red-700 disabled:opacity-40"
+          >
+            <Trash2 size={13} />
+            삭제
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+function EditRow({
+  category,
+  onSave,
+  onCancel,
+  isPending,
+}: {
+  category: Category;
+  onSave: (formData: FormData) => void;
+  onCancel: () => void;
+  isPending: boolean;
+}) {
+  return (
+    <tr className="border-b border-primary-100 bg-primary-50/30">
+      <td className="w-10 px-4 py-3" />
+      <td className="w-16 px-4 py-3 text-gray-400">{category.display_order}</td>
+      <td className="px-4 py-3" colSpan={2}>
+        <form
+          action={onSave}
+          className="flex items-center gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSave(new FormData(e.currentTarget));
+          }}
+        >
+          <input type="hidden" name="categoryId" value={category.category_id} />
+          <input
+            name="name"
+            defaultValue={category.category_name}
+            autoFocus
+            required
+            className="rounded-lg border border-primary-300 px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-primary-400"
+          />
+          <button
+            type="submit"
+            disabled={isPending}
+            className="flex items-center gap-1 rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-600 disabled:opacity-50"
+          >
+            <Check size={13} />
+            저장
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100"
+          >
+            <X size={13} />
+            취소
+          </button>
+        </form>
+      </td>
+      <td className="px-4 py-3" />
+    </tr>
+  );
+}
+
 export default function CategoryManager({
   initialCategories,
 }: {
   initialCategories: Category[];
 }) {
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [categories, setCategories] = useState(initialCategories);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const addFormRef = useRef<HTMLFormElement>(null);
 
-  function handleAdd(formData: FormData) {
-    setErrorMsg(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = categories.findIndex((c) => c.category_id === active.id);
+    const newIndex = categories.findIndex((c) => c.category_id === over.id);
+    const reordered = arrayMove(categories, oldIndex, newIndex);
+
+    setCategories(reordered);
+
     startTransition(async () => {
-      const result = await addCategory(formData);
-      if (result.error) {
-        setErrorMsg(result.error);
-      } else {
-        setShowAddForm(false);
-        addFormRef.current?.reset();
-      }
+      await reorderCategories(
+        reordered.map((c, i) => ({ categoryId: c.category_id, displayOrder: i + 1 })),
+      );
     });
   }
 
-  function handleUpdate(formData: FormData) {
-    setErrorMsg(null);
+  function handleSave(formData: FormData) {
     startTransition(async () => {
       const result = await updateCategory(formData);
-      if (result.error) {
-        setErrorMsg(result.error);
+      if (result?.error) {
+        alert(result.error);
       } else {
+        const id = String(formData.get("categoryId"));
+        const name = String(formData.get("name"));
+        setCategories((prev) =>
+          prev.map((c) => (c.category_id === id ? { ...c, category_name: name } : c)),
+        );
         setEditingId(null);
       }
     });
@@ -52,212 +197,76 @@ export default function CategoryManager({
 
   function handleDelete(categoryId: string, eventCount: number) {
     if (eventCount > 0) {
-      alert(`이 카테고리에 이벤트 ${eventCount}개가 사용 중입니다. 삭제할 수 없습니다.`);
+      alert(`이벤트 ${eventCount}개가 사용 중인 카테고리는 삭제할 수 없습니다.`);
       return;
     }
     if (!confirm("카테고리를 삭제하시겠습니까?")) return;
+
     startTransition(async () => {
       const result = await deleteCategory(categoryId);
-      if (result.error) alert(result.error);
+      if (result?.error) {
+        alert(result.error);
+      } else {
+        setCategories((prev) => prev.filter((c) => c.category_id !== categoryId));
+      }
     });
   }
 
   return (
     <div className="space-y-4">
-      {errorMsg && (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{errorMsg}</div>
-      )}
+      <div className="flex items-center gap-2 rounded-xl bg-primary-50 px-4 py-3 text-sm text-primary-600">
+        <GripVertical size={15} className="shrink-0" />
+        드래그하여 카테고리 순서를 변경할 수 있습니다.
+      </div>
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-          <h2 className="font-semibold text-gray-900">카테고리 목록</h2>
-          <button
-            onClick={() => setShowAddForm((v) => !v)}
-            className="flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-600"
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={categories.map((c) => c.category_id)}
+            strategy={verticalListSortingStrategy}
           >
-            <Plus size={15} />
-            카테고리 추가
-          </button>
-        </div>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 text-left text-gray-500">
+                  <th className="w-10 px-4 py-3.5" />
+                  <th className="w-16 px-4 py-3.5 font-medium">순서</th>
+                  <th className="px-4 py-3.5 font-medium">카테고리명</th>
+                  <th className="px-4 py-3.5 font-medium">이벤트 수</th>
+                  <th className="px-4 py-3.5 font-medium">관리</th>
+                </tr>
+              </thead>
+              <tbody>
+                {categories.map((cat, index) =>
+                  editingId === cat.category_id ? (
+                    <EditRow
+                      key={cat.category_id}
+                      category={cat}
+                      onSave={handleSave}
+                      onCancel={() => setEditingId(null)}
+                      isPending={isPending}
+                    />
+                  ) : (
+                    <SortableRow
+                      key={cat.category_id}
+                      category={cat}
+                      index={index}
+                      onEdit={setEditingId}
+                      onDelete={handleDelete}
+                      isPendingDelete={isPending}
+                    />
+                  ),
+                )}
+              </tbody>
+            </table>
+          </SortableContext>
+        </DndContext>
 
-        {showAddForm && (
-          <form ref={addFormRef} action={handleAdd} className="border-b border-gray-100 bg-gray-50 px-6 py-4">
-            <p className="mb-3 text-sm font-medium text-gray-700">새 카테고리</p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <input
-                name="name"
-                required
-                placeholder="이름 (예: 콘서트)"
-                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
-              />
-              <input
-                name="slug"
-                required
-                placeholder="슬러그 (예: concert)"
-                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
-              />
-              <input
-                name="iconKey"
-                placeholder="아이콘 키 (예: tag)"
-                defaultValue="tag"
-                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
-              />
-              <input
-                name="displayOrder"
-                type="number"
-                placeholder="정렬 순서"
-                defaultValue={0}
-                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
-              />
-            </div>
-            <div className="mt-3 flex gap-2">
-              <button
-                type="submit"
-                disabled={isPending}
-                className="flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-600 disabled:opacity-50"
-              >
-                <Check size={14} />
-                추가
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAddForm(false)}
-                className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
-              >
-                <X size={14} />
-                취소
-              </button>
-            </div>
-          </form>
-        )}
-
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left font-semibold text-gray-700">이름</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">슬러그</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">아이콘</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">순서</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">활성</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700">이벤트 수</th>
-              <th className="px-4 py-3 text-right font-semibold text-gray-700">액션</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {initialCategories.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="py-12 text-center text-gray-400">
-                  카테고리가 없습니다
-                </td>
-              </tr>
-            ) : (
-              initialCategories.map((cat) =>
-                editingId === cat.category_id ? (
-                  <tr key={cat.category_id} className="bg-blue-50">
-                    <td colSpan={7} className="px-4 py-4">
-                      <form action={handleUpdate}>
-                        <input type="hidden" name="categoryId" value={cat.category_id} />
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                          <input
-                            name="name"
-                            defaultValue={cat.category_name}
-                            required
-                            placeholder="이름"
-                            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
-                          />
-                          <input
-                            name="slug"
-                            defaultValue={cat.slug}
-                            required
-                            placeholder="슬러그"
-                            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
-                          />
-                          <input
-                            name="iconKey"
-                            defaultValue={cat.icon_key}
-                            placeholder="아이콘 키"
-                            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
-                          />
-                          <input
-                            name="displayOrder"
-                            type="number"
-                            defaultValue={cat.display_order}
-                            placeholder="순서"
-                            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
-                          />
-                          <select
-                            name="isActive"
-                            defaultValue={String(cat.is_active)}
-                            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
-                          >
-                            <option value="true">활성</option>
-                            <option value="false">비활성</option>
-                          </select>
-                        </div>
-                        <div className="mt-3 flex gap-2">
-                          <button
-                            type="submit"
-                            disabled={isPending}
-                            className="flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-600 disabled:opacity-50"
-                          >
-                            <Check size={14} />
-                            저장
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setEditingId(null)}
-                            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
-                          >
-                            <X size={14} />
-                            취소
-                          </button>
-                        </div>
-                      </form>
-                    </td>
-                  </tr>
-                ) : (
-                  <tr key={cat.category_id} className="hover:bg-gray-50">
-                    <td className="px-6 py-3 font-medium text-gray-900">{cat.category_name}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-500">{cat.slug}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-500">{cat.icon_key}</td>
-                    <td className="px-4 py-3 text-gray-600">{cat.display_order}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          cat.is_active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-500"
-                        }`}
-                      >
-                        {cat.is_active ? "활성" : "비활성"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">{cat.eventCount}개</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => setEditingId(cat.category_id)}
-                          className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(cat.category_id, cat.eventCount)}
-                          disabled={isPending}
-                          className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ),
-              )
-            )}
-          </tbody>
-        </table>
-        <div className="border-t border-gray-100 px-6 py-3 text-xs text-gray-500">
-          총 {initialCategories.length}개
+        <div className="border-t border-gray-100 px-4 py-3 text-xs text-gray-400">
+          총 {categories.length}개
         </div>
       </div>
     </div>

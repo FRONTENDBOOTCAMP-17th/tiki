@@ -5,13 +5,8 @@ import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 import RankingList from "@/components/RankingList";
 import type { RankingItem } from "@/lib/event/ranking";
-import { categories } from "@/app/category/_categories";
+import type { CategoryRow } from "@/lib/api/categories";
 import { revalidateRanking } from "./actions";
-
-const TABS = [
-  { slug: null, name: "전체" },
-  ...categories.map(({ slug, name }) => ({ slug, name })),
-];
 
 // "2026-06-24T14:30:00.000Z" → "6월 24일 23:30 기준" (로컬 시간)
 function formatGeneratedAt(iso: string) {
@@ -26,10 +21,16 @@ function formatGeneratedAt(iso: string) {
 export default function RankingTabs({
   initialItems,
   generatedAt,
+  categories,
 }: {
   initialItems: RankingItem[];
   generatedAt: string;
+  categories: CategoryRow[];
 }) {
+  const TABS = [
+    { slug: null, name: "전체" },
+    ...categories.map(({ slug, category_name }) => ({ slug, name: category_name })),
+  ];
   const router = useRouter();
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [items, setItems] = useState(initialItems);
