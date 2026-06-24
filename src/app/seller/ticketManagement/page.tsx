@@ -3,7 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import OrderTable from "./_components/OrderTable";
 import type { OrderRow } from "./types";
 
-export default async function TicketManagementPage() {
+export default async function TicketManagementPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ eventId?: string }>;
+}) {
+  const { eventId: initialEventId } = await searchParams;
   const user = await requireUser();
   const supabase = await createClient();
 
@@ -16,7 +21,7 @@ export default async function TicketManagementPage() {
   const eventIds = events.map((event) => event.event_id);
 
   if (eventIds.length === 0) {
-    return <OrderTable orders={[]} events={[]} />;
+    return <OrderTable key={initialEventId ?? "all"} orders={[]} events={[]} />;
   }
 
   const [{ data: orderRows }, { data: slotRows }, { data: gradeRows }] =
@@ -80,8 +85,10 @@ export default async function TicketManagementPage() {
 
   return (
     <OrderTable
+      key={initialEventId ?? "all"}
       orders={rows}
       events={events.map((e) => ({ id: e.event_id, title: e.title }))}
+      initialEventId={initialEventId}
     />
   );
 }
