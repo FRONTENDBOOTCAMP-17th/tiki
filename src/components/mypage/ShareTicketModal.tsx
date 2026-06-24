@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect } from "react";
 import { Minus, Plus } from "lucide-react";
 import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
@@ -28,7 +28,7 @@ export default function ShareTicketModal({
   const [qty, setQty] = useState(1);
   const [selected, setSelected] = useState<string | null>(null);
   const [friends, setFriends] = useState<Friend[]>([]);
-  const [pending, startTransition] = useTransition();
+  const [sharing, setSharing] = useState(false);
 
   // 모달 열릴 때 내 친구 목록 로드
   useEffect(() => {
@@ -39,16 +39,16 @@ export default function ShareTicketModal({
     });
   }, [open]);
 
-  const handleShare = () => {
+  const handleShare = async () => {
     if (!selected) return;
-    startTransition(async () => {
-      const result = await shareTicket(r.id, selected, qty);
-      if (result?.error) {
-        alert(result.error);
-        return;
-      }
-      onClose();
-    });
+    setSharing(true);
+    const result = await shareTicket(r.id, selected, qty);
+    setSharing(false);
+    if (result?.error) {
+      alert(result.error);
+      return;
+    }
+    onClose();
   };
 
   return (
@@ -145,11 +145,11 @@ export default function ShareTicketModal({
         </Button>
         <button
           type="button"
-          disabled={!selected || pending}
+          disabled={!selected || sharing}
           onClick={handleShare}
           className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {pending ? "공유 중..." : "공유하기"}
+          {sharing ? "공유 중..." : "공유하기"}
         </button>
       </Modal.Footer>
     </Modal>
