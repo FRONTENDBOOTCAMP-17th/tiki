@@ -11,7 +11,10 @@ export async function GET(request: Request) {
 
   try {
     const items = await fetchRanking({ slug, limit, days });
-    return success({ items, total: items.length });
+    const res = success({ items, total: items.length });
+    // 탭 전환 시 불필요한 재요청 방지: CDN 10분 캐시, 이후 5분 stale-while-revalidate
+    res.headers.set("Cache-Control", "s-maxage=600, stale-while-revalidate=300");
+    return res;
   } catch (e) {
     const message = e instanceof Error ? e.message : "ranking fetch failed";
     return fail(message, 500);

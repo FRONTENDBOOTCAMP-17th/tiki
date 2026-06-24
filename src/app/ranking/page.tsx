@@ -5,6 +5,7 @@ import { fetchRanking } from "@/lib/event/ranking";
 import RankingTabs from "./RankingTabs";
 
 export const metadata = { title: "랭킹 | TiKi" };
+export const revalidate = 3600; // 1시간마다 재생성 (랭킹은 실시간 불필요)
 
 export default async function RankingPage() {
   const [initialItems, loggedIn] = await Promise.all([
@@ -16,7 +17,7 @@ export default async function RankingPage() {
     <>
       <Header loggedIn={loggedIn} />
       <main className="flex-1 bg-white pb-20 min-[744px]:pb-0">
-        <RankingTabs initialItems={initialItems} />
+        <RankingTabs initialItems={initialItems} generatedAt={new Date().toISOString()} />
       </main>
       <Navigation loggedIn={loggedIn} />
     </>

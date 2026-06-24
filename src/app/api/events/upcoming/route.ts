@@ -9,7 +9,10 @@ export async function GET(request: Request) {
 
   try {
     const items = await fetchUpcoming({ slug, limit });
-    return success({ items, total: items.length });
+    const res = success({ items, total: items.length });
+    // 오픈예정은 변동이 잦으므로 CDN 5분 캐시
+    res.headers.set("Cache-Control", "s-maxage=300, stale-while-revalidate=60");
+    return res;
   } catch (e) {
     const message = e instanceof Error ? e.message : "upcoming fetch failed";
     return fail(message, 500);
