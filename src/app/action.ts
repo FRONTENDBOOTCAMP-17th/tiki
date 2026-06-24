@@ -60,26 +60,20 @@ export async function withdraw(formData: FormData) {
   redirect('/');
 }
 
-// 예매 취소
 export async function cancelReservation(orderId: string) {
   const supabase = await createClient();
   const user = await getCurrentUser();
   if (!user) return { error: '로그인이 필요합니다' };
 
-  const { error } = await supabase
-    .from('orders')
-    .update({ status: 'cancelled' })
-    .eq('order_id', orderId)
-    .eq('user_id', user.id);
+  const { data: cancelled, error } = await supabase.rpc('cancel_order', {
+    p_order_id: orderId,
+  });
   if (error) return { error: error.message };
-
-  await supabase
-    .from('review')
-    .delete()
-    .eq('order_id', orderId)
-    .eq('user_id', user.id);
+  if (!cancelled) return { error: '취소할 수 없는 예매입니다' };
 
   revalidatePath('/mypage/reservations');
+  revalidatePath('/seller/ticketManagement');
+  revalidatePath('/seller/settlement');
   return { success: true };
 }
 
