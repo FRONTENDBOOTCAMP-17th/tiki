@@ -1,9 +1,9 @@
 import Avatar from "@/components/Avatar";
 import { formatDotDate } from "@/lib/format";
 import type { Review } from "@/types/domain/event";
+import ReviewStars from "@/components/reviews/ReviewStars";
 import ReviewEditableItem from "./ReviewEditableItem";
 import ReviewLikeButton from "./ReviewLikeButton";
-import ReviewStars from "./ReviewStars";
 
 export default function ReviewItem({
   eventId,

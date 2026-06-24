@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import Avatar from "@/components/Avatar";
 import Button from "@/components/Button";
+import ReviewStars from "@/components/reviews/ReviewStars";
 import { cn } from "@/lib/cn";
 import { formatDotDate } from "@/lib/format";
 import {
@@ -18,7 +19,6 @@ import {
 import type { Review } from "@/types/domain/event";
 import RatingInput from "./RatingInput";
 import ReviewLikeButton from "./ReviewLikeButton";
-import ReviewStars from "./ReviewStars";
 
 export default function ReviewEditableItem({
   eventId,
