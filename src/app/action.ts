@@ -64,16 +64,31 @@ export async function withdraw(formData: FormData) {
 export async function cancelReservation(orderId: string) {
   const supabase = await createClient();
   const user = await getCurrentUser();
-  if (!user) return { error: '로그인이 필요합니다' };
+  if (!user) return { error: "로그인이 필요합니다" };
 
-  const { error } = await supabase
-    .from('orders')
-    .update({ status: 'cancelled' })
-    .eq('order_id', orderId)
-    .eq('user_id', user.id);
-  if (error) return { error: error.message };
+  // 1) 내 주문 중 'paid'인 것만 취소 (이미 cancelled면 복구 중복 방지)
+  const { data: order, error: updateError } = await supabase
+    .from("orders")
+    .update({ status: "cancelled" })
+    .eq("order_id", orderId)
+    .eq("user_id", user.id)
+    .eq("status", "paid")
+    .select("ticket_grade_id, quantity")
+    .single();
 
-  revalidatePath('/mypage/reservations');
+  if (updateError || !order) {
+    return { error: "취소할 수 없는 예매입니다" };
+  }
+
+  // 2) 재고 복구 (취소 수량만큼 등급 재고 +)
+  if (order.ticket_grade_id) {
+    await supabase.rpc("restore_ticket_stock", {
+      p_grade_id: order.ticket_grade_id,
+      p_quantity: order.quantity,
+    });
+  }
+
+  revalidatePath("/mypage/reservations");
   return { success: true };
 }
 
