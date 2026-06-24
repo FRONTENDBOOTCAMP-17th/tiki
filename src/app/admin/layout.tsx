@@ -37,9 +37,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
       <div className="hidden min-h-screen flex-col bg-[#fafafb] lg:flex">
         <RoleHeader role="admin" />
-        <div className="flex flex-1 gap-6 p-6">
+        <div className="flex flex-1">
           <AdminSidebar />
-          <main className="min-w-0 flex-1">{children}</main>
+          <main className="min-w-0 flex-1 p-6">{children}</main>
         </div>
       </div>
     </>
