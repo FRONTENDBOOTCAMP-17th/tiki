@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { todayKST } from "@/lib/date";
 import Modal from "@/components/modal/Modal";
 import { Slot, Grade } from "@/types/domain/event";
 import BookingPanel, { BookingSelection } from "./BookingPanel";
@@ -15,6 +16,35 @@ interface BookingWidgetProps {
   suspended?: boolean; // 관리자 예매 일시중지
 }
 
+// 예매 불가 상태(예매 종료/회차 없음/판매 중지): 예매 박스 형태는 유지하고 버튼만 비활성
+function UnavailableBox({ label }: { label: string }) {
+  return (
+    <>
+      <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
+        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-mirage">예매하기</h2>
+          <button
+            type="button"
+            disabled
+            className="mt-4 w-full cursor-not-allowed rounded-md bg-gray-100 py-3 text-sm font-medium text-gray-400"
+          >
+            {label}
+          </button>
+        </div>
+      </aside>
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white p-4 lg:hidden">
+        <button
+          type="button"
+          disabled
+          className="w-full cursor-not-allowed rounded-md bg-gray-200 py-3 text-sm font-medium text-gray-500"
+        >
+          {label}
+        </button>
+      </div>
+    </>
+  );
+}
+
 export default function BookingWidget({
   eventId,
   soldOut = false,
@@ -23,6 +53,13 @@ export default function BookingWidget({
 }: BookingWidgetProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const today = todayKST();
+  const hasBookableSlot = panelProps.slots.some(
+    (slot) => !slot.isClosed && slot.date >= today,
+  );
+  // 매진(등급 잔여 0)은 배너로 막지 않고, 패널에서 등급별로 "매진" 표시한다.
+  // 예매 종료(soldOut)거나 남은 회차가 아예 없을 때만 안내로 대체.
+  const unavailable = soldOut || !hasBookableSlot;
 
   // 주문 생성(POST /api/orders) 후 결제 페이지로 이동.
   // 서버 컴포넌트에서 함수를 props 로 내릴 수 없어 예매 로직을 위젯이 직접 소유한다.
@@ -56,37 +93,13 @@ export default function BookingWidget({
   }
 
   if (suspended) {
-    return (
-      <>
-        <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm">
-            <p className="font-bold text-gray-400">판매가 잠시 중지되었습니다</p>
-          </div>
-        </aside>
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white p-4 lg:hidden">
-          <div className="w-full rounded-md bg-gray-300 py-3 text-center font-medium text-white">
-            판매가 잠시 중지되었습니다
-          </div>
-        </div>
-      </>
-    );
+    return <UnavailableBox label="판매 일시 중지" />;
   }
 
-  // 마감(매진) 시 예매 UI 대신 안내
-  if (soldOut) {
+  // 예매 종료 / 남은 회차 없음 → 버튼만 비활성
+  if (unavailable) {
     return (
-      <>
-        <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm">
-            <p className="font-bold text-danger-600">매진되었습니다</p>
-          </div>
-        </aside>
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white p-4 lg:hidden">
-          <div className="w-full rounded-md bg-gray-300 py-3 text-center font-medium text-white">
-            매진되었습니다
-          </div>
-        </div>
-      </>
+      <UnavailableBox label={soldOut ? "예매 종료" : "예매 가능한 회차 없음"} />
     );
   }
 
