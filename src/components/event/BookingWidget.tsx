@@ -11,12 +11,14 @@ interface BookingWidgetProps {
   eventId: string;
   slots: Slot[];
   grades: Grade[];
-  soldOut?: boolean; // event.status 마감 시 예매 차단
+  soldOut?: boolean;
+  suspended?: boolean; // 관리자 예매 일시중지
 }
 
 export default function BookingWidget({
   eventId,
   soldOut = false,
+  suspended = false,
   ...panelProps
 }: BookingWidgetProps) {
   const router = useRouter();
@@ -51,6 +53,23 @@ export default function BookingWidget({
         error instanceof Error ? error.message : "예매 처리에 실패했습니다.",
       );
     }
+  }
+
+  if (suspended) {
+    return (
+      <>
+        <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm">
+            <p className="font-bold text-gray-400">판매가 잠시 중지되었습니다</p>
+          </div>
+        </aside>
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white p-4 lg:hidden">
+          <div className="w-full rounded-md bg-gray-300 py-3 text-center font-medium text-white">
+            판매가 잠시 중지되었습니다
+          </div>
+        </div>
+      </>
+    );
   }
 
   // 마감(매진) 시 예매 UI 대신 안내
