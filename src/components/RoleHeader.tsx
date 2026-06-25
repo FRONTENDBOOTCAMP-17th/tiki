@@ -28,7 +28,7 @@ export default function RoleHeader({
         {/* 로고: 해당 영역 루트(/seller, /admin)로 이동 */}
         <Logo href={`/${role}`} color="#7c529d" />
         <span className="rounded-full bg-primary-100 px-2.5 py-1 text-xs font-semibold text-primary-700">
-          {roleLabels[role]} 센터
+          {roleLabels[role]}
         </span>
 
         {/* 알림 + 메인(구매자) 홈으로 이동 */}
