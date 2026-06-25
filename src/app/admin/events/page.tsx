@@ -1,44 +1,55 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { fetchCategories } from "@/lib/api/categories";
 import EventTable from "./_components/EventTable";
 
 interface SearchParams {
+  search?: string;
+  category?: string;
   status?: string;
 }
+
+// 화면 표시 상태 → DB 상태
+const DISPLAY_TO_DB: Record<string, string> = {
+  승인: "공개",
+  "예매 일시중지": "비공개",
+};
 
 export default async function AdminEventsPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { status } = await searchParams;
+  const { search, category, status } = await searchParams;
   const supabase = getSupabaseAdmin();
 
-  // 필터 탭용 전체 카운트는 필터 없이 별도 조회
-  const { data: allEvents } = await supabase
-    .from("event")
-    .select("event_id, status");
+  const categories = await fetchCategories();
 
-  const statusCounts = (allEvents ?? []).reduce<Record<string, number>>((acc, e) => {
-    acc[e.status] = (acc[e.status] ?? 0) + 1;
-    return acc;
-  }, {});
+  // 장르 필터 → category_id 변환
+  const matchedCategory = category && category !== "all"
+    ? categories.find((c) => c.slug === category)
+    : null;
 
   let query = supabase
     .from("event")
-    .select(
-      "event_id, title, status, category_id, seller_id, created_at, start_date, end_date",
-    )
+    .select("event_id, title, status, category_id, seller_id, start_date, created_at")
     .order("created_at", { ascending: false });
 
+  if (search) {
+    query = query.ilike("title", `%${search}%`);
+  }
+  if (matchedCategory) {
+    query = query.eq("category_id", matchedCategory.category_id);
+  }
   if (status && status !== "all") {
-    query = query.eq("status", status);
+    const dbStatus = DISPLAY_TO_DB[status] ?? status;
+    query = query.eq("status", dbStatus);
   }
 
   const { data: events } = await query;
 
-  // 이벤트별 결제 완료 주문 수만 집계
+  // 이벤트별 결제 완료 주문 수
   const eventIds = (events ?? []).map((e) => e.event_id);
-  const { data: orderCounts } =
+  const { data: orderRows } =
     eventIds.length > 0
       ? await supabase
           .from("orders")
@@ -48,38 +59,31 @@ export default async function AdminEventsPage({
       : { data: [] };
 
   const orderCountMap = new Map<string, number>();
-  for (const o of orderCounts ?? []) {
+  for (const o of orderRows ?? []) {
     orderCountMap.set(o.event_id, (orderCountMap.get(o.event_id) ?? 0) + 1);
   }
 
-  // 판매자 스토어 이름 조회
-  const sellerIds = [...new Set((events ?? []).map((e) => e.seller_id))];
-  const { data: sellers } =
-    sellerIds.length > 0
-      ? await supabase
-          .from("seller_profiles")
-          .select("id, store_name")
-          .in("id", sellerIds)
-      : { data: [] };
+  // 카테고리명 매핑
+  const categoryNameMap = new Map(
+    categories.map((c) => [c.category_id, c.category_name]),
+  );
 
-  const sellerMap = new Map<string, string>();
-  for (const s of sellers ?? []) {
-    sellerMap.set(s.id, s.store_name);
-  }
-
-  const enriched = (events ?? []).map((e) => ({
+  const enriched = (events ?? []).map((e, index) => ({
     ...e,
-    orderCount: orderCountMap.get(e.event_id) ?? 0,
-    storeName: sellerMap.get(e.seller_id) ?? "-",
+    index: index + 1,
+    categoryName: categoryNameMap.get(e.category_id) ?? "-",
+    partyCount: orderCountMap.get(e.event_id) ?? 0,
   }));
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 py-8">
-      <h1 className="text-2xl font-bold text-gray-900">이벤트 관리</h1>
+      <h1 className="text-2xl font-bold text-gray-900">게시물 관리</h1>
       <EventTable
         events={enriched}
+        categories={categories}
+        currentSearch={search ?? ""}
+        currentCategory={category ?? "all"}
         currentStatus={status ?? "all"}
-        statusCounts={statusCounts}
       />
     </div>
   );
