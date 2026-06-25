@@ -4,9 +4,51 @@
 실행: `cd review/e2e && PORT=3201 npx playwright test tests/tiki-daily.spec.ts --reporter=line`
 baseURL: `PORT` 환경변수로 지정(기본 3102, 9차 리뷰는 3201). webServer 가 `PORT=<포트> npm run dev` 자동 기동(이미 떠 있으면 재사용).
 
-> 현재 단계: 대부분 디자인 시스템 / 컴포넌트 카탈로그 단계.
-> 실제 라우트는 `/`, `/home`(인증 가드), `/login`, `/auth/callback`, `/example/*` 데모로 제한적.
-> 이메일 로그인 테스트 계정 없음 — OAuth 기반 인증이라 자동화 로그인은 제외, 공개/데모 페이지 위주 검증.
+> 로그인: OAuth(Google/Kakao/Facebook) 외에 **`/join` 이메일 회원가입으로 역할(구매자/판매자) 선택**이 가능하다.
+> 따라서 테스트 계정을 service-role(Admin API)로 만들어 **구매자·판매자 두 역할로 각각 로그인**해 검증한다.
+> (판매자 버튼은 데스크톱 뷰포트에서만 노출 — 모바일은 구매자 가입만. `src/components/RoleForm.tsx:55`)
+
+## 역할 모델 (2026-06-25 확인)
+
+- 역할은 `users.role` 단일 컬럼. 값: `buyer` / `seller` (DB는 `string`이라 admin도 들어갈 수 있으나 가입 경로 없음).
+- **판매자**: 가입 시 본인이 선택 → `users.role='seller'` + `seller_profiles`(organizer_name·store_name) 행. 별도 승인 절차 없음. 판매자 데이터는 `seller_id = user.id`로 연결.
+- **관리자**: `login/action.ts:70`이 `role==='admin'`이면 `/admin`으로 보내지만 **`/admin` 이하가 빈 파일(미구현)**. 관리자 시나리오는 보류(스텁 도달만 확인).
+- 역할 계정 시드: service-role로 buyer/seller 계정 생성(email_confirm) + seller는 `users.role='seller'`·`seller_profiles` 세팅. → `test-account.md`에 기록.
+
+## 역할별 시나리오 (2026-06-25 재구성 — "쓰는 순서대로")
+
+### [구매자]
+| ID | 시나리오 | 단계 → 기대 |
+| -- | -------- | ----------- |
+| TB1 | 비로그인 탐색→상세 | `/` → `/search`·`/ranking`·`/category/[slug]`·`/open` → 이벤트 카드 → `/[eventId]` 상세(회차·등급·리뷰). 로그인 없이 열람, 예매는 로그인 유도 |
+| TB2 | 구매자 가입 | `/join` "구매자" 선택 → 이메일/이름/전화/비번 → 제출 → verification_email_sent (또는 Admin API confirm 계정 사용) |
+| TB3 | 로그인→예매→결제 | `/login` buyer 로그인(→`/`) → `/[eventId]`에서 회차·등급·수량 → 예매(`POST /api/orders`, status=ordered, 수수료5%) → `/payment/[orderId]`(본인 주문만 접근) |
+| TB4 | 마이페이지 예약확인 | `/mypage`(→`/mypage/profile`) → `/mypage/reservations`에 TB3 예매건 노출 → library·settings 순회 |
+| TB5 | 비로그인 보호라우트 가드 | 로그아웃 상태 `/mypage/reservations`·`/seller` 직접 접근 → `/login` 리다이렉트 기대 (proxy.ts 미들웨어 동작 실측 — `PROTECTED_ROUTES`에 `/mypage` 누락 의심) |
+
+### [판매자]
+| ID | 시나리오 | 단계 → 기대 |
+| -- | -------- | ----------- |
+| TS1 | 판매자 가입(데스크톱) | `/join`(1280) "판매자" 선택 → 단체명·스토어명 입력 → 가입. 모바일(390)에선 판매자 버튼 미노출 확인 |
+| TS2 | 로그인→판매자 대시보드 | `/login` seller 로그인 → `/seller`(role=seller만 통과, 아니면 "판매자만 접근") → 통계 카드. 모바일이면 "데스크탑에서 이용" 안내 |
+| TS3 | 이벤트 등록 | `/seller/registration` → 카테고리·제목·장소·회차(slot)·등급(가격/수량) → 저장(`POST /api/seller/event`, status="비공개") → `/seller/list`에 노출(본인 seller_id) |
+| TS4 | 이벤트 상세/수정 | `/seller/events/[id]` → `/seller/events/[id]/edit` 수정·저장(본인 것만) |
+| TS5 | 주문·티켓 관리 (사용자→판매자 연결) | `/seller/ticketManagement` → TB3에서 구매자가 산 주문이 판매자 화면에 반영되는지 |
+| TS6 | 정산·스토어정보 | `/seller/settlement` → `/seller/storeInfo` 사업자10자리·계좌10~16자리 검증 입력 → `/seller/reviews` |
+| TS7 | [보안] buyer가 판매자 API 직접 호출 | buyer 세션 쿠키로 `POST /api/seller/event` 호출 → role 검사 부재라 통과되는지 실측(통과 시 `[필수]` 인가 누락) |
+
+### [관리자] — 보류
+| TA1 | admin 스텁 도달 | `/admin` 및 `/admin/{category,member,dashboard,event}` → 현재 빈 파일(미라우팅)·가드 없음 확인. 정식 시나리오는 기능 구현 후 |
+
+## 발견 (2026-06-25) — 역할별 라이브 E2E (공개 동선 + 가드)
+
+dev 3201. `tests/tiki-role.spec.ts`(신규). 캡처 `review/images/2026-06-25/tiki-*`. **8/8 pass(공개 범위).**
+
+- **[필수][신규·인프라] 역할 계정 시드 불가 — service_role 권한 회수 + Admin 생성 500.**
+  실측: `GoTrue /auth/v1/admin/users`로 계정 생성 시 **HTTP 500**(auth→public.users 트리거 실패 추정). service_role 키로 `GET/PATCH /rest/v1/users` 시 **42501 permission denied**("GRANT SELECT, UPDATE ON public.users TO service_role" 힌트). `seller_profiles`도 동일. → **로그인 후 구매자/판매자 여정을 자동화로 실측할 수 없음**(이메일 확인 가입만 가능). 더 중요한 건, service-role을 쓰는 서버 코드가 있다면 같은 이유로 깨진다는 점 — 콘솔에서 service_role 그랜트 복구 필요.
+- **[칭찬/해결] 역할 가드 정상.** 비로그인 `/mypage/profile` → `/login`, `/seller`·`/seller/registration`·`/seller/settlement` 모두 → `/login` 리다이렉트. 9차 [필수] "마이페이지 가드 부재"가 **해결**됨(미들웨어/레이아웃 가드).
+- **[칭찬] 공개 구매자 동선 정상.** 홈·`/search`·`/ranking`·`/open`·이벤트 상세(`/[eventId]`) 모두 200(kanto와 달리 익명 목록 정상). 단 `/api/events/search` items 0(시드 없음)이라 상세는 mock 폴백.
+- **[참고] 회원가입은 4스텝(약관→…) 플로우.** 판매자 역할 버튼이 데스크톱 전용인지(RoleForm.tsx:55)는 약관 다음 스텝이라 이번 캡처로는 미확정 — 폼 진행 자동화로 다음 회차 확인.
 
 ## 시나리오 표
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, Search, SearchX, X } from "lucide-react";
+import { ChevronLeft, SearchX } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Navigation from "@/components/Navigation";
@@ -11,6 +11,7 @@ import {
   type SortItem,
   type SortKey,
 } from "@/components/Search/filterSort";
+import { SearchBarInput } from "@/components/SearchBar";
 import RecentKeywords from "./_components/RecentKeywords";
 import PopularList, { type PopularEvent } from "./_components/PopularList";
 import SortFilter from "./_components/SortFilter";
@@ -219,7 +220,7 @@ export default function SearchPage() {
     <div className="min-h-screen bg-white lg:bg-gray-50">
       {/* ── 검색 헤더 (입력 동작 보존, 레이아웃은 리뉴얼) ── */}
       <header className="sticky top-0 z-40 border-b border-gray-100 bg-white">
-        <div className="flex items-center gap-2 px-4 py-3 lg:mx-auto lg:max-w-6xl lg:gap-4 lg:px-8 lg:py-4">
+        <div className="flex items-center gap-2 px-4 py-3 lg:mx-auto lg:max-w-7xl lg:gap-4 lg:px-8 lg:py-4">
           <button
             type="button"
             onClick={() => router.back()}
@@ -229,30 +230,15 @@ export default function SearchPage() {
             <ChevronLeft className="h-6 w-6" />
           </button>
 
-          <div className="flex flex-1 items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 transition-colors focus-within:border-primary-400 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary-100">
-            <Search className="h-5 w-5 shrink-0 text-gray-400" />
-            <input
-              type="text"
-              placeholder="공연, 아티스트, 장소를 검색해보세요"
-              className="flex-1 border-none bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && trimmed) addKeyword(trimmed);
-              }}
-              autoFocus
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                aria-label="검색어 지우기"
-                className="shrink-0 cursor-pointer rounded-full p-0.5 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
+          <SearchBarInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onClear={() => setSearchQuery("")}
+            onSubmit={() => {
+              if (trimmed) addKeyword(trimmed);
+            }}
+            autoFocus
+          />
 
           {/* 햄버거 → 우측 슬라이드 사이드바(마이페이지). 데스크탑(lg)에선 숨김 */}
           <MobileDrawer>

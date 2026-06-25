@@ -5,14 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { MapPin, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { categories } from "@/app/category/_categories";
 import type { UpcomingItem } from "@/lib/event/upcoming";
+import type { CategoryRow } from "@/lib/api/categories";
 import { revalidateOpen } from "./actions";
-
-const TABS = [
-  { slug: null, name: "전체" },
-  ...categories.map(({ slug, name }) => ({ slug, name })),
-];
 
 function calcDDay(startDate: string) {
   const today = new Date();
@@ -90,10 +85,16 @@ function UpcomingCard({ item }: { item: UpcomingItem }) {
 export default function UpcomingTabs({
   initialItems,
   generatedAt,
+  categories,
 }: {
   initialItems: UpcomingItem[];
   generatedAt: string;
+  categories: CategoryRow[];
 }) {
+  const TABS = [
+    { slug: null, name: "전체" },
+    ...categories.map(({ slug, category_name }) => ({ slug, name: category_name })),
+  ];
   const router = useRouter();
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [items, setItems] = useState(initialItems);

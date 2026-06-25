@@ -1,19 +1,9 @@
-export interface Event {
-  event_id: string;
-  seller_id: string;
-  category_id: string;
-  title: string;
+import type { Tables } from "@/types/database";
+
+// event 테이블 생성 타입에서 파생 (status 만 앱 표기 유니온으로 좁힘)
+export type Event = Omit<Tables<"event">, "status"> & {
   status: "공개" | "비공개";
-  venue_name: string;
-  venue_address: string;
-  venue_detail_address?: string;
-  start_date: string;
-  end_date: string;
-  start_time: string;
-  thumbnail?: string;
-  created_at: string;
-  updated_at: string;
-}
+};
 
 export interface EventListItem extends Event {
   totalOrders: number;

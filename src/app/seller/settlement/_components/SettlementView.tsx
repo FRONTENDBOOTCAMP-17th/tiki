@@ -158,7 +158,7 @@ export default function SettlementView({ orders, bank }: Props) {
                       </td>
                       <td className="hidden px-4 py-3 min-[1180px]:table-cell">
                         <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                          className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${
                             row.month < thisMonth
                               ? "bg-green-50 text-green-700"
                               : "bg-amber-50 text-amber-600"

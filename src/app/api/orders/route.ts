@@ -40,6 +40,14 @@ export async function POST(req: NextRequest) {
     return fail("unauthorized", 401);
   }
 
+  const { data: event, error: eventError } = await supabase
+    .from("event")
+    .select("status")
+    .eq("event_id", eventId)
+    .single();
+  if (eventError || !event) return fail("event not found", 404);
+  if (event.status !== "공개") return fail("event not available", 400);
+
   const { data: grade, error: gradeError } = await supabase
     .from("ticket_grade")
     .select("event_id, price, quantity")

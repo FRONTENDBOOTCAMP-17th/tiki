@@ -245,6 +245,7 @@ export default async function EventDetailPage({
                 eventId={event.eventId}
                 slots={slots}
                 grades={grades}
+                suspended={event.status === "비공개"}
                 soldOut={event.status === "closed"}
               />
             </div>
