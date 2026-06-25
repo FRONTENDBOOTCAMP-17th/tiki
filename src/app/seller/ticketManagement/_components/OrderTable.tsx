@@ -18,6 +18,7 @@ import {
 import StatCard from "@/components/StatCard";
 import Dialog from "@/components/modal/Dialog";
 import Select from "@/components/Select";
+import InfoField from "@/components/InfoField";
 import PageHeader from "@/app/seller/_components/PageHeader";
 import useToast from "@/hooks/useToast";
 import {
@@ -494,48 +495,30 @@ export default function OrderTable({
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg bg-gray-50 p-3">
-                <p className="text-xs text-gray-400">주문번호</p>
-                <p className="truncate font-mono text-xs font-medium text-gray-900">
-                  {receipt.order_id}
-                </p>
-              </div>
-              <div className="rounded-lg bg-gray-50 p-3">
-                <p className="text-xs text-gray-400">주문일시</p>
-                <p className="font-medium text-gray-900">
-                  {formatDateTime(receipt.created_at)}
-                </p>
-              </div>
-              <div className="rounded-lg bg-gray-50 p-3">
-                <p className="text-xs text-gray-400">구매자</p>
-                <p className="truncate font-medium text-gray-900">
-                  {receipt.buyer_name}
-                </p>
-              </div>
-              <div className="rounded-lg bg-gray-50 p-3">
-                <p className="text-xs text-gray-400">이메일</p>
-                <p className="truncate font-medium text-gray-900">
-                  {receipt.buyer_email}
-                </p>
-              </div>
-              <div className="rounded-lg bg-gray-50 p-3">
-                <p className="text-xs text-gray-400">결제 금액</p>
-                <p className="font-medium text-gray-900">
-                  {receipt.total_price.toLocaleString()}원
-                </p>
-              </div>
-              <div className="rounded-lg bg-gray-50 p-3">
-                <p className="text-xs text-gray-400">상태</p>
-                <p
-                  className={`font-medium ${
-                    isCancelled(receipt.status)
-                      ? "text-danger-600"
-                      : "text-green-700"
-                  }`}
-                >
-                  {orderStatusLabel(receipt.status)}
-                </p>
-              </div>
+              <InfoField
+                label="주문번호"
+                value={receipt.order_id}
+                valueClassName="font-mono text-xs"
+              />
+              <InfoField
+                label="주문일시"
+                value={formatDateTime(receipt.created_at)}
+              />
+              <InfoField label="구매자" value={receipt.buyer_name} />
+              <InfoField label="이메일" value={receipt.buyer_email} />
+              <InfoField
+                label="결제 금액"
+                value={`${receipt.total_price.toLocaleString()}원`}
+              />
+              <InfoField
+                label="상태"
+                value={orderStatusLabel(receipt.status)}
+                valueClassName={
+                  isCancelled(receipt.status)
+                    ? "text-danger-600"
+                    : "text-green-700"
+                }
+              />
             </div>
 
             {isBooked(receipt.status) && (
