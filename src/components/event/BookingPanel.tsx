@@ -4,10 +4,12 @@ import { useMemo, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import Button from "@/components/Button";
 import { cn } from "@/lib/cn";
+import { todayKST } from "@/lib/date";
 import { Slot, Grade } from "@/types/domain/event";
 import BookingCalendar from "./BookingCalendar";
 
 const FEE_RATE = 0.05; // 수수료 5%
+const LOW_STOCK = 10; // 잔여 좌석 마감임박 기준
 const WEEKDAY_KO = ["일", "월", "화", "수", "목", "금", "토"];
 
 export interface BookingSelection {
@@ -31,20 +33,30 @@ export default function BookingPanel({
   grades,
   onBookNow,
 }: BookingPanelProps) {
-  // 회차 있는 날짜 (마감 제외)
+  const today = todayKST();
+
+  // 회차 있는 날짜 (마감·지난 날짜 제외)
   const availableDates = useMemo(
-    () => new Set(slots.filter((s) => !s.isClosed).map((s) => s.date)),
-    [slots],
+    () =>
+      new Set(
+        slots
+          .filter((slot) => !slot.isClosed && slot.date >= today)
+          .map((slot) => slot.date),
+      ),
+    [slots, today],
   );
   const firstDate = useMemo(
     () => [...availableDates].sort()[0],
     [availableDates],
   );
 
+  // 가장 가까운 예매 가능일을 기본 선택
   const [month, setMonth] = useState<Date>(() =>
     firstDate ? new Date(`${firstDate}T00:00:00`) : new Date(),
   );
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(
+    firstDate ?? null,
+  );
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -53,25 +65,36 @@ export default function BookingPanel({
   const daySlots = useMemo(
     () =>
       slots
-        .filter((s) => s.date === selectedDate)
+        .filter((slot) => slot.date === selectedDate)
         .sort((a, b) => a.startTime.localeCompare(b.startTime)),
     [slots, selectedDate],
   );
 
   const grade = grades.find((g) => g.gradeId === selectedGradeId);
-  const subtotal = grade ? grade.price * quantity : 0;
+  const maxQuantity = grade?.quantity ?? 1;
+  const safeQuantity = grade ? Math.min(quantity, maxQuantity) : quantity;
+  const subtotal = grade ? grade.price * safeQuantity : 0;
   const fee = Math.round(subtotal * FEE_RATE);
   const total = subtotal + fee;
-  const ready = selectedSlotId !== null && selectedGradeId !== null;
+  const ready = !!grade && selectedSlotId !== null && grade.quantity >= safeQuantity;
 
   function handleSelectDate(date: string) {
     setSelectedDate(date);
     setSelectedSlotId(null); // 날짜 바뀌면 회차 초기화
   }
 
+  function handleSelectGrade(gradeId: string) {
+    setSelectedGradeId(gradeId);
+    setQuantity(1);
+  }
+
   function submit(handler: (selection: BookingSelection) => void) {
     if (!selectedSlotId || !selectedGradeId) return;
-    handler({ slotId: selectedSlotId, gradeId: selectedGradeId, quantity });
+    handler({
+      slotId: selectedSlotId,
+      gradeId: selectedGradeId,
+      quantity: safeQuantity,
+    });
   }
 
   // 헤더 + 스크롤영역 + 고정푸터 : 캘린더가 커도 합계/예매버튼은 항상 보이게.
@@ -89,17 +112,16 @@ export default function BookingPanel({
           <p className="text-sm font-semibold text-gray-700">
             1. 날짜 및 회차 선택
           </p>
-          <div className="flex justify-center">
-            <BookingCalendar
-              month={month}
-              selectedDate={selectedDate}
-              availableDates={availableDates}
-              onMonthChange={setMonth}
-              onSelectDate={handleSelectDate}
-            />
-          </div>
+          <BookingCalendar
+            month={month}
+            selectedDate={selectedDate}
+            availableDates={availableDates}
+            minDate={today}
+            onMonthChange={setMonth}
+            onSelectDate={handleSelectDate}
+          />
 
-          {/* 선택 날짜의 회차 가로 나열 (많으면 가로 스크롤) */}
+          {/* 선택 날짜의 회차 */}
           {selectedDate &&
             (daySlots.length === 0 ? (
               <p className="text-sm text-gray-400">
@@ -128,7 +150,7 @@ export default function BookingPanel({
                         {Number(s.date.slice(5, 7))}/
                         {Number(s.date.slice(8, 10))}
                       </span>
-                      <span className="text-xs">{s.startTime}</span>
+                      <span className="text-xs">{s.startTime.slice(0, 5)}</span>
                     </button>
                   );
                 })}
@@ -136,36 +158,52 @@ export default function BookingPanel({
             ))}
         </section>
 
-        {/* 2. 좌석 등급 (매진 여부만, 잔여 수량 미노출) */}
+        {/* 2. 좌석 등급 */}
         <section className="flex flex-col gap-3">
           <p className="text-sm font-semibold text-gray-700">2. 좌석 등급</p>
           <div className="flex flex-col gap-2">
             {grades.map((g) => {
               const active = selectedGradeId === g.gradeId;
-              const soldOut = g.quantity === 0; // 잔여 0 이면 매진
+              const soldOut = g.quantity <= 0;
               return (
                 <button
                   key={g.gradeId}
                   type="button"
                   disabled={soldOut}
-                  onClick={() => setSelectedGradeId(g.gradeId)}
+                  onClick={() => handleSelectGrade(g.gradeId)}
                   className={cn(
-                    "flex items-center justify-between rounded-xl border px-4 py-2.5 text-left",
+                    "flex items-center justify-between rounded-xl border px-4 py-3 text-left transition-colors",
                     active
-                      ? "border-primary-500 bg-primary-100"
-                      : "border-gray-200",
-                    soldOut && "opacity-50",
+                      ? "border-primary-500 bg-primary-100 text-primary-900"
+                      : "border-gray-200 bg-white hover:border-primary-200 hover:bg-primary-50",
+                    soldOut &&
+                      "cursor-not-allowed bg-gray-50 text-gray-300 hover:border-gray-200 hover:bg-gray-50",
                   )}
                 >
-                  <span className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-gray-900">
-                      {g.name}
+                  <span className="flex flex-col gap-0.5">
+                    <span className="flex items-center gap-2">
+                      <span className="text-sm font-semibold">{g.name}</span>
+                      {soldOut && (
+                        <span className="rounded-full bg-danger-100 px-2 py-0.5 text-xs font-medium text-danger-600">
+                          매진
+                        </span>
+                      )}
                     </span>
-                    {soldOut && (
-                      <span className="text-xs text-danger-500">매진</span>
+                    {!soldOut && (
+                      <span
+                        className={cn(
+                          "text-xs",
+                          g.quantity <= LOW_STOCK
+                            ? "font-medium text-danger-500"
+                            : "text-gray-400",
+                        )}
+                      >
+                        잔여 {g.quantity.toLocaleString()}석
+                        {g.quantity <= LOW_STOCK && " · 마감임박"}
+                      </span>
                     )}
                   </span>
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-sm font-semibold">
                     {g.price.toLocaleString()}원
                   </span>
                 </button>
@@ -184,16 +222,20 @@ export default function BookingPanel({
                 type="button"
                 aria-label="수량 감소"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600"
+                disabled={!grade || safeQuantity <= 1}
+                className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300"
               >
                 <Minus className="h-4 w-4" />
               </button>
-              <span className="w-6 text-center font-semibold">{quantity}</span>
+              <span className="w-6 text-center font-semibold">
+                {safeQuantity}
+              </span>
               <button
                 type="button"
                 aria-label="수량 증가"
-                onClick={() => setQuantity((q) => q + 1)}
-                className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600"
+                onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
+                disabled={!grade || safeQuantity >= maxQuantity}
+                className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300"
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -206,7 +248,7 @@ export default function BookingPanel({
       <div className="shrink-0 border-t border-gray-100 px-6 py-3 lg:py-5">
         <div className="flex flex-col gap-2 text-sm">
           <div className="flex justify-between text-gray-600">
-            <span>티켓 금액 ({quantity}매)</span>
+            <span>티켓 금액 ({safeQuantity}매)</span>
             <span>{subtotal.toLocaleString()}원</span>
           </div>
           <div className="flex justify-between text-gray-600">
