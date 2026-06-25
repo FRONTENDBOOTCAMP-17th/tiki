@@ -7,6 +7,8 @@ import {
   Settings,
   LogOut,
   CalendarCheck,
+  Store,
+  ShieldCheck,
 } from "lucide-react";
 import Image from "next/image";
 import SidebarMenuItem from "./SidebarMenuItem";
@@ -24,6 +26,7 @@ const MY_MENU: SidebarItem[] = [
 const ROLE_LABEL: Record<string, string> = {
   buyer: "구매자",
   seller: "판매자",
+  admin: "관리자",
 };
 
 interface Props {
@@ -71,10 +74,25 @@ export default function MyPageSidebar({
         ))}
       </nav>
 
-      <form action={logout}>
+      {(role === "seller" || role === "admin") && (
+        <>
+          <div className="my-3 border-t border-gray-100" />
+          <SidebarMenuItem label="구매자 페이지" href="/mypage" icon={User} />
+          <SidebarMenuItem label="판매자 페이지" href="/seller" icon={Store} />
+          {role === "admin" && (
+            <SidebarMenuItem
+              label="관리자 페이지"
+              href="/admin"
+              icon={ShieldCheck}
+            />
+          )}
+        </>
+      )}
+
+      <form action={logout} className="mt-auto border-t border-gray-100 pt-3">
         <button
           type="submit"
-          className="mt-1 flex items-center gap-2 px-3 py-2 text-sm font-medium text-danger-500 hover:text-danger-600"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-danger-500 transition-colors hover:bg-gray-50 hover:text-danger-600"
         >
           <LogOut size={18} />
           로그아웃
