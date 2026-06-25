@@ -30,7 +30,16 @@ export async function changePassword(formData: FormData) {
 
   // 변경
   const { error } = await supabase.auth.updateUser({ password: next });
-  if (error) return { error: error.message };
+  if (error) {
+    // Supabase 영문 에러 → 한글 매핑
+    if (error.message.includes("should be different")) {
+      return { error: "새 비밀번호는 현재 비밀번호와 달라야 합니다" };
+    }
+    if (error.message.includes("at least")) {
+      return { error: "비밀번호는 6자 이상이어야 합니다" };
+    }
+    return { error: "비밀번호 변경에 실패했습니다" };
+  }
 
   return { success: true };
 }
@@ -63,7 +72,7 @@ export async function withdraw(formData: FormData) {
 export async function cancelReservation(orderId: string) {
   const supabase = await createClient();
   const user = await getCurrentUser();
-  if (!user) return { error: '로그인이 필요합니다' };
+  if (!user) return { error: "로그인이 필요합니다" };
 
   const { data: cancelled, error } = await supabase.rpc('cancel_order', {
     p_order_id: orderId,
@@ -125,4 +134,68 @@ export async function resetAvatar() {
 
   revalidatePath("/mypage", "layout");
   return { success: true };
+}
+
+export async function sendFriendRequest(email: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("send_friend_request", {
+    p_email: email,
+  });
+  if (error) return { error: error.message };
+
+  revalidatePath("/mypage/friends");
+  return data as { success?: boolean; error?: string };
+}
+
+export async function acceptFriendRequest(friendId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("accept_friend_request", {
+    p_friend_id: friendId,
+  });
+  if (error) return { error: error.message };
+  revalidatePath("/mypage/friends");
+  return data as { success?: boolean; error?: string };
+}
+
+export async function rejectFriendRequest(friendId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("reject_friend_request", {
+    p_friend_id: friendId,
+  });
+  if (error) return { error: error.message };
+  revalidatePath("/mypage/friends");
+  return data as { success?: boolean; error?: string };
+}
+
+export async function deleteFriend(friendId: string) {
+  const supabase = await createClient();
+  const me = await getCurrentUser();
+  if (!me) return { error: "로그인이 필요합니다" };
+
+  // friend 테이블 delete 정책: 내가 requester든 addressee든 삭제 가능
+  const { error } = await supabase
+    .from("friend")
+    .delete()
+    .eq("friend_id", friendId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/mypage/friends");
+  return { success: true };
+}
+
+export async function shareTicket(
+  orderId: string,
+  sharedWith: string,
+  quantity: number,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("share_ticket", {
+    p_order_id: orderId,
+    p_shared_with: sharedWith,
+    p_quantity: quantity,
+  });
+  if (error) return { error: error.message };
+
+  revalidatePath("/mypage/friends");
+  return data as { success?: boolean; error?: string };
 }

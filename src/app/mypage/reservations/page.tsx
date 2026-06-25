@@ -4,11 +4,15 @@ import { createClient } from "@/lib/supabase/server";
 import ReservationCard, {
   type Reservation,
 } from "@/components/mypage/ReservationCard";
+import ReceivedTicketCard, {
+  type ReceivedTicket,
+} from "@/components/mypage/ReceivedTicketCard";
 
 const FILTERS = [
   { label: "전체", value: "all" },
   { label: "예매 확정", value: "confirmed" },
   { label: "예매 취소", value: "cancelled" },
+  { label: "받은 티켓", value: "shared" },
 ];
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
@@ -29,6 +33,33 @@ function formatShort(date: string) {
   return `${y}.${m}.${day}`;
 }
 
+function FilterTabs({ filter }: { filter: string }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {FILTERS.map((f) => {
+        const active = filter === f.value;
+        const href =
+          f.value === "all"
+            ? "/mypage/reservations"
+            : `/mypage/reservations?filter=${f.value}`;
+        return (
+          <Link
+            key={f.value}
+            href={href}
+            className={
+              active
+                ? "rounded-full bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-1.5 text-sm font-semibold text-white"
+                : "rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+            }
+          >
+            {f.label}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 export default async function ReservationsPage({
   searchParams,
 }: {
@@ -38,7 +69,30 @@ export default async function ReservationsPage({
   const user = await requireUser();
   const supabase = await createClient();
 
-  // 내 주문 (장바구니 cart 제외 → ordered + cancelled)
+  // 받은 티켓 탭
+  if (filter === "shared") {
+    const { data: received } = await supabase.rpc("get_my_received_tickets");
+    const tickets = (received as ReceivedTicket[] | null) ?? [];
+
+    return (
+      <div className="flex flex-col gap-6">
+        <FilterTabs filter={filter} />
+        {tickets.length === 0 ? (
+          <p className="rounded-2xl border border-gray-100 bg-white p-10 text-center text-sm text-gray-400 shadow-sm">
+            받은 티켓이 없습니다.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {tickets.map((t) => (
+              <ReceivedTicketCard key={t.share_id} ticket={t} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // 내 주문 (장바구니 cart 제외 → paid + cancelled)
   const { data: orders } = await supabase
     .from("orders")
     .select(
@@ -117,29 +171,7 @@ export default async function ReservationsPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap gap-2">
-        {FILTERS.map((f) => {
-          const active = filter === f.value;
-          const href =
-            f.value === "all"
-              ? "/mypage/reservations"
-              : `/mypage/reservations?filter=${f.value}`;
-          return (
-            <Link
-              key={f.value}
-              href={href}
-              className={
-                active
-                  ? "rounded-full bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-1.5 text-sm font-semibold text-white"
-                  : "rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
-              }
-            >
-              {f.label}
-            </Link>
-          );
-        })}
-      </div>
-
+      <FilterTabs filter={filter} />
       {list.length === 0 ? (
         <p className="rounded-2xl border border-gray-100 bg-white p-10 text-center text-sm text-gray-400 shadow-sm">
           예매 내역이 없습니다.

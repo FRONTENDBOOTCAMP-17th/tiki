@@ -24,7 +24,7 @@ export default async function LibraryPage({
     .from("orders")
     .select("event_id, slot_id")
     .eq("user_id", user.id)
-    .eq("status", "ordered");
+    .eq("status", "paid");
 
   const eventIds = [...new Set((orders ?? []).map((o) => o.event_id))];
 

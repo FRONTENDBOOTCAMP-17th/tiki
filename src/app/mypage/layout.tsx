@@ -3,7 +3,6 @@ import Footer from "@/components/Footer";
 import Navigation from "@/components/Navigation";
 import MyPageSidebar from "@/components/sidebar/MyPageSidebar";
 import MobileDrawer from "@/components/mypage/MobileDrawer";
-import MobileProfileCard from "@/components/mypage/MobileProfileCard";
 import { requireUser, isAuthenticated } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
@@ -45,7 +44,6 @@ export default async function MyPageLayout({
               <MyPageSidebar {...profile} />
             </MobileDrawer>
           </div>
-          <MobileProfileCard {...profile} />
           <div className="flex gap-6">
             {/* 데스크탑(lg+): 세로 사이드바 */}
             <div className="hidden w-64 shrink-0 lg:block">
