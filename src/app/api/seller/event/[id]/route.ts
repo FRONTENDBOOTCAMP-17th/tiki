@@ -1,6 +1,5 @@
-import { getCurrentUser } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
 import { fail, success } from "@/lib/api/api-response";
+import { requireUserApi } from "@/lib/api/require-user";
 import { NextRequest } from "next/server";
 import { SELLER_EVENT_LIMITS } from "@/app/seller/_lib/limits";
 
@@ -42,10 +41,9 @@ export async function PATCH(
   const { id } = await params;
   const body = (await req.json()) as EventUpdateBody;
 
-  const user = await getCurrentUser();
-  if (!user) return fail("unauthorized", 401);
-
-  const supabase = await createClient();
+  const ctx = await requireUserApi();
+  if ("error" in ctx) return ctx.error;
+  const { user, supabase } = ctx;
 
   const fields: Record<string, unknown> = {
     updated_at: new Date().toISOString(),
