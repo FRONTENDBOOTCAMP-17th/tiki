@@ -1,3 +1,5 @@
+import type { Tables } from "@/types/database";
+
 export interface SettlementOrder {
   event_id: string;
   event_title: string;
@@ -7,11 +9,11 @@ export interface SettlementOrder {
   month: string;
 }
 
-export interface BankAccount {
-  bank_name: string | null;
-  bank_account_number: string | null;
-  bank_holder_name: string | null;
-}
+// seller_stores 생성 타입에서 정산 계좌 필드만 파생
+export type BankAccount = Pick<
+  Tables<"seller_stores">,
+  "bank_name" | "bank_account_number" | "bank_holder_name"
+>;
 
 export interface MonthSummary {
   month: string;

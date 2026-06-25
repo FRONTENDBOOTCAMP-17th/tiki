@@ -1,33 +1,32 @@
-export interface EventDetail {
-  event_id: string;
-  category_id: string;
-  title: string;
-  status: "공개" | "비공개";
-  description: string | null;
-  venue_name: string;
-  venue_address: string;
-  venue_detail_address: string | null;
-  start_date: string;
-  end_date: string;
-  start_time: string;
-  duration: number | null;
-  intermission: number | null;
-  thumbnail: string | null;
-}
+import type { Tables } from "@/types/database";
 
-export interface Grade {
-  grade_id: string;
-  grade_name: string;
-  price: number;
-  quantity: number;
-}
+// event/ticket_grade/slot 생성 타입에서 파생 (status 만 앱 표기 유니온으로 좁힘)
+export type EventDetail = Pick<
+  Tables<"event">,
+  | "event_id"
+  | "category_id"
+  | "title"
+  | "description"
+  | "venue_name"
+  | "venue_address"
+  | "venue_detail_address"
+  | "start_date"
+  | "end_date"
+  | "start_time"
+  | "duration"
+  | "intermission"
+  | "thumbnail"
+> & { status: "공개" | "비공개" };
 
-export interface Slot {
-  slot_id: string;
-  date: string;
-  start_time: string;
-  end_time: string;
-}
+export type Grade = Pick<
+  Tables<"ticket_grade">,
+  "grade_id" | "grade_name" | "price" | "quantity"
+>;
+
+export type Slot = Pick<
+  Tables<"slot">,
+  "slot_id" | "date" | "start_time" | "end_time"
+>;
 
 export interface CategoryOption {
   category_id: string;
