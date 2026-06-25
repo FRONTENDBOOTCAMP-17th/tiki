@@ -53,7 +53,7 @@ export default async function LibraryPage({
       .in("event_id", eventIds),
     slotIds.length
       ? supabase.from("slot").select("slot_id, date").in("slot_id", slotIds)
-      : Promise.resolve({ data: [] as any[] }),
+      : Promise.resolve({ data: [] as { slot_id: string; date: string }[] }),
   ]);
 
   // 3) category_id → slug
@@ -63,7 +63,7 @@ export default async function LibraryPage({
         .from("category")
         .select("category_id, slug")
         .in("category_id", categoryIds)
-    : { data: [] as any[] };
+    : { data: [] as { category_id: string; slug: string }[] };
 
   const eventMap = new Map((events ?? []).map((e) => [e.event_id, e]));
   const slotMap = new Map((slots ?? []).map((s) => [s.slot_id, s]));

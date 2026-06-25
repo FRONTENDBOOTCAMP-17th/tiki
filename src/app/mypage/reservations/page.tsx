@@ -121,19 +121,30 @@ export default async function ReservationsPage({
             .from("event")
             .select("event_id, title, venue_name, venue_address")
             .in("event_id", eventIds)
-        : Promise.resolve({ data: [] as any[] }),
+        : Promise.resolve({
+            data: [] as {
+              event_id: string;
+              title: string;
+              venue_name: string;
+              venue_address: string;
+            }[],
+          }),
       slotIds.length
         ? supabase
             .from("slot")
             .select("slot_id, date, start_time")
             .in("slot_id", slotIds)
-        : Promise.resolve({ data: [] as any[] }),
+        : Promise.resolve({
+            data: [] as { slot_id: string; date: string; start_time: string }[],
+          }),
       gradeIds.length
         ? supabase
             .from("ticket_grade")
             .select("grade_id, grade_name")
             .in("grade_id", gradeIds)
-        : Promise.resolve({ data: [] as any[] }),
+        : Promise.resolve({
+            data: [] as { grade_id: string; grade_name: string }[],
+          }),
     ]);
 
   const eventMap = new Map((events ?? []).map((e) => [e.event_id, e]));
