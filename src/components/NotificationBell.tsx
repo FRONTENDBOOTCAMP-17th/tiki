@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Bell, UserPlus, Ticket, Megaphone, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { acceptFriendRequest, rejectFriendRequest } from "@/app/action";
+import { toast } from "sonner";
 
 interface NotificationItem {
   notification_id: string;
@@ -92,7 +93,7 @@ export default function NotificationBell() {
     if (!item.ref_id) return;
     const result = await acceptFriendRequest(item.ref_id);
     if (result?.error) {
-      alert(result.error);
+      toast.error(result.error);
       return;
     }
     setItems((prev) =>
@@ -104,7 +105,7 @@ export default function NotificationBell() {
     if (!item.ref_id) return;
     const result = await rejectFriendRequest(item.ref_id);
     if (result?.error) {
-      alert(result.error);
+      toast.error(result.error);
       return;
     }
     setItems((prev) =>
@@ -119,7 +120,7 @@ export default function NotificationBell() {
       .delete()
       .eq("notification_id", item.notification_id);
     if (error) {
-      alert("삭제에 실패했습니다");
+      toast.error("삭제에 실패했습니다");
       return;
     }
     setItems((prev) =>
