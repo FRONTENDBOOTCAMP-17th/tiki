@@ -11,7 +11,7 @@ export interface NotificationHistory {
 export default async function AdminNotificationsPage() {
   const supabase = getSupabaseAdmin();
 
-  const [{ data: users, error: usersError }, { data: rawNotifs }] = await Promise.all([
+  const [{ data: users }, { data: rawNotifs }] = await Promise.all([
     supabase
       .from("users")
       .select("id, name, email, role, created_at")
@@ -24,8 +24,6 @@ export default async function AdminNotificationsPage() {
       .order("created_at", { ascending: false })
       .limit(2000),
   ]);
-
-  console.log("[알림관리] users:", users?.length ?? 0, "/ error:", usersError?.message);
 
   const members = (users ?? []).map((u) => ({
     id: u.id,
