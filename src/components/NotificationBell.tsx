@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Bell, UserPlus, Ticket, Megaphone, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { acceptFriendRequest, rejectFriendRequest } from "@/app/action";
+import { cn } from "@/lib/cn";
 
 interface NotificationItem {
   notification_id: string;
@@ -61,7 +62,11 @@ function formatTime(dateString: string) {
   return `${dateStr} ${time}`; // "ㅇㅇ월 ㅇㅇ일 오전/오후 ㅇㅇ:ㅇㅇ"
 }
 
-export default function NotificationBell() {
+export default function NotificationBell({
+  className = "hover:text-white",
+}: {
+  className?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[]>([]);
 
@@ -133,9 +138,12 @@ export default function NotificationBell() {
         type="button"
         aria-label="알림"
         onClick={() => (open ? setOpen(false) : openPanel())}
-        className="relative flex items-center transition-colors hover:text-white"
+        className={cn(
+          "relative flex items-center transition-colors",
+          className,
+        )}
       >
-        <Bell size={24} strokeWidth={1.5} />
+        <Bell size={22} strokeWidth={1.5} />
         {unreadCount > 0 && (
           <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-red-500" />
         )}
