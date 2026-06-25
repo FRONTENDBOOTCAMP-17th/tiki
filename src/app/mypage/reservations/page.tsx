@@ -92,14 +92,14 @@ export default async function ReservationsPage({
     );
   }
 
-  // 내 주문 (장바구니 cart 제외 → paid + cancelled)
+  // 내 주문 (결제 완료/취소된 주문만 → 결제 미완료인 ordered, failed는 제외)
   const { data: orders } = await supabase
     .from("orders")
     .select(
       "order_id, quantity, status, total_price, created_at, event_id, slot_id, ticket_grade_id",
     )
     .eq("user_id", user.id)
-    .neq("status", "cart")
+    .in("status", ["paid", "cancelled"])
     .order("created_at", { ascending: false });
 
   const eventIds = [...new Set((orders ?? []).map((o) => o.event_id))];
