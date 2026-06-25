@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as PortOne from "@portone/browser-sdk/v2";
+import { cancelReservation } from "@/app/action";
 import Header from "@/components/Header";
 import Button from "@/components/Button";
 import { Input } from "@/components/Input";
@@ -84,6 +85,9 @@ export default function PaymentForm({
     if (!redirectedPaymentId) return;
 
     if (redirectErrorCode) {
+      // 결제창에서 취소/실패하고 돌아온 경우, 주문을 ordered 상태로 방치하지 않고
+      // 즉시 취소 처리해 예매목록/재고에 남지 않게 한다.
+      cancelReservation(orderId);
       toast.error(searchParams.get("message") || "결제가 취소되었습니다.");
       return;
     }
@@ -120,6 +124,8 @@ export default function PaymentForm({
 
       // 데스크탑 팝업처럼 리디렉션 없이 끝나는 경우, 여기서 바로 결과를 받는다.
       if (response?.code) {
+        // 결제 취소/실패 시 ordered 상태로 방치하지 않고 즉시 취소 처리한다.
+        await cancelReservation(orderId);
         toast.error(response.message || "결제에 실패했습니다.");
         setSubmitting(false);
         return;
