@@ -8,6 +8,7 @@ import TermsForm from './TermsForm';
 import RoleForm from './RoleForm';
 import BasicInfoForm from './BasicInfoForm';
 import Button from './Button';
+import { UserRole } from '@/types/domain/user-role';
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
@@ -16,6 +17,7 @@ export default function SignupFormMobileRenderer() {
   const toast = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
 
   const canProceedFromTerms = terms.use && terms.privacy && terms.age;
 
@@ -33,7 +35,9 @@ export default function SignupFormMobileRenderer() {
       return;
     }
     if (!PASSWORD_REGEX.test(signupData.password)) {
-      toast.error('비밀번호는 영문, 숫자, 특수문자를 포함한 8자 이상이어야 합니다');
+      toast.error(
+        '비밀번호는 영문, 숫자, 특수문자를 포함한 8자 이상이어야 합니다',
+      );
       return;
     }
     setStep(3);
@@ -66,25 +70,29 @@ export default function SignupFormMobileRenderer() {
       {step === 1 && (
         <form
           className='w-full flex flex-col gap-6'
-          onSubmit={(e) => { e.preventDefault(); setStep(2); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            setStep(2);
+          }}
           noValidate
         >
           <TermsForm />
-          <div className='px-10'>
-            <Button type='submit' fullWidth disabled={!canProceedFromTerms}>
-              다음
-            </Button>
-          </div>
+          <Button type='submit' fullWidth disabled={!canProceedFromTerms}>
+            다음
+          </Button>
         </form>
       )}
       {step === 2 && (
         <form
           className='w-full flex flex-col gap-6'
-          onSubmit={(e) => { e.preventDefault(); proceedToStep3(); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            proceedToStep3();
+          }}
           noValidate
         >
           <BasicInfoForm />
-          <div className='flex gap-2 px-10'>
+          <div className='flex gap-2'>
             <Button
               type='button'
               variant='outlinePrimary'
@@ -102,11 +110,14 @@ export default function SignupFormMobileRenderer() {
       {step === 3 && (
         <form
           className='w-full flex flex-col gap-6'
-          onSubmit={(e) => { e.preventDefault(); submitForm(); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitForm();
+          }}
           noValidate
         >
-          <RoleForm />
-          <div className='flex gap-2 px-10'>
+          <RoleForm selectedRole={selectedRole} onSelectRole={setSelectedRole} />
+          <div className='flex gap-2'>
             <Button
               type='button'
               variant='outlinePrimary'
@@ -115,7 +126,12 @@ export default function SignupFormMobileRenderer() {
             >
               이전
             </Button>
-            <Button type='submit' fullWidth loading={loading}>
+            <Button
+              type='submit'
+              fullWidth
+              loading={loading}
+              disabled={!selectedRole}
+            >
               가입 완료
             </Button>
           </div>

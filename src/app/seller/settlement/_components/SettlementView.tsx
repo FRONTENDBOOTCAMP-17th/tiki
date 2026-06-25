@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Banknote, Wallet, Receipt, Pencil } from "lucide-react";
+import { Banknote, ChevronDown, Wallet, Receipt, Pencil } from "lucide-react";
 import Link from "next/link";
 import Button from "@/components/Button";
 import StatCard from "@/components/StatCard";
@@ -68,17 +68,24 @@ export default function SettlementView({ orders, bank }: Props) {
           <h1 className="text-2xl font-bold text-gray-900">매출 · 정산</h1>
         </div>
         {months.length > 0 && (
-          <select
-            value={selected}
-            onChange={(e) => setSelected(e.target.value)}
-            className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none focus:border-primary-500"
-          >
-            {months.map((month) => (
-              <option key={month} value={month}>
-                {month.replace("-", "년 ")}월
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              value={selected}
+              onChange={(e) => setSelected(e.target.value)}
+              className="h-10 appearance-none rounded-lg border border-gray-200 bg-white px-3 pr-9 text-sm outline-none focus:border-primary-500"
+            >
+              {months.map((month) => (
+                <option key={month} value={month}>
+                  {month.replace("-", "년 ")}월
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={16}
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+              aria-hidden="true"
+            />
+          </div>
         )}
       </header>
 
@@ -103,7 +110,7 @@ export default function SettlementView({ orders, bank }: Props) {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+      <div className="grid gap-6 min-[1360px]:grid-cols-[minmax(640px,1.4fr)_minmax(300px,1fr)]">
         <section className="rounded-2xl border border-gray-200 bg-white p-6">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">월별 정산 내역</h2>
@@ -111,15 +118,19 @@ export default function SettlementView({ orders, bank }: Props) {
           {monthlyHistory.length === 0 ? (
             <EmptyHint />
           ) : (
-            <div className="overflow-hidden rounded-xl border border-gray-100">
-              <table className="w-full text-sm">
+            <div className="rounded-xl border border-gray-100">
+              <table className="w-full table-fixed text-sm">
                 <thead>
                   <tr className="bg-gray-50 text-left text-xs text-gray-500">
-                    <th className="px-4 py-3 font-medium">정산월</th>
-                    <th className="px-4 py-3 text-right font-medium">건수</th>
+                    <th className="w-24 px-4 py-3 font-medium">정산월</th>
+                    <th className="hidden w-20 px-4 py-3 text-right font-medium xl:table-cell">
+                      건수
+                    </th>
                     <th className="px-4 py-3 text-right font-medium">결제액</th>
                     <th className="px-4 py-3 text-right font-medium">정산액</th>
-                    <th className="px-4 py-3 font-medium">상태</th>
+                    <th className="hidden w-24 px-4 py-3 font-medium min-[1180px]:table-cell">
+                      상태
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -136,7 +147,7 @@ export default function SettlementView({ orders, bank }: Props) {
                       <td className="px-4 py-3 font-medium text-gray-900">
                         {formatMonth(row.month)}
                       </td>
-                      <td className="px-4 py-3 text-right text-gray-600">
+                      <td className="hidden px-4 py-3 text-right text-gray-600 xl:table-cell">
                         {row.count.toLocaleString()}건
                       </td>
                       <td className="px-4 py-3 text-right text-gray-600">
@@ -145,7 +156,7 @@ export default function SettlementView({ orders, bank }: Props) {
                       <td className="px-4 py-3 text-right font-semibold text-gray-900">
                         {row.net.toLocaleString()}원
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="hidden px-4 py-3 min-[1180px]:table-cell">
                         <span
                           className={`rounded-full px-2.5 py-1 text-xs font-medium ${
                             row.month < thisMonth
@@ -207,7 +218,7 @@ export default function SettlementView({ orders, bank }: Props) {
                 {byEvent.map((event) => (
                   <li key={event.id}>
                     <Link
-                      href={`/seller/events/${event.id}`}
+                      href={`/seller/ticketManagement?eventId=${event.id}`}
                       className="-mx-2 flex items-center justify-between rounded-lg px-2 py-2 text-sm hover:bg-gray-50"
                     >
                       <div className="min-w-0">

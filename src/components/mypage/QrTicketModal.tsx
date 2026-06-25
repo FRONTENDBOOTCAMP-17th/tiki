@@ -1,7 +1,7 @@
 "use client";
 import { useRef } from "react";
-import { Calendar, MapPin, Ticket } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
+import { Calendar, MapPin, Ticket } from "lucide-react";
 import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
 import type { Reservation } from "./ReservationCard";
@@ -16,13 +16,16 @@ export default function QrTicketModal({
   reservation: Reservation;
 }) {
   const qrRef = useRef<HTMLDivElement>(null);
+  // QR에 담을 값 (입장 식별용)
+  const qrValue = `TIKI-ORDER-${r.id}`;
 
   const handleSave = () => {
     const canvas = qrRef.current?.querySelector("canvas");
     if (!canvas) return;
+    const url = canvas.toDataURL("image/png");
     const a = document.createElement("a");
-    a.href = canvas.toDataURL("image/png");
-    a.download = `ticket-${r.orderNo}.png`;
+    a.href = url;
+    a.download = `tiki-ticket-${r.orderNo}.png`;
     a.click();
   };
 
@@ -46,10 +49,13 @@ export default function QrTicketModal({
           </span>
         </div>
 
-        {/* QR 코드 */}
-        <div className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 p-6">
-          <div ref={qrRef} className="rounded-lg border-2 border-gray-900 p-2">
-            <QRCodeCanvas value={r.id} size={160} level="M" />
+        {/* 실제 QR 코드 */}
+        <div
+          ref={qrRef}
+          className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 p-6"
+        >
+          <div className="rounded-lg bg-white p-3">
+            <QRCodeCanvas value={qrValue} size={160} level="M" />
           </div>
           <p className="text-sm text-gray-500">QR 코드</p>
           <p className="text-xs text-gray-400">{r.orderNo}</p>

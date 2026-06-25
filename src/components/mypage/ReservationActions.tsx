@@ -81,7 +81,7 @@ export default function ReservationActions({
           disabled={pending}
           className="shrink-0 rounded-lg border border-danger-200 px-3 py-2 text-sm font-medium text-danger-600 transition-colors hover:bg-danger-50 disabled:opacity-50"
         >
-          취소<span className="hidden lg:inline"> 신청</span>
+          예매 취소<span className="hidden lg:inline"> 하기</span>
         </button>
       </div>
 

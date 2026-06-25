@@ -3,7 +3,7 @@
 import { useRef, useState, type SyntheticEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, X, RotateCcw } from "lucide-react";
+import { ArrowLeft, ChevronDown, X, RotateCcw } from "lucide-react";
 import Button from "@/components/Button";
 import useToast from "@/hooks/useToast";
 import SectionCard from "@/app/seller/registration/_components/SectionCard";
@@ -23,6 +23,7 @@ export interface SlotRow {
 
 const inputClass =
   "rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500";
+const selectClass = `${inputClass} h-10 w-full appearance-none pr-9`;
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -179,17 +180,24 @@ export default function EventEditForm({
 
         <div className="mt-4">
           <LabelBox label="카테고리">
-            <select
-              name="categoryId"
-              defaultValue={event.category_id}
-              className={inputClass}
-            >
-              {categories.map((c) => (
-                <option key={c.category_id} value={c.category_id}>
-                  {c.category_name}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                name="categoryId"
+                defaultValue={event.category_id}
+                className={selectClass}
+              >
+                {categories.map((c) => (
+                  <option key={c.category_id} value={c.category_id}>
+                    {c.category_name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                size={16}
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                aria-hidden="true"
+              />
+            </div>
           </LabelBox>
         </div>
 
