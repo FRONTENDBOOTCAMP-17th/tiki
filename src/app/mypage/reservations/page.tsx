@@ -99,7 +99,7 @@ export default async function ReservationsPage({
       "order_id, quantity, status, total_price, created_at, event_id, slot_id, ticket_grade_id",
     )
     .eq("user_id", user.id)
-    .neq("status", "cart")
+    .in("status", ["paid", "cancelled"])
     .order("created_at", { ascending: false });
 
   const eventIds = [...new Set((orders ?? []).map((o) => o.event_id))];
