@@ -1,11 +1,13 @@
 "use client";
 import { useState } from "react";
-import { Calendar, Clock, MapPin, Ticket, UserCheck } from "lucide-react";
+import Link from "next/link";
+import { Calendar, Clock, MapPin, Ticket, UserCheck, Star } from "lucide-react";
 import ReceivedQrModal from "./ReceivedQrModal";
 
 export interface ReceivedTicket {
   share_id: string;
   order_id: string;
+  event_id: string;
   event_title: string | null;
   venue_name: string | null;
   venue_address: string | null;
@@ -14,6 +16,7 @@ export interface ReceivedTicket {
   grade_name: string | null;
   sharer_name: string | null;
   quantity: number;
+  is_ended: boolean;
   created_at: string;
 }
 
@@ -74,13 +77,24 @@ export default function ReceivedTicketCard({
             {t.sharer_name}님이 공유
           </span>
         </div>
-        <button
-          type="button"
-          onClick={() => setQrOpen(true)}
-          className="rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-        >
-          입장하기
-        </button>
+        <div className="flex items-center gap-2">
+          {t.is_ended && (
+            <Link
+              href={`/${t.event_id}#reviews`}
+              className="flex items-center gap-1.5 rounded-lg border border-primary-300 px-4 py-2 text-sm font-semibold text-primary-600 transition hover:bg-primary-50"
+            >
+              <Star size={15} />
+              리뷰 쓰기
+            </Link>
+          )}
+          <button
+            type="button"
+            onClick={() => setQrOpen(true)}
+            className="rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            입장하기
+          </button>
+        </div>
       </div>
 
       <ReceivedQrModal
