@@ -91,9 +91,9 @@ export default async function FriendsPage() {
       </section>
 
       {/* 안내 */}
-      <section className="rounded-2xl bg-primary-100 p-6 md:p-8">
+      <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
         <h2 className="mb-3 font-semibold text-gray-900">친구 관리 안내</h2>
-        <ul className="flex list-disc flex-col gap-2 pl-5 text-sm text-gray-600">
+        <ul className="flex list-disc flex-col gap-2 pl-5 text-sm text-gray-500">
           {GUIDE.map((g) => (
             <li key={g}>{g}</li>
           ))}
