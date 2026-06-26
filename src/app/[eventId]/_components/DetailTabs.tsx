@@ -1,6 +1,6 @@
 "use client";
 
-import { Children, ReactNode, useState } from "react";
+import { Children, ReactNode, useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 
 interface DetailTab {
@@ -17,6 +17,28 @@ interface DetailTabsProps {
 export default function DetailTabs({ tabs, children }: DetailTabsProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const panels = Children.toArray(children);
+
+  // URL 해시(#reviews 등)에 맞는 탭 자동 활성화 + 스크롤
+  useEffect(() => {
+    const hash = window.location.hash.replace("#", "");
+    if (!hash) return;
+
+    // 해시 → 탭 매핑 (#reviews 는 구매평 탭)
+    const hashToTabId: Record<string, string> = {
+      reviews: "event-reviews",
+    };
+    const targetId = hashToTabId[hash] ?? hash;
+    const index = tabs.findIndex((t) => t.id === targetId);
+    if (index === -1) return;
+
+    setActiveIndex(index);
+    // 탭 전환 후 해당 영역으로 스크롤 (렌더 한 프레임 뒤)
+    requestAnimationFrame(() => {
+      document
+        .getElementById("reviews")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [tabs]);
 
   return (
     <div className="flex min-w-0 flex-col">
