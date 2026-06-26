@@ -49,6 +49,7 @@ export default function ShareTicketModal({
       toast.error(result.error);
       return;
     }
+    toast.success("티켓을 공유했습니다");
     onClose();
   };
 
