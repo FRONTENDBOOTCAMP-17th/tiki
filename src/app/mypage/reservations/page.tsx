@@ -7,12 +7,16 @@ import ReservationCard, {
 import ReceivedTicketCard, {
   type ReceivedTicket,
 } from "@/components/mypage/ReceivedTicketCard";
+import SentTicketCard, {
+  type SentTicket,
+} from "@/components/mypage/SentTicketCard";
 
 const FILTERS = [
   { label: "전체", value: "all" },
   { label: "예매 확정", value: "confirmed" },
   { label: "예매 취소", value: "cancelled" },
   { label: "받은 티켓", value: "shared" },
+  { label: "보낸 티켓", value: "sent" },
 ];
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
@@ -85,6 +89,29 @@ export default async function ReservationsPage({
           <div className="flex flex-col gap-4">
             {tickets.map((t) => (
               <ReceivedTicketCard key={t.share_id} ticket={t} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // 보낸 티켓 탭
+  if (filter === "sent") {
+    const { data: sent } = await supabase.rpc("get_my_shared_tickets");
+    const tickets = (sent as SentTicket[] | null) ?? [];
+
+    return (
+      <div className="flex flex-col gap-6">
+        <FilterTabs filter={filter} />
+        {tickets.length === 0 ? (
+          <p className="rounded-2xl border border-gray-100 bg-white p-10 text-center text-sm text-gray-400 shadow-sm">
+            보낸 티켓이 없습니다.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {tickets.map((t) => (
+              <SentTicketCard key={t.share_id} ticket={t} />
             ))}
           </div>
         )}
