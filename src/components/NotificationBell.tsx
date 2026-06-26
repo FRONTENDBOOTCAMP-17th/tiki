@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Bell, UserPlus, Ticket, Megaphone, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { acceptFriendRequest, rejectFriendRequest } from "@/app/action";
+import {
+  acceptFriendRequest,
+  rejectFriendRequest,
+  acceptTicketShare,
+  rejectTicketShare,
+} from "@/app/action";
 import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 
@@ -21,6 +26,7 @@ interface NotificationItem {
 const TYPE_ICON = {
   friend: UserPlus,
   friend_request: UserPlus,
+  ticket_share: Ticket,
   order: Ticket,
   ad: Megaphone,
 } as const;
@@ -28,6 +34,7 @@ const TYPE_ICON = {
 const TYPE_STYLE = {
   friend: "bg-secondary-100 text-secondary-700",
   friend_request: "bg-secondary-100 text-secondary-700",
+  ticket_share: "bg-primary-100 text-primary-700",
   order: "bg-primary-100 text-primary-700",
   ad: "bg-accent-100 text-accent-700",
 } as const;
@@ -118,6 +125,31 @@ export default function NotificationBell({
     );
   }
 
+  async function handleAcceptShare(item: NotificationItem) {
+    if (!item.ref_id) return;
+    const result = await acceptTicketShare(item.ref_id);
+    if (result?.error) {
+      toast.error(result.error);
+      return;
+    }
+    setItems((prev) =>
+      prev.filter((n) => n.notification_id !== item.notification_id),
+    );
+    toast.success("티켓을 받았습니다");
+  }
+
+  async function handleRejectShare(item: NotificationItem) {
+    if (!item.ref_id) return;
+    const result = await rejectTicketShare(item.ref_id);
+    if (result?.error) {
+      toast.error(result.error);
+      return;
+    }
+    setItems((prev) =>
+      prev.filter((n) => n.notification_id !== item.notification_id),
+    );
+  }
+
   async function handleDelete(item: NotificationItem) {
     const supabase = createClient();
     const { error } = await supabase
@@ -166,6 +198,10 @@ export default function NotificationBell({
               <ul className="max-h-96 divide-y divide-gray-50 overflow-auto">
                 {items.map((item) => {
                   const Icon = iconFor(item.type);
+                  const isActionable =
+                    (item.type === "friend_request" ||
+                      item.type === "ticket_share") &&
+                    item.ref_id;
                   const row = (
                     <div className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50">
                       <span
@@ -196,7 +232,7 @@ export default function NotificationBell({
 
                   return (
                     <li key={item.notification_id}>
-                      {item.type === "friend_request" && item.ref_id ? (
+                      {isActionable ? (
                         <div className="px-4 py-3 hover:bg-gray-50">
                           <div className="flex items-start gap-3">
                             <span
@@ -216,14 +252,22 @@ export default function NotificationBell({
                           <div className="mt-2 flex gap-2 pl-12">
                             <button
                               type="button"
-                              onClick={() => handleAccept(item)}
+                              onClick={() =>
+                                item.type === "friend_request"
+                                  ? handleAccept(item)
+                                  : handleAcceptShare(item)
+                              }
                               className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
                             >
                               수락
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleReject(item)}
+                              onClick={() =>
+                                item.type === "friend_request"
+                                  ? handleReject(item)
+                                  : handleRejectShare(item)
+                              }
                               className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
                             >
                               거절
