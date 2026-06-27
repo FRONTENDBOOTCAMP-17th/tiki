@@ -26,6 +26,7 @@ export default function ReservationActions({
     if (result?.error) alert(result.error);
   };
 
+  // ① 예매 취소 → 상세보기 + 재예매
   if (reservation.status === "cancelled") {
     return (
       <>
@@ -54,18 +55,40 @@ export default function ReservationActions({
     );
   }
 
+  // ② 공연 끝난 예매확정 → 상세보기 + 리뷰 쓰기
+  if (reservation.isEnded) {
+    return (
+      <>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setModal("detail")}
+            className="flex flex-1 items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 lg:flex-none"
+          >
+            상세 보기
+          </button>
+          <Link
+            href={`/${reservation.eventId}#reviews`}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 lg:flex-none"
+          >
+            <Star size={16} />
+            리뷰 쓰기
+          </Link>
+        </div>
+
+        <CancelledDetailModal
+          open={modal === "detail"}
+          onClose={() => setModal("none")}
+          reservation={reservation}
+        />
+      </>
+    );
+  }
+
+  // ③ 예매확정 + 공연 전 → QR / 공유 / 취소
   return (
     <>
       <div className="flex items-center gap-2">
-        {reservation.isEnded && (
-          <Link
-            href={`/${reservation.eventId}#reviews`}
-            className="flex items-center justify-center gap-1.5 rounded-lg border border-primary-300 px-3 py-2 text-sm font-medium text-primary-600 transition-colors hover:bg-primary-50"
-          >
-            <Star size={16} />
-            리뷰<span className="hidden lg:inline"> 쓰기</span>
-          </Link>
-        )}
         <button
           type="button"
           onClick={() => setModal("qr")}
