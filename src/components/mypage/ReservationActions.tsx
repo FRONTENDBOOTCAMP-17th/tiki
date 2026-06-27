@@ -2,10 +2,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { QrCode, Share2, Star } from "lucide-react";
+import { toast } from "sonner";
 import type { Reservation } from "./ReservationCard";
 import QrTicketModal from "./QrTicketModal";
 import ShareTicketModal from "./ShareTicketModal";
 import CancelledDetailModal from "./CancelledDetailModal";
+import Dialog from "@/components/modal/Dialog";
 import { cancelReservation } from "@/app/action";
 
 export default function ReservationActions({
@@ -13,17 +15,21 @@ export default function ReservationActions({
 }: {
   reservation: Reservation;
 }) {
-  const [modal, setModal] = useState<"none" | "qr" | "share" | "detail">(
-    "none",
-  );
+  const [modal, setModal] = useState<
+    "none" | "qr" | "share" | "detail" | "cancel"
+  >("none");
   const [pending, setPending] = useState(false);
 
   const handleCancel = async () => {
-    if (!confirm("예매를 취소하시겠어요?")) return;
     setPending(true);
     const result = await cancelReservation(reservation.id);
     setPending(false);
-    if (result?.error) alert(result.error);
+    setModal("none");
+    if (result?.error) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("예매가 취소되었습니다");
   };
 
   // ① 예매 취소 → 상세보기 + 재예매
@@ -109,9 +115,8 @@ export default function ReservationActions({
         )}
         <button
           type="button"
-          onClick={handleCancel}
-          disabled={pending}
-          className="shrink-0 rounded-lg border border-danger-200 px-3 py-2 text-sm font-medium text-danger-600 transition-colors hover:bg-danger-50 disabled:opacity-50"
+          onClick={() => setModal("cancel")}
+          className="shrink-0 rounded-lg border border-danger-200 px-3 py-2 text-sm font-medium text-danger-600 transition-colors hover:bg-danger-50"
         >
           예매 취소<span className="hidden lg:inline"> 하기</span>
         </button>
@@ -126,6 +131,17 @@ export default function ReservationActions({
         open={modal === "share"}
         onClose={() => setModal("none")}
         reservation={reservation}
+      />
+      <Dialog
+        open={modal === "cancel"}
+        onClose={() => setModal("none")}
+        title="예매 취소"
+        description="예매를 취소하시겠어요? 취소 후에는 되돌릴 수 없습니다."
+        confirmText={pending ? "취소 중..." : "예매 취소"}
+        confirmVariant="danger"
+        cancelText="닫기"
+        cancelVariant="outline"
+        onConfirm={handleCancel}
       />
     </>
   );
