@@ -44,6 +44,11 @@ export default function ReceivedTicketCard({
           <span className="shrink-0 rounded-full bg-secondary-100 px-2.5 py-0.5 text-xs font-medium text-secondary-700">
             받은 티켓
           </span>
+          {t.is_ended && (
+            <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-500">
+              관람 완료
+            </span>
+          )}
         </div>
       </div>
 
@@ -77,23 +82,25 @@ export default function ReceivedTicketCard({
             {t.sharer_name}님이 공유
           </span>
         </div>
+
         <div className="flex items-center gap-2">
-          {t.is_ended && (
+          {t.is_ended ? (
             <Link
               href={`/${t.event_id}#reviews`}
-              className="flex items-center gap-1.5 rounded-lg border border-primary-300 px-4 py-2 text-sm font-semibold text-primary-600 transition hover:bg-primary-50"
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
             >
               <Star size={15} />
               리뷰 쓰기
             </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setQrOpen(true)}
+              className="rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              입장하기
+            </button>
           )}
-          <button
-            type="button"
-            onClick={() => setQrOpen(true)}
-            className="rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-          >
-            입장하기
-          </button>
         </div>
       </div>
 
