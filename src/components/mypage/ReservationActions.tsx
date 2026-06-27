@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { QrCode, Share2 } from "lucide-react";
+import { QrCode, Share2, Star } from "lucide-react";
 import type { Reservation } from "./ReservationCard";
 import QrTicketModal from "./QrTicketModal";
 import ShareTicketModal from "./ShareTicketModal";
@@ -57,6 +57,15 @@ export default function ReservationActions({
   return (
     <>
       <div className="flex items-center gap-2">
+        {reservation.isEnded && (
+          <Link
+            href={`/${reservation.eventId}#reviews`}
+            className="flex items-center justify-center gap-1.5 rounded-lg border border-primary-300 px-3 py-2 text-sm font-medium text-primary-600 transition-colors hover:bg-primary-50"
+          >
+            <Star size={16} />
+            리뷰<span className="hidden lg:inline"> 쓰기</span>
+          </Link>
+        )}
         <button
           type="button"
           onClick={() => setModal("qr")}
