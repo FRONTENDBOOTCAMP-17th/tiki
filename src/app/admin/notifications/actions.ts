@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 type NotificationTarget = "all" | "buyer" | "seller" | "specific";
@@ -52,5 +53,6 @@ export async function sendNotification({
   const { error } = await supabase.from("notification").insert(rows);
   if (error) return { error: error.message };
 
+  revalidatePath("/admin/notifications");
   return { success: true, count: targetIds.length };
 }
