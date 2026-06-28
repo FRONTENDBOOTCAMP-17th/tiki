@@ -7,14 +7,12 @@ export default async function AdminDashboardPage() {
   const supabase = getSupabaseAdmin();
 
   const [
-    { count: totalUsers },
-    { data: userRoles },
+    { data: userRoles, count: totalUsers },
     { data: events },
     { data: orders },
     { count: totalCategories },
   ] = await Promise.all([
-    supabase.from("users").select("*", { count: "exact", head: true }),
-    supabase.from("users").select("role"),
+    supabase.from("users").select("role", { count: "exact" }),
     supabase.from("event").select("status, title, event_id, created_at").order("created_at", { ascending: false }).limit(5),
     supabase.from("orders").select("total_price, status, created_at"),
     supabase.from("category").select("*", { count: "exact", head: true }),
