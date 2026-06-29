@@ -6,6 +6,7 @@ import {
   getEventDetail,
   getSlots,
   getGrades,
+  getSeatLayout,
   getReviews,
   getWritableReviewSlots,
 } from "@/lib/event/queries";
@@ -51,10 +52,11 @@ export default async function EventDetailPage({
   const loggedIn = !!user;
 
   // 상세/회차/등급/리뷰를 서버에서 병렬 조회 (존재하지 않는 공연이면 event 가 null)
-  const [event, slots, grades, reviewData, writableSlots] = await Promise.all([
+  const [event, slots, grades, seatLayout, reviewData, writableSlots] = await Promise.all([
     getEventDetail(eventId),
     getSlots(eventId),
     getGrades(eventId),
+    getSeatLayout(eventId),
     getReviews(eventId),
     getWritableReviewSlots(eventId),
   ]);
@@ -249,6 +251,7 @@ export default async function EventDetailPage({
                 eventId={event.eventId}
                 slots={slots}
                 grades={grades}
+                seatLayout={seatLayout}
                 suspended={event.status === "비공개"}
                 soldOut={event.status === "closed"}
               />
