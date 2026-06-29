@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/cn";
 import Modal from "@/components/modal/Modal";
@@ -35,6 +36,10 @@ export default function SeatSelectionModal({
   onToggleSeat,
 }: SeatSelectionModalProps) {
   const [occupiedSeatIds, setOccupiedSeatIds] = useState<Set<string>>(new Set());
+  // 다른 사람이 지금 이 모달에서 같이 선택 중인 좌석 (DB에 확정된 건 아니고 실시간 표시용)
+  const [othersHeldSeatIds, setOthersHeldSeatIds] = useState<Set<string>>(new Set());
+  const clientIdRef = useRef(crypto.randomUUID());
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
   // 모달이 열릴 때마다 좌석 점유 상태를 새로 가져온다 (닫혀있는 동안 다른 사람이 선점했을 수 있음)
   useEffect(() => {
@@ -54,8 +59,47 @@ export default function SeatSelectionModal({
     };
   }, [slotId, open]);
 
+  // 같은 회차의 좌석 모달을 보고 있는 다른 사용자들과 "지금 고르고 있는 좌석"을
+  // Presence로 실시간 공유한다. 모달을 닫으면 자동으로 내 presence가 빠지면서
+  // 다른 사람 화면에서도 즉시 해제된다.
+  useEffect(() => {
+    if (!open) return;
+    const supabase = createClient();
+    const channel = supabase.channel(`seat-hold-${slotId}`, {
+      config: { presence: { key: clientIdRef.current } },
+    });
+
+    channel.on("presence", { event: "sync" }, () => {
+      const state = channel.presenceState<{ seatIds: string[] }>();
+      const ids = new Set<string>();
+      for (const key in state) {
+        if (key === clientIdRef.current) continue;
+        for (const presence of state[key]) {
+          presence.seatIds?.forEach((id) => ids.add(id));
+        }
+      }
+      setOthersHeldSeatIds(ids);
+    });
+
+    channel.subscribe((status) => {
+      if (status === "SUBSCRIBED") channel.track({ seatIds: [] });
+    });
+    channelRef.current = channel;
+
+    return () => {
+      supabase.removeChannel(channel);
+      channelRef.current = null;
+    };
+  }, [slotId, open]);
+
+  // 내가 좌석을 고르거나 뺄 때마다 다른 사람들에게도 바로 알려준다.
+  useEffect(() => {
+    channelRef.current?.track({ seatIds: [...selectedSeatIds] });
+  }, [selectedSeatIds]);
+
   function handleSeatClick(seat: { seatId: string; gradeId: string | null }) {
     if (!seat.gradeId || occupiedSeatIds.has(seat.seatId)) return;
+    if (othersHeldSeatIds.has(seat.seatId)) return; // 다른 사용자가 지금 보고 있는 좌석
     if (!selectedGradeId) {
       onSelectGrade(seat.gradeId);
       onToggleSeat(seat.seatId);
@@ -120,14 +164,17 @@ export default function SeatSelectionModal({
           {layout.seats.map((seat) => {
             const inGrade = !selectedGradeId || seat.gradeId === selectedGradeId;
             const isOccupied = occupiedSeatIds.has(seat.seatId);
+            const isHeldByOthers = othersHeldSeatIds.has(seat.seatId);
             const selected = selectedSeatIds.has(seat.seatId);
-            const disabled = !inGrade || isOccupied || !seat.gradeId;
+            const disabled = !inGrade || isOccupied || isHeldByOthers || !seat.gradeId;
 
             return (
               <button
                 key={seat.seatId}
                 type="button"
-                title={seat.label}
+                title={
+                  isHeldByOthers ? `${seat.label} (다른 사용자가 선택 중)` : seat.label
+                }
                 disabled={disabled}
                 onClick={() => handleSeatClick(seat)}
                 className={cn(
@@ -136,6 +183,11 @@ export default function SeatSelectionModal({
                   inGrade && isOccupied && "border-gray-300 bg-gray-300",
                   inGrade &&
                     !isOccupied &&
+                    isHeldByOthers &&
+                    "border-dashed border-amber-400 bg-amber-100",
+                  inGrade &&
+                    !isOccupied &&
+                    !isHeldByOthers &&
                     !selected &&
                     "border-primary-400 bg-white hover:scale-110",
                   selected &&
@@ -147,7 +199,7 @@ export default function SeatSelectionModal({
           })}
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-gray-500">
+        <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
           <span className="flex items-center gap-1">
             <span className="size-3 rounded-full border border-primary-400 bg-white" />
             선택가능
@@ -155,6 +207,10 @@ export default function SeatSelectionModal({
           <span className="flex items-center gap-1">
             <span className="size-3 rounded-full border border-primary-700 bg-primary-500" />
             선택됨
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="size-3 rounded-full border border-dashed border-amber-400 bg-amber-100" />
+            다른 사용자가 선택 중
           </span>
           <span className="flex items-center gap-1">
             <span className="size-3 rounded-full border border-gray-300 bg-gray-300" />
