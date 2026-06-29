@@ -54,13 +54,16 @@ export function isCancelled(status: string | null | undefined) {
   );
 }
 
+// 통계/매출에 잡히는 "예매 확정"은 결제까지 끝난 주문만이다.
+// 결제 대기(ordered)는 아직 돈이 들어온 게 아니라서 예매로 집계하면 안 된다.
 export function isBooked(status: string | null | undefined) {
-  return !isCancelled(status);
+  return status === "paid";
 }
 
 export function orderStatusLabel(status: string | null | undefined) {
   if (isCancelled(status)) return "취소";
-  return "예매";
+  if (status === "paid") return "예매";
+  return "결제대기";
 }
 
 export function serviceFee(amount: number) {

@@ -61,9 +61,20 @@ const ORDER_SORT_COLUMNS: {
   { label: "상태", sortKey: "status", className: "w-20 px-4 py-3" },
 ];
 
+function statusBg(status: string) {
+  if (isCancelled(status)) return "bg-danger-100";
+  if (status === "paid") return "bg-green-50";
+  return "bg-gray-100"; // 결제대기(ordered)
+}
+
+function statusText(status: string) {
+  if (isCancelled(status)) return "text-danger-600";
+  if (status === "paid") return "text-green-700";
+  return "text-gray-600"; // 결제대기(ordered)
+}
+
 function statusStyle(status: string) {
-  if (isCancelled(status)) return "bg-danger-100 text-danger-700";
-  return "bg-green-50 text-green-700";
+  return `${statusBg(status)} ${statusText(status)}`;
 }
 
 function formatDate(dateString: string) {
@@ -465,21 +476,13 @@ export default function OrderTable({
       >
         {receipt && (
           <div className="flex flex-col gap-4">
-            <div
-              className={`flex flex-col gap-1.5 rounded-xl p-4 ${
-                isCancelled(receipt.status) ? "bg-danger-100" : "bg-green-50"
-              }`}
-            >
+            <div className={`flex flex-col gap-1.5 rounded-xl p-4 ${statusBg(receipt.status)}`}>
               <div className="flex items-center gap-2">
                 <p className="font-bold text-gray-900">
                   {receipt.event_title}
                 </p>
                 <span
-                  className={`rounded-full bg-white px-2 py-0.5 text-xs font-medium ${
-                    isCancelled(receipt.status)
-                      ? "text-danger-600"
-                      : "text-green-700"
-                  }`}
+                  className={`rounded-full bg-white px-2 py-0.5 text-xs font-medium ${statusText(receipt.status)}`}
                 >
                   {orderStatusLabel(receipt.status)}
                 </span>
@@ -513,11 +516,7 @@ export default function OrderTable({
               <InfoField
                 label="상태"
                 value={orderStatusLabel(receipt.status)}
-                valueClassName={
-                  isCancelled(receipt.status)
-                    ? "text-danger-600"
-                    : "text-green-700"
-                }
+                valueClassName={statusText(receipt.status)}
               />
             </div>
 
