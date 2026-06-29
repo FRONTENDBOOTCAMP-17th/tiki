@@ -35,6 +35,13 @@ export default async function InquiriesPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // 작성 폼에 표시할 계정 정보
+  const { data: profile } = await supabase
+    .from("users")
+    .select("name, email")
+    .eq("id", user?.id ?? "")
+    .maybeSingle();
+
   const { data } = await supabase
     .from("inquiry")
     .select("inquiry_id, category, title, status, created_at")
@@ -55,10 +62,11 @@ export default async function InquiriesPage() {
         </p>
       </header>
 
-      {/* 작성 폼 */}
-      <InquiryForm />
+      <InquiryForm
+        userName={profile?.name ?? null}
+        userEmail={profile?.email ?? null}
+      />
 
-      {/* 목록 */}
       <section className="mt-8">
         {inquiries.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-gray-200 bg-white py-16 text-center">

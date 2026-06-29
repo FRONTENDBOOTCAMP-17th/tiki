@@ -13,7 +13,12 @@ const CATEGORY_OPTIONS = [
   { value: "etc", label: "기타" },
 ];
 
-export default function InquiryForm() {
+type Props = {
+  userName: string | null;
+  userEmail: string | null;
+};
+
+export default function InquiryForm({ userName, userEmail }: Props) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
@@ -52,6 +57,19 @@ export default function InquiryForm() {
       className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
     >
       <div className="flex flex-col gap-4">
+        {/* 계정 정보 (자동 연동, 읽기전용) */}
+        {(userName || userEmail) && (
+          <div className="rounded-xl bg-gray-50 px-4 py-3">
+            <p className="mb-1 text-xs font-medium text-gray-500">
+              문의자 정보
+            </p>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-700">
+              {userName && <span className="font-medium">{userName}</span>}
+              {userEmail && <span className="text-gray-500">{userEmail}</span>}
+            </div>
+          </div>
+        )}
+
         <div>
           <label
             htmlFor="category"
