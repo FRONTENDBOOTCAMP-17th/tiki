@@ -65,7 +65,8 @@ function StageBlock({ stage }: { stage: DraftStage }) {
   );
 }
 
-// 좌석 1개. 드래그로 자유 이동, 클릭(Shift+클릭은 다중)으로 선택.
+// 좌석 1개(사각형). 드래그로 자유 이동, 클릭(Shift+클릭은 다중)으로 선택.
+// 라벨(접두사+번호)을 항상 좌석 아래에 작게 표시한다.
 function SeatDot({
   seat,
   selected,
@@ -82,20 +83,28 @@ function SeatDot({
   });
 
   return (
-    <button
-      ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      type="button"
-      onClick={onClick}
-      title={seat.label}
-      className={cn(
-        "absolute size-4 -translate-x-1/2 -translate-y-1/2 touch-none rounded-full border transition-transform",
-        selected ? "scale-125 border-primary-700 ring-2 ring-primary-400" : "border-gray-400",
-        isDragging && "opacity-70",
-      )}
-      style={{ left: `${seat.x}%`, top: `${seat.y}%`, backgroundColor: color }}
-    />
+    <div
+      className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
+      style={{ left: `${seat.x}%`, top: `${seat.y}%` }}
+    >
+      <button
+        ref={setNodeRef}
+        {...attributes}
+        {...listeners}
+        type="button"
+        onClick={onClick}
+        title={seat.label}
+        className={cn(
+          "size-4 touch-none rounded-sm border transition-transform",
+          selected ? "scale-125 border-primary-700 ring-2 ring-primary-400" : "border-gray-400",
+          isDragging && "opacity-70",
+        )}
+        style={{ backgroundColor: color }}
+      />
+      <span className="mt-0.5 text-[8px] leading-none whitespace-nowrap text-gray-600 select-none">
+        {seat.label}
+      </span>
+    </div>
   );
 }
 
@@ -331,7 +340,13 @@ export default function SeatLayoutBuilder({
       </DndContext>
 
       <p className="text-xs text-gray-400">
-        좌석 {seats.length}개 · 선택됨 {selectedIds.size}개
+        좌석 {seats.length}개 · 선택됨{" "}
+        {selectedIds.size === 0
+          ? "0개"
+          : `${selectedIds.size}개 (${seats
+              .filter((seat) => selectedIds.has(seat.id))
+              .map((seat) => seat.label)
+              .join(", ")})`}
       </p>
     </div>
   );
