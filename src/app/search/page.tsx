@@ -220,15 +220,18 @@ export default function SearchPage() {
     <div className="min-h-screen bg-white lg:bg-gray-50">
       {/* ── 검색 헤더 (입력 동작 보존, 레이아웃은 리뉴얼) ── */}
       <header className="sticky top-0 z-40 border-b border-gray-100 bg-white">
-        <div className="flex items-center gap-2 px-4 py-3 lg:mx-auto lg:max-w-7xl lg:gap-4 lg:px-8 lg:py-4">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label="뒤로 가기"
-            className="shrink-0 cursor-pointer rounded-full p-1 text-gray-700 transition-colors hover:bg-gray-100"
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </button>
+        <div className="flex items-center gap-3 px-4 py-3 lg:mx-auto lg:max-w-360 lg:gap-4 lg:px-8 lg:py-4">
+          {/* 홈 헤더 로고와 동일 폭 슬롯 → 검색바 시작 위치 정렬 (데스크탑) */}
+          <div className="flex shrink-0 items-center min-[744px]:w-17">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              aria-label="뒤로 가기"
+              className="cursor-pointer rounded-full p-1 text-gray-700 transition-colors hover:bg-gray-100"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+          </div>
 
           <SearchBarInput
             value={searchQuery}

@@ -34,16 +34,18 @@ export default async function MyPageLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header loggedIn={loggedIn} showCategory={false} />
+      <Header
+        loggedIn={loggedIn}
+        showCategory={false}
+        mobileMenu={
+          <MobileDrawer>
+            <MyPageSidebar {...profile} />
+          </MobileDrawer>
+        }
+      />
 
       <div className="flex-1 bg-gray-50">
         <div className="mx-auto max-w-screen-xl p-4 md:p-6">
-          {/* 모바일+태블릿: 햄버거 */}
-          <div className="mb-4 flex justify-end lg:hidden">
-            <MobileDrawer>
-              <MyPageSidebar {...profile} />
-            </MobileDrawer>
-          </div>
           <div className="flex gap-6">
             {/* 데스크탑(lg+): 세로 사이드바 */}
             <div className="hidden w-64 shrink-0 lg:block">
