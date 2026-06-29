@@ -46,12 +46,12 @@ function clampPercent(value: number) {
 
 type PresetShape = "square" | "rectangle" | "circle" | "fan";
 
-// 프리셋별로 입력 2칸(A, B)의 의미가 달라서 라벨을 매핑해둔다. square는 A만 쓴다.
-const PRESET_FIELD_LABELS: Record<PresetShape, [string, string | null]> = {
-  square: ["한 변 좌석 수", null],
-  rectangle: ["행 수", "열 수"],
-  circle: ["좌석 수", "반지름(%)"],
-  fan: ["행 수", "행당 좌석 수"],
+// 프리셋별로 입력칸(A, B, C)의 의미가 달라서 라벨을 매핑해둔다. 안 쓰는 칸은 null.
+const PRESET_FIELD_LABELS: Record<PresetShape, [string, string | null, string | null]> = {
+  square: ["한 변 좌석 수", null, null],
+  rectangle: ["행 수", "열 수", null],
+  circle: ["좌석 수", "반지름(%)", null],
+  fan: ["행 수", "행당 좌석 수", "벌어지는 각도(°)"],
 };
 
 // 무대 블록. 위치만 드래그로 옮길 수 있고 크기는 숫자 입력으로 조절한다(드래그 리사이즈는 스코프 외).
@@ -180,6 +180,7 @@ export default function SeatLayoutBuilder({
   const [presetShape, setPresetShape] = useState<PresetShape>("rectangle");
   const [presetA, setPresetA] = useState(5);
   const [presetB, setPresetB] = useState(5);
+  const [presetC, setPresetC] = useState(120);
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [bulkLabelPrefix, setBulkLabelPrefix] = useState("A");
@@ -316,13 +317,13 @@ export default function SeatLayoutBuilder({
   }
 
   // 무대를 기준점으로 부채꼴(공연장형)로 펼쳐지는 좌석 배치. 행이 늘어날수록 반지름이 커진다.
-  function addFanPreset(rows: number, seatsPerRow: number) {
-    if (rows < 1 || seatsPerRow < 1) return;
+  // spreadDeg: 좌석들이 양쪽으로 벌어지는 전체 각도 (180에 가까울수록 무대를 넓게 감싸는 모양)
+  function addFanPreset(rows: number, seatsPerRow: number, spreadDeg: number) {
+    if (rows < 1 || seatsPerRow < 1 || spreadDeg <= 0) return;
     const centerX = 50;
     const centerY = clampPercent(stage.y + stage.height / 2 + 5);
     const startRadius = 15;
     const radiusStep = 10;
-    const spreadDeg = 120;
     const newSeats: DraftSeat[] = [];
     for (let r = 0; r < rows; r++) {
       const radius = startRadius + r * radiusStep;
@@ -346,7 +347,7 @@ export default function SeatLayoutBuilder({
     if (presetShape === "square") addRectanglePreset(presetA, presetA);
     else if (presetShape === "rectangle") addRectanglePreset(presetA, presetB);
     else if (presetShape === "circle") addCirclePreset(presetA, presetB);
-    else addFanPreset(presetA, presetB);
+    else addFanPreset(presetA, presetB, presetC);
   }
 
   function toggleSelect(seatId: string, shiftKey: boolean) {
@@ -487,6 +488,19 @@ export default function SeatLayoutBuilder({
               min={1}
               value={presetB}
               onChange={(e) => setPresetB(Number(e.target.value))}
+              className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+            />
+          </label>
+        )}
+        {PRESET_FIELD_LABELS[presetShape][2] && (
+          <label className="flex flex-col gap-1 text-xs text-gray-500">
+            {PRESET_FIELD_LABELS[presetShape][2]}
+            <input
+              type="number"
+              min={1}
+              max={359}
+              value={presetC}
+              onChange={(e) => setPresetC(Number(e.target.value))}
               className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
             />
           </label>
