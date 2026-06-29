@@ -44,6 +44,16 @@ function clampPercent(value: number) {
   return Math.min(100, Math.max(0, value));
 }
 
+type PresetShape = "square" | "rectangle" | "circle" | "fan";
+
+// 프리셋별로 입력 2칸(A, B)의 의미가 달라서 라벨을 매핑해둔다. square는 A만 쓴다.
+const PRESET_FIELD_LABELS: Record<PresetShape, [string, string | null]> = {
+  square: ["한 변 좌석 수", null],
+  rectangle: ["행 수", "열 수"],
+  circle: ["좌석 수", "반지름(%)"],
+  fan: ["행 수", "행당 좌석 수"],
+};
+
 // 무대 블록. 위치만 드래그로 옮길 수 있고 크기는 숫자 입력으로 조절한다(드래그 리사이즈는 스코프 외).
 // dragOffsetPx: 드래그 중일 때 부모가 내려주는 실시간 픽셀 이동량 (커서를 계속 따라오게 함)
 function StageBlock({
@@ -167,6 +177,9 @@ export default function SeatLayoutBuilder({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [rowCount, setRowCount] = useState(10);
   const [labelPrefix, setLabelPrefix] = useState("A");
+  const [presetShape, setPresetShape] = useState<PresetShape>("rectangle");
+  const [presetA, setPresetA] = useState(5);
+  const [presetB, setPresetB] = useState(5);
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
 
@@ -253,6 +266,84 @@ export default function SeatLayoutBuilder({
     setSeats((prev) => [...prev, ...newSeats]);
   }
 
+  // 캔버스가 4:3 비율이라 x% 한 칸과 y% 한 칸의 실제 픽셀 크기가 다르다.
+  // 원형/부채꼴 배치에서 동그랗게 보이도록 y쪽 반지름에 이 비율을 보정해준다.
+  const CANVAS_ASPECT = 4 / 3;
+
+  // 행×열 격자로 좌석 일괄 생성 (정사각형 프리셋은 행=열로 호출)
+  function addRectanglePreset(rows: number, cols: number) {
+    if (rows < 1 || cols < 1) return;
+    const marginX = 10;
+    const top = 25;
+    const bottom = 90;
+    const usableX = 100 - marginX * 2;
+    const newSeats: DraftSeat[] = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        newSeats.push({
+          id: crypto.randomUUID(),
+          label: `${labelPrefix}${r + 1}-${c + 1}`,
+          x: cols === 1 ? 50 : marginX + (usableX * c) / (cols - 1),
+          y: rows === 1 ? (top + bottom) / 2 : top + ((bottom - top) * r) / (rows - 1),
+          gradeId: null,
+        });
+      }
+    }
+    setSeats((prev) => [...prev, ...newSeats]);
+  }
+
+  // 좌석을 원형으로 균등 배치 (예: 원탁/아레나형 좌석)
+  function addCirclePreset(count: number, radiusPercent: number) {
+    if (count < 1 || radiusPercent <= 0) return;
+    const centerX = 50;
+    const centerY = 55;
+    const newSeats: DraftSeat[] = Array.from({ length: count }, (_, i) => {
+      const angle = (2 * Math.PI * i) / count;
+      return {
+        id: crypto.randomUUID(),
+        label: `${labelPrefix}${i + 1}`,
+        x: clampPercent(centerX + radiusPercent * Math.cos(angle)),
+        y: clampPercent(centerY + radiusPercent * CANVAS_ASPECT * Math.sin(angle)),
+        gradeId: null,
+      };
+    });
+    setSeats((prev) => [...prev, ...newSeats]);
+  }
+
+  // 무대를 기준점으로 부채꼴(공연장형)로 펼쳐지는 좌석 배치. 행이 늘어날수록 반지름이 커진다.
+  function addFanPreset(rows: number, seatsPerRow: number) {
+    if (rows < 1 || seatsPerRow < 1) return;
+    const centerX = 50;
+    const centerY = clampPercent(stage.y + stage.height / 2 + 5);
+    const startRadius = 15;
+    const radiusStep = 10;
+    const spreadDeg = 120;
+    const newSeats: DraftSeat[] = [];
+    for (let r = 0; r < rows; r++) {
+      const radius = startRadius + r * radiusStep;
+      for (let c = 0; c < seatsPerRow; c++) {
+        const angleDeg =
+          seatsPerRow === 1 ? 0 : -spreadDeg / 2 + (spreadDeg * c) / (seatsPerRow - 1);
+        const angleRad = (angleDeg * Math.PI) / 180;
+        newSeats.push({
+          id: crypto.randomUUID(),
+          label: `${labelPrefix}${r + 1}-${c + 1}`,
+          x: clampPercent(centerX + radius * Math.sin(angleRad)),
+          y: clampPercent(centerY + radius * Math.cos(angleRad) * CANVAS_ASPECT),
+          gradeId: null,
+        });
+      }
+    }
+    setSeats((prev) => [...prev, ...newSeats]);
+  }
+
+  function addPreset() {
+    if (presetShape === "square") addRectanglePreset(presetA, presetA);
+    else if (presetShape === "rectangle") addRectanglePreset(presetA, presetB);
+    else if (presetShape === "circle") addCirclePreset(presetA, presetB);
+    else addFanPreset(presetA, presetB);
+  }
+
   function toggleSelect(seatId: string, shiftKey: boolean) {
     setSelectedIds((prev) => {
       const next = new Set(shiftKey ? prev : []);
@@ -337,6 +428,52 @@ export default function SeatLayoutBuilder({
         >
           <Trash2 size={14} />
           선택 삭제
+        </button>
+      </div>
+
+      <div className="flex flex-wrap items-end gap-2 rounded-lg bg-gray-50 p-2">
+        <label className="flex flex-col gap-1 text-xs text-gray-500">
+          배치 프리셋
+          <select
+            value={presetShape}
+            onChange={(e) => setPresetShape(e.target.value as PresetShape)}
+            className="rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+          >
+            <option value="square">정사각형</option>
+            <option value="rectangle">직사각형</option>
+            <option value="circle">원형</option>
+            <option value="fan">부채꼴(공연장형)</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 text-xs text-gray-500">
+          {PRESET_FIELD_LABELS[presetShape][0]}
+          <input
+            type="number"
+            min={1}
+            value={presetA}
+            onChange={(e) => setPresetA(Number(e.target.value))}
+            className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+          />
+        </label>
+        {PRESET_FIELD_LABELS[presetShape][1] && (
+          <label className="flex flex-col gap-1 text-xs text-gray-500">
+            {PRESET_FIELD_LABELS[presetShape][1]}
+            <input
+              type="number"
+              min={1}
+              value={presetB}
+              onChange={(e) => setPresetB(Number(e.target.value))}
+              className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+            />
+          </label>
+        )}
+        <button
+          type="button"
+          onClick={addPreset}
+          className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          <Plus size={14} />
+          프리셋 추가
         </button>
       </div>
 
