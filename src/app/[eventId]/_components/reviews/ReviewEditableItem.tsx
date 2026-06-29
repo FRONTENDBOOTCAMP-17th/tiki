@@ -4,10 +4,11 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import Avatar from "@/components/Avatar";
 import Button from "@/components/Button";
 import Dialog from "@/components/modal/Dialog";
-import ReviewStars from "@/components/reviews/ReviewStars";
+import ReviewAuthor from "@/components/reviews/ReviewAuthor";
+import ReviewBody from "@/components/reviews/ReviewBody";
+import ReviewRating from "@/components/reviews/ReviewRating";
 import { cn } from "@/lib/cn";
 import { formatDotDate } from "@/lib/format";
 import { deleteReviewAction, updateReviewAction } from "@/lib/reviews/actions";
@@ -90,13 +91,15 @@ export default function ReviewEditableItem({
   return (
     <li className="py-5">
       <div className="flex items-start gap-3">
-        <Avatar seed={review.userName} className="size-9 text-sm" />
+        <ReviewAuthor
+          name={review.userName}
+          className="items-start gap-3"
+          showName={false}
+        />
         <div className="min-w-0 flex-1">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span className="font-semibold text-gray-900">
-                {review.userName}
-              </span>
+              <ReviewAuthor name={review.userName} showAvatar={false} />
               <span className="rounded-full bg-primary-50 px-2 py-0.5 text-[11px] font-semibold text-primary-700">
                 내 후기
               </span>
@@ -181,15 +184,8 @@ export default function ReviewEditableItem({
             </div>
           ) : (
             <>
-              <div className="mt-1 flex items-center gap-2">
-                <ReviewStars rating={review.rating} size="sm" />
-                <span className="text-xs font-semibold text-gray-500">
-                  {review.rating.toFixed(1)}
-                </span>
-              </div>
-              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-gray-700">
-                {review.memo}
-              </p>
+              <ReviewRating rating={review.rating} size="sm" className="mt-1" />
+              <ReviewBody className="mt-3">{review.memo}</ReviewBody>
               {message && (
                 <p className="mt-2 text-xs text-danger-500">{message}</p>
               )}
