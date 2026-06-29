@@ -10,6 +10,7 @@ import {
 } from "@dnd-kit/core";
 import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import useToast from "@/hooks/useToast";
 
 export interface DraftSeat {
   id: string;
@@ -171,14 +172,17 @@ export default function SeatLayoutBuilder({
   grades,
   initialStage,
   initialSeats,
+  maxSeats,
   onChange,
 }: {
   grades: SeatGradeOption[];
   initialStage: DraftStage;
   initialSeats: DraftSeat[];
+  maxSeats: number; // 등급별 좌석 수(VIP+일반 등) 합계. 이 개수를 넘는 좌석은 만들 수 없다.
   // 저장 버튼이 있는 부모(페이지)가 최신 배치 상태를 들고 있을 수 있도록 변경마다 알려준다.
   onChange?: (stage: DraftStage, seats: DraftSeat[]) => void;
 }) {
+  const toast = useToast();
   const canvasRef = useRef<HTMLDivElement>(null);
   const [stage, setStage] = useState<DraftStage>(initialStage);
   const [seats, setSeats] = useState<DraftSeat[]>(initialSeats);
@@ -274,12 +278,37 @@ export default function SeatLayoutBuilder({
     );
   }
 
+  // 등급별 좌석 수(VIP+일반 등) 합계를 넘는 좌석은 만들 수 없다. 남은 자리 수를 돌려준다.
+  function remainingCapacity() {
+    return maxSeats - seats.length;
+  }
+
+  // 격자/원형/부채꼴처럼 모양이 정해진 프리셋은 일부만 만들면 모양이 깨지므로,
+  // 남은 자리보다 많이 요청하면 아예 만들지 않고 경고만 띄운다.
+  function blockIfOverCapacity(requested: number) {
+    const remaining = remainingCapacity();
+    if (requested > remaining) {
+      toast.error(`좌석은 최대 ${maxSeats}개까지 만들 수 있어요 (남은 자리 ${Math.max(remaining, 0)}개)`);
+      return true;
+    }
+    return false;
+  }
+
   // 좌석을 한 줄로 N개 생성 (좌석 수백 개를 하나씩 만들지 않게 하는 핵심 도구)
   // rowGapX: 좌석 사이 가로 간격(%). 시작점(x=10)부터 간격만큼씩 옆으로 배치한다.
+  // 줄은 1차원이라 일부만 만들어도 모양이 안 깨지므로, 남은 자리만큼만 잘라서 만든다.
   function addRow() {
     if (rowCount < 1) return;
+    const count = Math.min(rowCount, remainingCapacity());
+    if (count <= 0) {
+      toast.error(`좌석은 최대 ${maxSeats}개까지 만들 수 있어요. 더 이상 추가할 수 없습니다.`);
+      return;
+    }
+    if (count < rowCount) {
+      toast.error(`남은 자리가 ${count}개뿐이라 ${count}개만 생성했어요.`);
+    }
     const startX = 10;
-    const newSeats: DraftSeat[] = Array.from({ length: rowCount }, (_, i) => ({
+    const newSeats: DraftSeat[] = Array.from({ length: count }, (_, i) => ({
       id: crypto.randomUUID(),
       label: `${labelPrefix}${i + 1}`,
       x: clampPercent(startX + rowGapX * i),
@@ -297,6 +326,7 @@ export default function SeatLayoutBuilder({
   // gapX/gapY: 좌석 사이 가로/세로 간격(%). 시작점(10, 25)부터 간격만큼씩 늘어선다.
   function addRectanglePreset(rows: number, cols: number, gapX: number, gapY: number) {
     if (rows < 1 || cols < 1) return;
+    if (blockIfOverCapacity(rows * cols)) return;
     const startX = 10;
     const startY = 25;
     const newSeats: DraftSeat[] = [];
@@ -317,6 +347,7 @@ export default function SeatLayoutBuilder({
   // 좌석을 원형으로 균등 배치 (예: 원탁/아레나형 좌석)
   function addCirclePreset(count: number, radiusPercent: number) {
     if (count < 1 || radiusPercent <= 0) return;
+    if (blockIfOverCapacity(count)) return;
     const centerX = 50;
     const centerY = 55;
     const newSeats: DraftSeat[] = Array.from({ length: count }, (_, i) => {
@@ -343,6 +374,7 @@ export default function SeatLayoutBuilder({
     radiusStep: number,
   ) {
     if (rows < 1 || seatsPerRow < 1 || spreadDeg <= 0) return;
+    if (blockIfOverCapacity(rows * seatsPerRow)) return;
     const centerX = 50;
     const centerY = clampPercent(stage.y + stage.height / 2 + 5);
     const newSeats: DraftSeat[] = [];
@@ -540,7 +572,8 @@ export default function SeatLayoutBuilder({
         <button
           type="button"
           onClick={addRow}
-          className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          disabled={remainingCapacity() <= 0}
+          className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
         >
           <Plus size={14} />
           줄 추가
@@ -632,7 +665,8 @@ export default function SeatLayoutBuilder({
         <button
           type="button"
           onClick={addPreset}
-          className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          disabled={remainingCapacity() <= 0}
+          className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
         >
           <Plus size={14} />
           프리셋 추가
@@ -848,8 +882,8 @@ export default function SeatLayoutBuilder({
         </div>
       </DndContext>
 
-      <p className="text-xs text-gray-400">
-        좌석 {seats.length}개 · 선택됨{" "}
+      <p className={cn("text-xs", seats.length >= maxSeats ? "font-medium text-danger-600" : "text-gray-400")}>
+        좌석 {seats.length} / 최대 {maxSeats}개 · 선택됨{" "}
         {selectedIds.size === 0
           ? "0개"
           : `${selectedIds.size}개 (${seats

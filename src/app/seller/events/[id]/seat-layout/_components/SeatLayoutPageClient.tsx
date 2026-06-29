@@ -15,12 +15,14 @@ export default function SeatLayoutPageClient({
   grades,
   initialStage,
   initialSeats,
+  maxSeats,
   locked,
 }: {
   eventId: string;
   grades: SeatGradeOption[];
   initialStage: DraftStage;
   initialSeats: DraftSeat[];
+  maxSeats: number;
   locked: boolean;
 }) {
   const router = useRouter();
@@ -76,6 +78,7 @@ export default function SeatLayoutPageClient({
         grades={grades}
         initialStage={initialStage}
         initialSeats={initialSeats}
+        maxSeats={maxSeats}
         onChange={(stage, seats) => {
           latest.current = { stage, seats };
         }}

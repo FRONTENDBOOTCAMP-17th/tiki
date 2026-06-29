@@ -61,6 +61,16 @@ export async function POST(
     return fail("invalid_seats", 400);
   }
 
+  // 등급별 좌석 수(VIP+일반 등) 합계를 넘는 좌석은 저장할 수 없다 (클라이언트 제한 우회 대비 서버 측 재검증)
+  const { data: gradeRows } = await supabase
+    .from("ticket_grade")
+    .select("quantity")
+    .eq("event_id", eventId);
+  const maxSeats = (gradeRows ?? []).reduce((sum, g) => sum + g.quantity, 0);
+  if (seats.length > maxSeats) {
+    return fail(`too_many_seats: 최대 ${maxSeats}개까지 가능합니다`, 400);
+  }
+
   // 기존 배치도가 있고 이미 판매/홀드된 좌석이 있으면 좌석 좌표 자체를 바꾸지 못하게 막는다
   // (좌석을 지우고 다시 만드는 방식이라, 이미 팔린 좌석의 좌표를 건드리면 주문-좌석 매핑이 끊어짐)
   const { data: existingLayout } = await supabase
