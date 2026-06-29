@@ -31,6 +31,7 @@ export default function DetailTabs({ tabs, children }: DetailTabsProps) {
     const index = tabs.findIndex((t) => t.id === targetId);
     if (index === -1) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- window.location.hash는 마운트 시 1회만 읽는 브라우저 API 동기화
     setActiveIndex(index);
     // 탭 전환 후 해당 영역으로 스크롤 (렌더 한 프레임 뒤)
     requestAnimationFrame(() => {
@@ -38,7 +39,12 @@ export default function DetailTabs({ tabs, children }: DetailTabsProps) {
         .getElementById("reviews")
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-  }, [tabs]);
+    // 최초 진입 시 한 번만 확인하면 되는 동작이라 의도적으로 deps를 비워둔다.
+    // tabs는 부모(서버 컴포넌트)가 매 렌더마다 새 배열 리터럴로 내려주므로,
+    // 의존성에 넣으면 router.refresh() 등으로 부모가 리렌더될 때마다 이 effect가
+    // 다시 돌면서 setActiveIndex를 반복 호출해 무한 업데이트로 이어질 수 있다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex min-w-0 flex-col">
