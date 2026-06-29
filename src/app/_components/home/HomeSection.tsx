@@ -1,27 +1,37 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
+import { cn } from "@/lib/cn";
 
 interface HomeSectionProps {
   title: string;
   moreHref?: string;
+  className?: string;
   children: ReactNode;
 }
 
 // 홈 화면 섹션들(예매 랭킹/티켓 오픈/카테고리별)이 공통으로 쓰는 제목 + 본문 래퍼.
-export default function HomeSection({ title, moreHref, children }: HomeSectionProps) {
+export default function HomeSection({
+  title,
+  moreHref,
+  className,
+  children,
+}: HomeSectionProps) {
   return (
-    <section className="px-4 py-6 md:px-8 lg:px-16">
-      <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-lg font-bold text-gray-900 md:text-xl">{title}</h2>
-        {moreHref && (
+    <section className={cn("px-4 py-7 md:px-8 lg:px-16", className)}>
+      <div className="mb-4 flex items-end justify-between gap-4">
+        {moreHref ? (
           <Link
             href={moreHref}
-            className="group flex items-center gap-0.5 text-sm text-gray-400 transition-colors hover:text-primary-700"
+            className="group inline-flex items-center gap-1 text-lg font-bold tracking-tight text-gray-950 transition-colors hover:text-primary-700 md:text-xl"
           >
-            더보기
-            <ChevronRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+            {title}
+            <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
+        ) : (
+          <h2 className="text-lg font-bold tracking-tight text-gray-950 md:text-xl">
+            {title}
+          </h2>
         )}
       </div>
       {children}
