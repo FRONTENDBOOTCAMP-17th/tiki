@@ -229,6 +229,7 @@ export type Database = {
       seat: {
         Row: {
           grade_id: string | null
+          group_name: string | null
           label: string
           layout_id: string
           pos_x: number
@@ -237,6 +238,7 @@ export type Database = {
         }
         Insert: {
           grade_id?: string | null
+          group_name?: string | null
           label: string
           layout_id: string
           pos_x: number
@@ -245,6 +247,7 @@ export type Database = {
         }
         Update: {
           grade_id?: string | null
+          group_name?: string | null
           label?: string
           layout_id?: string
           pos_x?: number

@@ -17,6 +17,7 @@ export interface DraftSeat {
   x: number; // 캔버스 가로 기준 % (0~100)
   y: number; // 캔버스 세로 기준 % (0~100)
   gradeId: string | null;
+  groupName: string | null; // 등급과 별개인 구역/그룹 이름 (자유 텍스트)
 }
 
 export interface DraftStage {
@@ -185,6 +186,12 @@ export default function SeatLayoutBuilder({
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [bulkLabelPrefix, setBulkLabelPrefix] = useState("A");
   const [bulkLabelStart, setBulkLabelStart] = useState(1);
+  const [groupNameInput, setGroupNameInput] = useState("");
+  const [rotateAngle, setRotateAngle] = useState(15);
+
+  const groups = Array.from(
+    new Set(seats.map((seat) => seat.groupName).filter((name): name is string => !!name)),
+  ).sort();
 
   const selectedSeat =
     selectedIds.size === 1 ? seats.find((seat) => selectedIds.has(seat.id)) ?? null : null;
@@ -267,7 +274,7 @@ export default function SeatLayoutBuilder({
       label: `${labelPrefix}${i + 1}`,
       x: rowCount === 1 ? 50 : margin + (usable * i) / (rowCount - 1),
       y: 50,
-      gradeId: null,
+      gradeId: null, groupName: null,
     }));
     setSeats((prev) => [...prev, ...newSeats]);
   }
@@ -291,7 +298,7 @@ export default function SeatLayoutBuilder({
           label: `${labelPrefix}${r + 1}-${c + 1}`,
           x: cols === 1 ? 50 : marginX + (usableX * c) / (cols - 1),
           y: rows === 1 ? (top + bottom) / 2 : top + ((bottom - top) * r) / (rows - 1),
-          gradeId: null,
+          gradeId: null, groupName: null,
         });
       }
     }
@@ -310,7 +317,7 @@ export default function SeatLayoutBuilder({
         label: `${labelPrefix}${i + 1}`,
         x: clampPercent(centerX + radiusPercent * Math.cos(angle)),
         y: clampPercent(centerY + radiusPercent * CANVAS_ASPECT * Math.sin(angle)),
-        gradeId: null,
+        gradeId: null, groupName: null,
       };
     });
     setSeats((prev) => [...prev, ...newSeats]);
@@ -336,7 +343,7 @@ export default function SeatLayoutBuilder({
           label: `${labelPrefix}${r + 1}-${c + 1}`,
           x: clampPercent(centerX + radius * Math.sin(angleRad)),
           y: clampPercent(centerY + radius * Math.cos(angleRad) * CANVAS_ASPECT),
-          gradeId: null,
+          gradeId: null, groupName: null,
         });
       }
     }
@@ -386,6 +393,74 @@ export default function SeatLayoutBuilder({
       prev.map((seat) =>
         nextLabelById.has(seat.id) ? { ...seat, label: nextLabelById.get(seat.id)! } : seat,
       ),
+    );
+  }
+
+  // 등급과 별개로 좌석을 자유 텍스트 그룹(구역)으로 묶는다. 그룹 목록은 별도 테이블 없이
+  // seats에 쓰인 group_name distinct 값으로 도출한다.
+  function assignGroup(name: string) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setSeats((prev) =>
+      prev.map((seat) => (selectedIds.has(seat.id) ? { ...seat, groupName: trimmed } : seat)),
+    );
+  }
+
+  function ungroupSelected() {
+    setSeats((prev) =>
+      prev.map((seat) => (selectedIds.has(seat.id) ? { ...seat, groupName: null } : seat)),
+    );
+  }
+
+  function selectGroup(name: string) {
+    setSelectedIds(new Set(seats.filter((seat) => seat.groupName === name).map((seat) => seat.id)));
+  }
+
+  function renameGroup(oldName: string, newNameRaw: string) {
+    const newName = newNameRaw.trim();
+    if (!newName || newName === oldName) return;
+    setSeats((prev) =>
+      prev.map((seat) => (seat.groupName === oldName ? { ...seat, groupName: newName } : seat)),
+    );
+  }
+
+  function ungroupAll(name: string) {
+    setSeats((prev) =>
+      prev.map((seat) => (seat.groupName === name ? { ...seat, groupName: null } : seat)),
+    );
+  }
+
+  // 그룹의 중심점을 기준으로 좌석 전체를 angleDeg만큼 회전.
+  // 캔버스가 4:3이라 x%/y%의 실제 픽셀 비율이 다르므로, y를 CANVAS_ASPECT로 나눠 정규화한 뒤
+  // 회전하고 다시 곱해서 되돌린다(그래야 타원이 아니라 진짜 회전처럼 보임).
+  function rotateGroup(groupName: string, angleDeg: number) {
+    const members = seats.filter((seat) => seat.groupName === groupName);
+    if (members.length === 0) return;
+    const cx = members.reduce((sum, seat) => sum + seat.x, 0) / members.length;
+    const cyPrime =
+      members.reduce((sum, seat) => sum + seat.y / CANVAS_ASPECT, 0) / members.length;
+    const rad = (angleDeg * Math.PI) / 180;
+    const cos = Math.cos(rad);
+    const sin = Math.sin(rad);
+
+    const nextById = new Map(
+      members.map((seat) => {
+        const dx = seat.x - cx;
+        const dyPrime = seat.y / CANVAS_ASPECT - cyPrime;
+        const rx = dx * cos - dyPrime * sin;
+        const ryPrime = dx * sin + dyPrime * cos;
+        return [
+          seat.id,
+          { x: clampPercent(cx + rx), y: clampPercent((cyPrime + ryPrime) * CANVAS_ASPECT) },
+        ] as const;
+      }),
+    );
+
+    setSeats((prev) =>
+      prev.map((seat) => {
+        const next = nextById.get(seat.id);
+        return next ? { ...seat, x: next.x, y: next.y } : seat;
+      }),
     );
   }
 
@@ -575,6 +650,106 @@ export default function SeatLayoutBuilder({
               {grade.name}
             </button>
           ))}
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="flex flex-col gap-1 text-xs text-gray-500">
+          선택 좌석 그룹명
+          <input
+            list="seat-group-names"
+            value={groupNameInput}
+            onChange={(e) => setGroupNameInput(e.target.value)}
+            placeholder="예: 1층 A블록"
+            className="w-36 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+          />
+          <datalist id="seat-group-names">
+            {groups.map((name) => (
+              <option key={name} value={name} />
+            ))}
+          </datalist>
+        </label>
+        <button
+          type="button"
+          onClick={() => assignGroup(groupNameInput)}
+          disabled={selectedIds.size === 0 || !groupNameInput.trim()}
+          className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+        >
+          선택 좌석 그룹 지정
+        </button>
+        <button
+          type="button"
+          onClick={ungroupSelected}
+          disabled={selectedIds.size === 0}
+          className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+        >
+          선택 좌석 그룹 해제
+        </button>
+      </div>
+
+      {groups.length > 0 && (
+        <div className="flex flex-col gap-2 rounded-lg border border-gray-200 p-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold text-gray-700">그룹 인스펙터</p>
+            <label className="flex items-center gap-1 text-xs text-gray-500">
+              회전 각도(°)
+              <input
+                type="number"
+                value={rotateAngle}
+                onChange={(e) => setRotateAngle(Number(e.target.value))}
+                className="w-16 rounded border border-gray-200 px-1.5 py-1 text-sm"
+              />
+            </label>
+          </div>
+          <ul className="flex flex-col gap-1.5">
+            {groups.map((name) => {
+              const count = seats.filter((seat) => seat.groupName === name).length;
+              return (
+                <li
+                  key={name}
+                  className="flex flex-wrap items-center gap-2 rounded-md bg-gray-50 px-2 py-1.5 text-sm"
+                >
+                  <input
+                    key={name}
+                    defaultValue={name}
+                    onBlur={(e) => renameGroup(name, e.target.value)}
+                    className="w-28 rounded border border-gray-200 px-1.5 py-1 text-sm"
+                  />
+                  <span className="text-xs text-gray-400">{count}석</span>
+                  <button
+                    type="button"
+                    onClick={() => selectGroup(name)}
+                    className="rounded border border-gray-200 px-2 py-1 text-xs hover:bg-white"
+                  >
+                    선택
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => rotateGroup(name, -rotateAngle)}
+                    title="반시계 방향으로 회전"
+                    className="rounded border border-gray-200 px-2 py-1 text-xs hover:bg-white"
+                  >
+                    ↺
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => rotateGroup(name, rotateAngle)}
+                    title="시계 방향으로 회전"
+                    className="rounded border border-gray-200 px-2 py-1 text-xs hover:bg-white"
+                  >
+                    ↻
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => ungroupAll(name)}
+                    className="rounded border border-gray-200 px-2 py-1 text-xs text-danger-600 hover:bg-danger-50"
+                  >
+                    그룹 해제
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
 

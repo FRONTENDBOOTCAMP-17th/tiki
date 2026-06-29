@@ -42,12 +42,19 @@ export async function POST(
   if (!Array.isArray(body.seats)) return fail("invalid_seats", 400);
 
   const seats = body.seats.map((raw) => {
-    const r = raw as { label?: unknown; x?: unknown; y?: unknown; gradeId?: unknown };
+    const r = raw as {
+      label?: unknown;
+      x?: unknown;
+      y?: unknown;
+      gradeId?: unknown;
+      groupName?: unknown;
+    };
     return {
       label: typeof r.label === "string" ? r.label.trim() : "",
       x: clampPercent(r.x),
       y: clampPercent(r.y),
       gradeId: typeof r.gradeId === "string" ? r.gradeId : null,
+      groupName: typeof r.groupName === "string" && r.groupName.trim() ? r.groupName.trim() : null,
     };
   });
   if (seats.some((s) => !s.label || s.x === null || s.y === null)) {
@@ -107,6 +114,7 @@ export async function POST(
         pos_x: s.x as number,
         pos_y: s.y as number,
         grade_id: s.gradeId,
+        group_name: s.groupName,
       })),
     );
     if (insertError) return fail("seat_save_failed", 500);

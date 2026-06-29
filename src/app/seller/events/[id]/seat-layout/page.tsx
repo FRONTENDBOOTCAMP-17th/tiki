@@ -41,7 +41,7 @@ export default async function Page({
   if (layout) {
     const { data: seatRows } = await supabase
       .from("seat")
-      .select("seat_id, label, pos_x, pos_y, grade_id")
+      .select("seat_id, label, pos_x, pos_y, grade_id, group_name")
       .eq("layout_id", layout.layout_id);
 
     seats = (seatRows ?? []).map((s) => ({
@@ -50,6 +50,7 @@ export default async function Page({
       x: s.pos_x,
       y: s.pos_y,
       gradeId: s.grade_id,
+      groupName: s.group_name,
     }));
 
     const seatIds = seats.map((s) => s.id);

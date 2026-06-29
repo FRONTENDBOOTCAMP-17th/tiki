@@ -45,6 +45,7 @@ export default function SeatLayoutPageClient({
             x: s.x,
             y: s.y,
             gradeId: s.gradeId,
+            groupName: s.groupName,
           })),
         }),
       });
