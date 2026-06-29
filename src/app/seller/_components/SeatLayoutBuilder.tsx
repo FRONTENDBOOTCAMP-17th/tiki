@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DndContext, useDraggable, type DragEndEvent } from "@dnd-kit/core";
 import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -110,10 +110,13 @@ export default function SeatLayoutBuilder({
   grades,
   initialStage,
   initialSeats,
+  onChange,
 }: {
   grades: SeatGradeOption[];
   initialStage: DraftStage;
   initialSeats: DraftSeat[];
+  // 저장 버튼이 있는 부모(페이지)가 최신 배치 상태를 들고 있을 수 있도록 변경마다 알려준다.
+  onChange?: (stage: DraftStage, seats: DraftSeat[]) => void;
 }) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [stage, setStage] = useState<DraftStage>(initialStage);
@@ -122,6 +125,11 @@ export default function SeatLayoutBuilder({
   const [rowCount, setRowCount] = useState(10);
   const [labelPrefix, setLabelPrefix] = useState("A");
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
+
+  useEffect(() => {
+    onChange?.(stage, seats);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage, seats]);
 
   function toCanvasPercent(e: { clientX: number; clientY: number }) {
     const canvas = canvasRef.current;
