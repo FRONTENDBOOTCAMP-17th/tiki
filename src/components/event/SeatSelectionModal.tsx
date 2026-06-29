@@ -225,6 +225,9 @@ export default function SeatSelectionModal({
         </p>
       </Modal.Body>
       <Modal.Footer>
+        <Button variant="outline" fullWidth onClick={onClose}>
+          취소
+        </Button>
         <Button variant="primary" fullWidth onClick={onClose}>
           선택 완료
         </Button>
