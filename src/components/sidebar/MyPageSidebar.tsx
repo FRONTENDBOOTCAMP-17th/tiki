@@ -77,8 +77,13 @@ export default function MyPageSidebar({
       {(role === "seller" || role === "admin") && (
         <>
           <div className="my-3 border-t border-gray-100" />
-          <SidebarMenuItem label="구매자 페이지" href="/mypage" icon={User} />
-          <SidebarMenuItem label="판매자 페이지" href="/seller" icon={Store} />
+          {role === "seller" && (
+            <SidebarMenuItem
+              label="판매자 페이지"
+              href="/seller"
+              icon={Store}
+            />
+          )}
           {role === "admin" && (
             <SidebarMenuItem
               label="관리자 페이지"
