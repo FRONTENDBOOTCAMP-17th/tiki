@@ -40,6 +40,26 @@ export default function SeatSelectionModal({
   const [othersHeldSeatIds, setOthersHeldSeatIds] = useState<Set<string>>(new Set());
   const clientIdRef = useRef(crypto.randomUUID());
   const channelRef = useRef<RealtimeChannel | null>(null);
+  // clientId -> {seatIds, 마지막으로 소식 들은 시각}. Presence의 sync/leave 이벤트가
+  // 안 터지는 경우가 있어서(Supabase Realtime 쪽 이슈), 자동 leave 감지에 의존하지 않고
+  // 직접 메시지(hold/release)를 주고받고, 일정 시간 소식이 없으면 스스로 정리한다.
+  const othersRef = useRef<Map<string, { seatIds: string[]; lastSeenAt: number }>>(new Map());
+
+  const HEARTBEAT_MS = 4000;
+  const STALE_MS = 10000;
+
+  function recomputeOthersHeld() {
+    const now = Date.now();
+    const ids = new Set<string>();
+    for (const [clientId, entry] of othersRef.current) {
+      if (now - entry.lastSeenAt > STALE_MS) {
+        othersRef.current.delete(clientId);
+        continue;
+      }
+      entry.seatIds.forEach((id) => ids.add(id));
+    }
+    setOthersHeldSeatIds(ids);
+  }
 
   // 모달이 열릴 때마다 좌석 점유 상태를 새로 가져온다 (닫혀있는 동안 다른 사람이 선점했을 수 있음)
   useEffect(() => {
@@ -60,42 +80,65 @@ export default function SeatSelectionModal({
   }, [slotId, open]);
 
   // 같은 회차의 좌석 모달을 보고 있는 다른 사용자들과 "지금 고르고 있는 좌석"을
-  // Presence로 실시간 공유한다. 모달을 닫으면 자동으로 내 presence가 빠지면서
-  // 다른 사람 화면에서도 즉시 해제된다.
+  // Broadcast로 실시간 공유한다. 좌석을 고르거나 뺄 때 hold 메시지를 보내고,
+  // 모달을 닫을 때 release 메시지를 명시적으로 보내서 즉시 풀어준다.
+  // (연결이 끊겨 release를 못 보낸 경우를 대비해 하트비트 + 만료 청소도 같이 돈다)
   useEffect(() => {
     if (!open) return;
+    othersRef.current.clear();
+    // 이전 세션에서 남은 "다른 사용자가 선택 중" 표시를 즉시 비움(모달 재오픈/회차 변경 시)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- open/slotId 전환 시 1회 초기화
+    setOthersHeldSeatIds(new Set());
+
+    const clientId = clientIdRef.current;
     const supabase = createClient();
-    const channel = supabase.channel(`seat-hold-${slotId}`, {
-      config: { presence: { key: clientIdRef.current } },
+    const channel = supabase.channel(`seat-hold-${slotId}`);
+
+    channel.on("broadcast", { event: "hold" }, ({ payload }) => {
+      const { clientId: fromId, seatIds } = payload as {
+        clientId: string;
+        seatIds: string[];
+      };
+      if (fromId === clientId) return;
+      othersRef.current.set(fromId, { seatIds, lastSeenAt: Date.now() });
+      recomputeOthersHeld();
+    });
+    channel.on("broadcast", { event: "release" }, ({ payload }) => {
+      const { clientId: fromId } = payload as { clientId: string };
+      othersRef.current.delete(fromId);
+      recomputeOthersHeld();
     });
 
-    channel.on("presence", { event: "sync" }, () => {
-      const state = channel.presenceState<{ seatIds: string[] }>();
-      const ids = new Set<string>();
-      for (const key in state) {
-        if (key === clientIdRef.current) continue;
-        for (const presence of state[key]) {
-          presence.seatIds?.forEach((id) => ids.add(id));
-        }
-      }
-      setOthersHeldSeatIds(ids);
-    });
-
-    channel.subscribe((status) => {
-      if (status === "SUBSCRIBED") channel.track({ seatIds: [] });
-    });
+    channel.subscribe();
     channelRef.current = channel;
 
+    const sweep = setInterval(recomputeOthersHeld, 3000);
+
     return () => {
+      clearInterval(sweep);
+      channel.send({
+        type: "broadcast",
+        event: "release",
+        payload: { clientId },
+      });
       supabase.removeChannel(channel);
       channelRef.current = null;
     };
   }, [slotId, open]);
 
-  // 내가 좌석을 고르거나 뺄 때마다 다른 사람들에게도 바로 알려준다.
+  // 내가 좌석을 고르거나 뺄 때마다, 그리고 주기적으로(하트비트) 다른 사람들에게 알려준다.
   useEffect(() => {
-    channelRef.current?.track({ seatIds: [...selectedSeatIds] });
-  }, [selectedSeatIds]);
+    if (!open) return;
+    const send = () =>
+      channelRef.current?.send({
+        type: "broadcast",
+        event: "hold",
+        payload: { clientId: clientIdRef.current, seatIds: [...selectedSeatIds] },
+      });
+    send();
+    const heartbeat = setInterval(send, HEARTBEAT_MS);
+    return () => clearInterval(heartbeat);
+  }, [open, selectedSeatIds]);
 
   function handleSeatClick(seat: { seatId: string; gradeId: string | null }) {
     if (!seat.gradeId || occupiedSeatIds.has(seat.seatId)) return;
