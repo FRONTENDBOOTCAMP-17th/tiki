@@ -182,6 +182,11 @@ export default function SeatLayoutBuilder({
   const [presetB, setPresetB] = useState(5);
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
+  const [bulkLabelPrefix, setBulkLabelPrefix] = useState("A");
+  const [bulkLabelStart, setBulkLabelStart] = useState(1);
+
+  const selectedSeat =
+    selectedIds.size === 1 ? seats.find((seat) => selectedIds.has(seat.id)) ?? null : null;
 
   useEffect(() => {
     onChange?.(stage, seats);
@@ -364,6 +369,25 @@ export default function SeatLayoutBuilder({
     setSelectedIds(new Set());
   }
 
+  function renameSeat(seatId: string, label: string) {
+    setSeats((prev) => prev.map((seat) => (seat.id === seatId ? { ...seat, label } : seat)));
+  }
+
+  // 선택된 여러 좌석을 화면 위치 순서(위→아래, 좌→우)대로 "접두사+번호"로 다시 번호 매김
+  function renameSelectedBulk() {
+    const ordered = seats
+      .filter((seat) => selectedIds.has(seat.id))
+      .sort((a, b) => a.y - b.y || a.x - b.x);
+    const nextLabelById = new Map(
+      ordered.map((seat, i) => [seat.id, `${bulkLabelPrefix}${bulkLabelStart + i}`]),
+    );
+    setSeats((prev) =>
+      prev.map((seat) =>
+        nextLabelById.has(seat.id) ? { ...seat, label: nextLabelById.get(seat.id)! } : seat,
+      ),
+    );
+  }
+
   // 드래그 영역 선택: 캔버스의 빈 배경(좌석/무대가 아닌 부분)에서 누른 경우에만 시작
   function handleCanvasMouseDown(e: React.MouseEvent<HTMLDivElement>) {
     if (e.target !== canvasRef.current) return;
@@ -476,6 +500,48 @@ export default function SeatLayoutBuilder({
           프리셋 추가
         </button>
       </div>
+
+      {selectedSeat && (
+        <label className="flex items-center gap-2 text-sm text-gray-600">
+          선택한 좌석 라벨
+          <input
+            value={selectedSeat.label}
+            onChange={(e) => renameSeat(selectedSeat.id, e.target.value)}
+            className="w-32 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+          />
+        </label>
+      )}
+
+      {selectedIds.size > 1 && (
+        <div className="flex flex-wrap items-end gap-2">
+          <span className="text-sm text-gray-600">선택한 {selectedIds.size}개 좌석 라벨 일괄 변경</span>
+          <label className="flex flex-col gap-1 text-xs text-gray-500">
+            접두사
+            <input
+              value={bulkLabelPrefix}
+              onChange={(e) => setBulkLabelPrefix(e.target.value)}
+              className="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-gray-500">
+            시작 번호
+            <input
+              type="number"
+              min={1}
+              value={bulkLabelStart}
+              onChange={(e) => setBulkLabelStart(Number(e.target.value))}
+              className="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={renameSelectedBulk}
+            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            일괄 변경
+          </button>
+        </div>
+      )}
 
       {grades.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 text-sm">
