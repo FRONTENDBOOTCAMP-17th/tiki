@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="w-full bg-mirage text-white px-24 border-t">
@@ -10,21 +12,68 @@ export default function Footer() {
         <div className="grid grid-cols-3 gap-12 text-sm text-left">
           <div>
             <p className="font-semibold mb-1">서비스</p>
-            <p className="text-gray-400">서비스 소개</p>
-            <p className="text-gray-400">이용약관</p>
-            <p className="text-gray-400">개인정보 처리방침</p>
+            {/* TODO: 서비스 소개 라우트 확정 후 채우기 */}
+            <Link
+              href="#"
+              className="block text-gray-400 hover:text-white transition-colors"
+            >
+              서비스 소개
+            </Link>
+            <Link
+              href="/terms"
+              className="block text-gray-400 hover:text-white transition-colors"
+            >
+              이용약관
+            </Link>
+            <Link
+              href="/privacy"
+              className="block text-gray-400 hover:text-white transition-colors"
+            >
+              개인정보 처리방침
+            </Link>
           </div>
           <div>
             <p className="font-semibold mb-1">고객지원</p>
-            <p className="text-gray-400">자주 묻는 질문</p>
-            <p className="text-gray-400">1:1 문의</p>
-            <p className="text-gray-400">고객센터</p>
+            <Link
+              href="/support#faq"
+              className="block text-gray-400 hover:text-white transition-colors"
+            >
+              자주 묻는 질문
+            </Link>
+            <Link
+              href="/mypage/inquiries"
+              className="block text-gray-400 hover:text-white transition-colors"
+            >
+              1:1 문의
+            </Link>
+            <Link
+              href="/support#contact"
+              className="block text-gray-400 hover:text-white transition-colors"
+            >
+              고객센터
+            </Link>
           </div>
           <div>
             <p className="font-semibold mb-1">판매자</p>
-            <p className="text-gray-400">판매자 등록</p>
-            <p className="text-gray-400">판매자 가이드</p>
-            <p className="text-gray-400">정산 안내</p>
+            {/* TODO: 라우트 확정 후 href 채우기 */}
+            <Link
+              href="#"
+              className="block text-gray-400 hover:text-white transition-colors"
+            >
+              판매자 등록
+            </Link>
+            <Link
+              href="#"
+              className="block text-gray-400 hover:text-white transition-colors"
+            >
+              판매자 가이드
+            </Link>
+            <Link
+              href="#"
+              className="block text-gray-400 hover:text-white transition-colors"
+            >
+              정산 안내
+            </Link>
           </div>
         </div>
       </div>
