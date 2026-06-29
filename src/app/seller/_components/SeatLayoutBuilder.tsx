@@ -177,11 +177,14 @@ export default function SeatLayoutBuilder({
   const [seats, setSeats] = useState<DraftSeat[]>(initialSeats);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [rowCount, setRowCount] = useState(10);
+  const [rowGapX, setRowGapX] = useState(6);
   const [labelPrefix, setLabelPrefix] = useState("A");
   const [presetShape, setPresetShape] = useState<PresetShape>("rectangle");
   const [presetA, setPresetA] = useState(5);
   const [presetB, setPresetB] = useState(5);
   const [presetC, setPresetC] = useState(120);
+  const [presetGapX, setPresetGapX] = useState(8);
+  const [presetGapY, setPresetGapY] = useState(12);
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [bulkLabelPrefix, setBulkLabelPrefix] = useState("A");
@@ -265,14 +268,14 @@ export default function SeatLayoutBuilder({
   }
 
   // 좌석을 한 줄로 N개 생성 (좌석 수백 개를 하나씩 만들지 않게 하는 핵심 도구)
+  // rowGapX: 좌석 사이 가로 간격(%). 시작점(x=10)부터 간격만큼씩 옆으로 배치한다.
   function addRow() {
     if (rowCount < 1) return;
-    const margin = 10;
-    const usable = 100 - margin * 2;
+    const startX = 10;
     const newSeats: DraftSeat[] = Array.from({ length: rowCount }, (_, i) => ({
       id: crypto.randomUUID(),
       label: `${labelPrefix}${i + 1}`,
-      x: rowCount === 1 ? 50 : margin + (usable * i) / (rowCount - 1),
+      x: clampPercent(startX + rowGapX * i),
       y: 50,
       gradeId: null, groupName: null,
     }));
@@ -284,20 +287,19 @@ export default function SeatLayoutBuilder({
   const CANVAS_ASPECT = 4 / 3;
 
   // 행×열 격자로 좌석 일괄 생성 (정사각형 프리셋은 행=열로 호출)
-  function addRectanglePreset(rows: number, cols: number) {
+  // gapX/gapY: 좌석 사이 가로/세로 간격(%). 시작점(10, 25)부터 간격만큼씩 늘어선다.
+  function addRectanglePreset(rows: number, cols: number, gapX: number, gapY: number) {
     if (rows < 1 || cols < 1) return;
-    const marginX = 10;
-    const top = 25;
-    const bottom = 90;
-    const usableX = 100 - marginX * 2;
+    const startX = 10;
+    const startY = 25;
     const newSeats: DraftSeat[] = [];
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         newSeats.push({
           id: crypto.randomUUID(),
           label: `${labelPrefix}${r + 1}-${c + 1}`,
-          x: cols === 1 ? 50 : marginX + (usableX * c) / (cols - 1),
-          y: rows === 1 ? (top + bottom) / 2 : top + ((bottom - top) * r) / (rows - 1),
+          x: clampPercent(startX + gapX * c),
+          y: clampPercent(startY + gapY * r),
           gradeId: null, groupName: null,
         });
       }
@@ -351,8 +353,9 @@ export default function SeatLayoutBuilder({
   }
 
   function addPreset() {
-    if (presetShape === "square") addRectanglePreset(presetA, presetA);
-    else if (presetShape === "rectangle") addRectanglePreset(presetA, presetB);
+    if (presetShape === "square") addRectanglePreset(presetA, presetA, presetGapX, presetGapY);
+    else if (presetShape === "rectangle")
+      addRectanglePreset(presetA, presetB, presetGapX, presetGapY);
     else if (presetShape === "circle") addCirclePreset(presetA, presetB);
     else addFanPreset(presetA, presetB, presetC);
   }
@@ -512,6 +515,16 @@ export default function SeatLayoutBuilder({
             className="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
           />
         </label>
+        <label className="flex flex-col gap-1 text-xs text-gray-500">
+          가로 간격(%)
+          <input
+            type="number"
+            min={1}
+            value={rowGapX}
+            onChange={(e) => setRowGapX(Number(e.target.value))}
+            className="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+          />
+        </label>
         <button
           type="button"
           onClick={addRow}
@@ -579,6 +592,30 @@ export default function SeatLayoutBuilder({
               className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
             />
           </label>
+        )}
+        {(presetShape === "square" || presetShape === "rectangle") && (
+          <>
+            <label className="flex flex-col gap-1 text-xs text-gray-500">
+              가로 간격(%)
+              <input
+                type="number"
+                min={1}
+                value={presetGapX}
+                onChange={(e) => setPresetGapX(Number(e.target.value))}
+                className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-gray-500">
+              세로 간격(%)
+              <input
+                type="number"
+                min={1}
+                value={presetGapY}
+                onChange={(e) => setPresetGapY(Number(e.target.value))}
+                className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+              />
+            </label>
+          </>
         )}
         <button
           type="button"
