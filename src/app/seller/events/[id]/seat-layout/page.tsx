@@ -24,10 +24,12 @@ export default async function Page({
     .maybeSingle();
   if (!event) notFound();
 
+  // price 오름차순으로 받아서, 좌석 자동배정 시 "더 싼 등급(보통 일반석)을 먼저 채우는" 순서로 쓴다
   const { data: gradeRows } = await supabase
     .from("ticket_grade")
-    .select("grade_id, grade_name, quantity")
-    .eq("event_id", id);
+    .select("grade_id, grade_name, quantity, price")
+    .eq("event_id", id)
+    .order("price", { ascending: true });
 
   // 등급별 좌석 수(VIP+일반 등) 합계를 넘는 좌석을 만들지 못하게 막기 위한 상한
   const maxSeats = (gradeRows ?? []).reduce((sum, g) => sum + g.quantity, 0);
@@ -84,7 +86,11 @@ export default async function Page({
       />
       <SeatLayoutPageClient
         eventId={id}
-        grades={(gradeRows ?? []).map((g) => ({ gradeId: g.grade_id, name: g.grade_name }))}
+        grades={(gradeRows ?? []).map((g) => ({
+          gradeId: g.grade_id,
+          name: g.grade_name,
+          quantity: g.quantity,
+        }))}
         initialStage={stage}
         initialSeats={seats}
         maxSeats={maxSeats}

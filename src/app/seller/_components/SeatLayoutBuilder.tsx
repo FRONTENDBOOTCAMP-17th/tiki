@@ -31,6 +31,7 @@ export interface DraftStage {
 export interface SeatGradeOption {
   gradeId: string;
   name: string;
+  quantity: number; // 이 등급의 좌석 수(가격 낮은 순으로 전달됨) — 좌석 자동배정에 사용
 }
 
 // 등급마다 고정 색을 순서대로 배정 (등급 자체에 색 컬럼이 없으므로 인덱스 기반으로 매핑)
@@ -312,6 +313,36 @@ export default function SeatLayoutBuilder({
     return labels;
   }
 
+  // 새로 만드는 좌석 count개에 등급을 자동 배정한다. grades는 가격 낮은 순으로 들어오므로
+  // 기본적으로 가장 싼 등급(보통 일반석)부터 그 등급의 quantity만큼 채우고,
+  // 다 차면 다음 등급(보통 VIP석)으로 자동 넘어간다.
+  function assignDefaultGrades(count: number) {
+    const usedByGrade = new Map<string, number>();
+    for (const seat of seats) {
+      if (!seat.gradeId) continue;
+      usedByGrade.set(seat.gradeId, (usedByGrade.get(seat.gradeId) ?? 0) + 1);
+    }
+
+    const result: (string | null)[] = [];
+    let gradeIndex = 0;
+    for (let i = 0; i < count; i++) {
+      while (
+        gradeIndex < grades.length &&
+        (usedByGrade.get(grades[gradeIndex].gradeId) ?? 0) >= grades[gradeIndex].quantity
+      ) {
+        gradeIndex++;
+      }
+      const grade = grades[gradeIndex];
+      if (!grade) {
+        result.push(null);
+        continue;
+      }
+      result.push(grade.gradeId);
+      usedByGrade.set(grade.gradeId, (usedByGrade.get(grade.gradeId) ?? 0) + 1);
+    }
+    return result;
+  }
+
   // 좌석을 한 줄로 N개 생성 (좌석 수백 개를 하나씩 만들지 않게 하는 핵심 도구)
   // rowGapX: 좌석 사이 가로 간격(%). 시작점(x=10)부터 간격만큼씩 옆으로 배치한다.
   // 줄은 1차원이라 일부만 만들어도 모양이 안 깨지므로, 남은 자리만큼만 잘라서 만든다.
@@ -327,12 +358,14 @@ export default function SeatLayoutBuilder({
     }
     const startX = 10;
     const labels = generateLabels(labelPrefix, count);
+    const defaultGrades = assignDefaultGrades(count);
     const newSeats: DraftSeat[] = labels.map((label, i) => ({
       id: crypto.randomUUID(),
       label,
       x: clampPercent(startX + rowGapX * i),
       y: 50,
-      gradeId: null, groupName: null,
+      gradeId: defaultGrades[i],
+      groupName: null,
     }));
     setSeats((prev) => [...prev, ...newSeats]);
   }
@@ -349,17 +382,20 @@ export default function SeatLayoutBuilder({
     const startX = 10;
     const startY = 25;
     const labels = generateLabels(labelPrefix, rows * cols);
+    const defaultGrades = assignDefaultGrades(rows * cols);
     const newSeats: DraftSeat[] = [];
     let i = 0;
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         newSeats.push({
           id: crypto.randomUUID(),
-          label: labels[i++],
+          label: labels[i],
           x: clampPercent(startX + gapX * c),
           y: clampPercent(startY + gapY * r),
-          gradeId: null, groupName: null,
+          gradeId: defaultGrades[i],
+          groupName: null,
         });
+        i++;
       }
     }
     setSeats((prev) => [...prev, ...newSeats]);
@@ -372,6 +408,7 @@ export default function SeatLayoutBuilder({
     const centerX = 50;
     const centerY = 55;
     const labels = generateLabels(labelPrefix, count);
+    const defaultGrades = assignDefaultGrades(count);
     const newSeats: DraftSeat[] = labels.map((label, i) => {
       const angle = (2 * Math.PI * i) / count;
       return {
@@ -379,7 +416,8 @@ export default function SeatLayoutBuilder({
         label,
         x: clampPercent(centerX + radiusPercent * Math.cos(angle)),
         y: clampPercent(centerY + radiusPercent * CANVAS_ASPECT * Math.sin(angle)),
-        gradeId: null, groupName: null,
+        gradeId: defaultGrades[i],
+        groupName: null,
       };
     });
     setSeats((prev) => [...prev, ...newSeats]);
@@ -400,6 +438,7 @@ export default function SeatLayoutBuilder({
     const centerX = 50;
     const centerY = clampPercent(stage.y + stage.height / 2 + 5);
     const labels = generateLabels(labelPrefix, rows * seatsPerRow);
+    const defaultGrades = assignDefaultGrades(rows * seatsPerRow);
     const newSeats: DraftSeat[] = [];
     let i = 0;
     for (let r = 0; r < rows; r++) {
@@ -410,11 +449,13 @@ export default function SeatLayoutBuilder({
         const angleRad = (angleDeg * Math.PI) / 180;
         newSeats.push({
           id: crypto.randomUUID(),
-          label: labels[i++],
+          label: labels[i],
           x: clampPercent(centerX + radius * Math.sin(angleRad)),
           y: clampPercent(centerY + radius * Math.cos(angleRad) * CANVAS_ASPECT),
-          gradeId: null, groupName: null,
+          gradeId: defaultGrades[i],
+          groupName: null,
         });
+        i++;
       }
     }
     setSeats((prev) => [...prev, ...newSeats]);
