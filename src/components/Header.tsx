@@ -3,18 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ComponentPropsWithRef, type ReactNode } from "react";
-import {
-  Search,
-  Ticket,
-  BookOpen,
-  Users,
-  CircleUser,
-  LogIn,
-} from "lucide-react";
+import { Search, LogIn } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { categoryItem } from "./Header.styles";
 import Logo from "@/components/Logo";
 import NotificationBell from "@/components/NotificationBell";
+import ProfileMenu from "@/components/ProfileMenu";
 import { SearchBarLink } from "@/components/SearchBar";
 
 const categories = [
@@ -77,47 +71,21 @@ export default function Header({
           {loggedIn ? (
             <>
               <NotificationBell
-                size={24}
+                size={20}
                 strokeWidth={2.25}
-                className="hover:text-primary-600"
+                className="size-9 justify-center rounded-full bg-white/20 text-white transition hover:scale-105 hover:bg-white/40"
+                activeClassName="scale-105 bg-white/40"
               />
-              <Link
-                href="/mypage"
-                aria-label="마이"
-                className="transition-colors hover:text-primary-600"
-              >
-                <CircleUser size={24} strokeWidth={2.25} />
-              </Link>
-              <Link
-                href="/mypage/reservations"
-                aria-label="예매내역"
-                className="transition-colors hover:text-primary-600"
-              >
-                <Ticket size={24} strokeWidth={2.25} />
-              </Link>
-              <Link
-                href="/mypage/library"
-                aria-label="라이브러리"
-                className="transition-colors hover:text-primary-600"
-              >
-                <BookOpen size={24} strokeWidth={2.25} />
-              </Link>
-              <Link
-                href="/mypage/friends"
-                aria-label="친구 관리"
-                className="transition-colors hover:text-primary-600"
-              >
-                <Users size={24} strokeWidth={2.25} />
-              </Link>
+              <ProfileMenu />
             </>
           ) : (
             <Link
               href="/login"
               aria-label="로그인"
-              className="flex flex-col items-center gap-0.5 text-white transition-colors hover:text-primary-600"
+              className="flex items-center gap-1.5 text-white transition-colors hover:text-primary-600"
             >
-              <LogIn size={24} strokeWidth={2.25} />
-              <span className="text-[11px] font-semibold leading-none">로그인</span>
+              <LogIn size={20} strokeWidth={2.25} />
+              <span className="text-sm font-semibold">로그인</span>
             </Link>
           )}
         </div>

@@ -72,10 +72,13 @@ function formatTime(dateString: string) {
 
 export default function NotificationBell({
   className = "hover:text-white",
+  activeClassName,
   size = 22,
   strokeWidth = 1.5,
 }: {
   className?: string;
+  /** 알림창이 열려 있을 때 추가로 적용할 클래스 (열린 상태 표시용) */
+  activeClassName?: string;
   size?: number;
   strokeWidth?: number;
 }) {
@@ -178,6 +181,7 @@ export default function NotificationBell({
         className={cn(
           "relative flex items-center transition-colors",
           className,
+          open && activeClassName,
         )}
       >
         <Bell size={size} strokeWidth={strokeWidth} />
