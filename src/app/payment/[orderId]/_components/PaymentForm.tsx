@@ -45,6 +45,19 @@ function formatBookingDateTime(date: string, startTime: string) {
   return `${date.replaceAll("-", ".")}(${weekday}) ${startTime}`;
 }
 
+const ERROR_MESSAGES: Record<string, string> = {
+  unauthorized: "로그인이 필요합니다.",
+  "event not found": "공연 정보를 찾을 수 없습니다.",
+  "event not available": "현재 예매가 불가한 공연입니다.",
+  "not enough tickets": "잔여 좌석이 부족합니다.",
+  "slot is closed": "마감된 회차입니다.",
+};
+
+function toKoreanError(error: unknown): string {
+  const msg = error instanceof Error ? error.message : "";
+  return ERROR_MESSAGES[msg] ?? msg ?? "결제 처리에 실패했습니다.";
+}
+
 // 결제 승인 결과를 서버에 검증 요청하고, 성공 시 예매내역으로 이동한다.
 async function confirmPayment(orderId: string) {
   const res = await fetch("/api/payments/confirm", {
@@ -98,7 +111,7 @@ export default function PaymentForm({
         router.replace("/mypage/reservations");
       })
       .catch((error: Error) => {
-        toast.error(error.message);
+        toast.error(toKoreanError(error));
         setSubmitting(false);
       });
     // 최초 진입 시 한 번만 확인하면 되므로 searchParams 변화는 의도적으로 무시한다.
@@ -106,6 +119,19 @@ export default function PaymentForm({
   }, []);
 
   async function handlePay() {
+    if (!name.trim()) {
+      toast.error("이름을 입력해주세요.");
+      return;
+    }
+    if (!phone.trim()) {
+      toast.error("연락처를 입력해주세요.");
+      return;
+    }
+    if (!email.trim()) {
+      toast.error("이메일을 입력해주세요.");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -135,9 +161,7 @@ export default function PaymentForm({
       toast.success("결제가 완료되었습니다.");
       router.replace("/mypage/reservations");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "결제 처리에 실패했습니다.",
-      );
+      toast.error(toKoreanError(error));
       setSubmitting(false);
     }
   }

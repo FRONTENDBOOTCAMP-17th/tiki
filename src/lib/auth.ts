@@ -17,11 +17,12 @@ export async function isAuthenticated() {
   return !!user;
 }
 
-export async function requireUser() {
+export async function requireUser(callbackUrl?: string) {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect('/login');
+    const next = callbackUrl ? `?next=${encodeURIComponent(callbackUrl)}` : '';
+    redirect(`/login${next}`);
   }
 
   return user;
@@ -43,4 +44,12 @@ export async function getCurrentProfile() {
     .single();
 
   return data;
+}
+
+export async function requireAdmin() {
+  const profile = await getCurrentProfile();
+  if (!profile || profile.role !== 'admin') {
+    throw new Error('관리자 권한이 필요합니다.');
+  }
+  return profile;
 }

@@ -2,8 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { requireAdmin } from "@/lib/auth";
 
 export async function hideEvent(eventId: string) {
+  await requireAdmin();
   const supabase = getSupabaseAdmin();
   const { error } = await supabase
     .from("event")
@@ -15,6 +17,7 @@ export async function hideEvent(eventId: string) {
 }
 
 export async function publishEvent(eventId: string) {
+  await requireAdmin();
   const supabase = getSupabaseAdmin();
   const { error } = await supabase
     .from("event")
@@ -26,6 +29,7 @@ export async function publishEvent(eventId: string) {
 }
 
 export async function deleteEvent(eventId: string) {
+  await requireAdmin();
   const supabase = getSupabaseAdmin();
 
   const { count } = await supabase

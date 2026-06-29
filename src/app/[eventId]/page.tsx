@@ -251,6 +251,7 @@ export default async function EventDetailPage({
                 grades={grades}
                 suspended={event.status === "비공개"}
                 soldOut={event.status === "closed"}
+                loggedIn={loggedIn}
               />
             </div>
           </>

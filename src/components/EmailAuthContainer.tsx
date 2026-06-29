@@ -8,11 +8,13 @@ import { useActionState, useEffect } from 'react';
 
 export default function EmailAuthContainer({
   emailSignin,
+  next,
 }: {
   emailSignin: (
     prevState: SignInState,
     formData: FormData,
   ) => Promise<SignInState>;
+  next?: string;
 }) {
   const toast = useToast();
   const [state, formAction] = useActionState(emailSignin, null);
@@ -39,6 +41,7 @@ export default function EmailAuthContainer({
   return (
     <>
       <form id='email-auth' className='space-y-3' action={formAction}>
+        {next && <input type='hidden' name='next' value={next} />}
         <Input
           label='이메일'
           type='email'

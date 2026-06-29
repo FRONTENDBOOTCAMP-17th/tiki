@@ -4,9 +4,17 @@ import EmailAuthContainer from '@/components/EmailAuthContainer';
 import { signInWithEmail, signInWithOAuth } from './action';
 import { ChevronLeft } from 'lucide-react';
 
-export default function LoginPage() {
-  const googleAction = signInWithOAuth.bind(null, 'google');
-  const kakaoAction = signInWithOAuth.bind(null, 'kakao');
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
+  const safeNext =
+    next && next.startsWith('/') && !next.startsWith('//') ? next : undefined;
+
+  const googleAction = signInWithOAuth.bind(null, 'google', safeNext);
+  const kakaoAction = signInWithOAuth.bind(null, 'kakao', safeNext);
   return (
     <main className='flex min-h-screen flex-col items-center bg-gradient-to-br from-primary-100 to-secondary-100'>
       <header className='flex w-full p-4 border-b-2 border-primary-300 md:border-0'>
@@ -34,7 +42,7 @@ export default function LoginPage() {
             또는
             <span className='h-px flex-1 bg-gray-200' />
           </div>
-          <EmailAuthContainer emailSignin={signInWithEmail} />
+          <EmailAuthContainer emailSignin={signInWithEmail} next={safeNext} />
           <div className='text-center text-sm text-gray-500 md:hidden'>
             <Link href='/find-id' className='hover:text-primary-700'>
               아이디 찾기

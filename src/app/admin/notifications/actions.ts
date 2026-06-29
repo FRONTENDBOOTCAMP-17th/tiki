@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { requireAdmin } from "@/lib/auth";
 
 type NotificationTarget = "all" | "buyer" | "seller" | "specific";
 
@@ -22,6 +23,7 @@ export async function sendNotification({
   userIds?: string[];
   title: string;
 }) {
+  await requireAdmin();
   if (!title.trim()) return { error: "알림 내용을 입력해주세요" };
 
   const supabase = getSupabaseAdmin();
