@@ -1,12 +1,10 @@
-import { getCurrentUser } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
 import { fail, success } from "@/lib/api/api-response";
+import { requireUserApi } from "@/lib/api/require-user";
 
 export async function GET() {
-  const user = await getCurrentUser();
-  if (!user) return fail("unauthorized", 401);
-
-  const supabase = await createClient();
+  const ctx = await requireUserApi();
+  if ("error" in ctx) return ctx.error;
+  const { user, supabase } = ctx;
 
   const { data, error } = await supabase
     .from("event")

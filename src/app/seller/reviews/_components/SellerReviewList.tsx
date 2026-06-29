@@ -8,6 +8,7 @@ import Button from "@/components/Button";
 import Modal from "@/components/modal/Modal";
 import Dialog from "@/components/modal/Dialog";
 import SortFilter, { type SortDirection } from "@/components/SortFilter";
+import EmptyState from "@/components/EmptyState";
 import PageHeader from "@/app/seller/_components/PageHeader";
 import ReviewStars from "@/components/reviews/ReviewStars";
 import useToast from "@/hooks/useToast";
@@ -212,9 +213,7 @@ export default function SellerReviewList({ reviews, events }: Props) {
       </div>
 
       {sorted.length === 0 ? (
-        <p className="rounded-2xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-400">
-          조건에 맞는 후기가 없습니다.
-        </p>
+        <EmptyState message="조건에 맞는 후기가 없습니다." />
       ) : (
         <ul className="flex flex-col gap-3">
           {sorted.map((r) => (

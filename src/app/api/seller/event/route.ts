@@ -1,6 +1,5 @@
-import { getCurrentUser } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
 import { fail, success } from "@/lib/api/api-response";
+import { requireUserApi } from "@/lib/api/require-user";
 import { NextRequest } from "next/server";
 import { SELLER_EVENT_LIMITS } from "@/app/seller/_lib/limits";
 
@@ -76,10 +75,9 @@ function hasOverlap(slots: SlotInput[]) {
 export async function POST(req: NextRequest) {
   const body = (await req.json()) as EventCreateBody;
 
-  const user = await getCurrentUser();
-  if (!user) return fail("unauthorized", 401);
-
-  const supabase = await createClient();
+  const ctx = await requireUserApi();
+  if ("error" in ctx) return ctx.error;
+  const { user, supabase } = ctx;
 
   const { count } = await supabase
     .from("event")

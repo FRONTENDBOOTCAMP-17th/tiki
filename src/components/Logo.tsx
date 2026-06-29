@@ -2,11 +2,12 @@ import Link from "next/link";
 
 interface LogoProps {
   color?: string;
+  href?: string;
 }
 
-export default function Logo({ color = "white" }: LogoProps) {
+export default function Logo({ color = "white", href = "/" }: LogoProps) {
   return (
-    <Link href="/" aria-label="tiki" className="shrink-0">
+    <Link href={href} aria-label="tiki" className="shrink-0">
       <svg
         viewBox="0 0 168 80"
         fill="none"

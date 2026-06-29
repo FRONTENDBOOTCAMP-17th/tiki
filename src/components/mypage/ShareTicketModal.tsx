@@ -6,6 +6,7 @@ import Button from "@/components/Button";
 import { createClient } from "@/lib/supabase/client";
 import { shareTicket } from "@/app/action";
 import type { Reservation } from "./ReservationCard";
+import { toast } from "sonner";
 
 interface Friend {
   user_id: string;
@@ -45,9 +46,10 @@ export default function ShareTicketModal({
     const result = await shareTicket(r.id, selected, qty);
     setSharing(false);
     if (result?.error) {
-      alert(result.error);
+      toast.error(result.error);
       return;
     }
+    toast.success("티켓을 공유했습니다");
     onClose();
   };
 

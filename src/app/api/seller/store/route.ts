@@ -1,6 +1,5 @@
-import { getCurrentUser } from "@/lib/auth";
 import { fail, success } from "@/lib/api/api-response";
-import { createClient } from "@/lib/supabase/server";
+import { requireUserApi } from "@/lib/api/require-user";
 import { TablesUpdate } from "@/types/database";
 import { NextRequest } from "next/server";
 
@@ -23,12 +22,9 @@ function toText(value: unknown) {
 export async function PATCH(req: NextRequest) {
   const body = (await req.json()) as StoreRequestBody;
 
-  const user = await getCurrentUser();
-  if (!user) {
-    return fail("unauthorized", 401);
-  }
-
-  const supabase = await createClient();
+  const ctx = await requireUserApi();
+  if ("error" in ctx) return ctx.error;
+  const { user, supabase } = ctx;
 
   if (body.storeName !== undefined) {
     const { error } = await supabase

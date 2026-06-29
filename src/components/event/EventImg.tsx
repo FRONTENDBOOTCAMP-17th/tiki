@@ -1,4 +1,5 @@
 import Image from "next/image";
+import EventPosterZoom from "./EventPosterZoom";
 
 interface EventImgProps {
   poster: string; // 포스터 이미지 URL
@@ -15,23 +16,14 @@ export default function EventImg({ poster, title = "" }: EventImgProps) {
         alt=""
         aria-hidden
         fill
-        sizes="100vw"
+        sizes="(max-width: 1024px) 100vw, 720px"
         priority
         className="scale-110 object-cover blur-2xl brightness-90"
       />
 
       {/* 원본: 포스터 비율 박스 (rounded 위해 overflow-hidden) */}
       <div className="absolute inset-0 z-10 flex items-center justify-center p-3 lg:p-5">
-        <div className="relative aspect-5/7 h-full overflow-hidden rounded-lg shadow-md">
-          <Image
-            src={poster}
-            alt={title}
-            fill
-            sizes="(max-width: 768px) 60vw, 360px"
-            priority
-            className="object-cover"
-          />
-        </div>
+        <EventPosterZoom src={poster} alt={title} />
       </div>
     </div>
   );

@@ -199,3 +199,21 @@ export async function shareTicket(
   revalidatePath("/mypage/friends");
   return data as { success?: boolean; error?: string };
 }
+
+export async function acceptTicketShare(shareId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("accept_ticket_share", {
+    p_share_id: shareId,
+  });
+  if (error) return { error: error.message };
+  return data as { success?: boolean; error?: string };
+}
+
+export async function rejectTicketShare(shareId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("reject_ticket_share", {
+    p_share_id: shareId,
+  });
+  if (error) return { error: error.message };
+  return data as { success?: boolean; error?: string };
+}

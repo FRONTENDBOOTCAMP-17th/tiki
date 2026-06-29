@@ -16,6 +16,7 @@ import EventIntro from "@/components/event/EventIntro";
 import { Slot } from "@/types/domain/event";
 import BackButton from "./_components/BackButton";
 import DetailTabs from "./_components/DetailTabs";
+import VenueMap from "./_components/VenueMap";
 import ReviewComposer from "./_components/reviews/ReviewComposer";
 import ReviewSection from "./_components/reviews/ReviewSection";
 
@@ -72,7 +73,7 @@ export default async function EventDetailPage({
       {/* Header: 풀폭 (max-width 밖) */}
       <Header loggedIn={loggedIn} />
 
-      <main className="mx-auto w-full max-w-[1180px] px-4 pb-24 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-[1280px] px-4 pb-24 sm:px-6 lg:px-8">
         {/* 목록으로 */}
         <BackButton />
 
@@ -82,7 +83,7 @@ export default async function EventDetailPage({
           </p>
         ) : (
           <>
-            <div className="lg:grid lg:grid-cols-[minmax(0,700px)_340px] lg:items-start lg:gap-7 xl:grid-cols-[minmax(0,720px)_360px] xl:gap-8">
+            <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-12">
               <div className="min-w-0">
                 {/* 상단 포스터 : 블러 배경 + 원본 (썸네일은 images[0]) */}
                 <EventImg poster={event.images[0] ?? ""} title={event.title} />
@@ -163,7 +164,6 @@ export default async function EventDetailPage({
                             </p>
                           </div>
                         </li>
-
                       </ul>
 
                       {event.description && (
@@ -187,7 +187,10 @@ export default async function EventDetailPage({
                       )}
                     </section>
 
-                    <section className="flex min-w-0 flex-col gap-5">
+                    <section
+                      id="reviews"
+                      className="flex min-w-0 flex-col gap-5 scroll-mt-24"
+                    >
                       {writableSlots.length > 0 && (
                         <ReviewComposer
                           eventId={eventId}
@@ -230,9 +233,10 @@ export default async function EventDetailPage({
                             </div>
                           </dl>
 
-                          <div className="flex min-h-48 items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 text-center text-sm font-medium text-gray-400">
-                            지도 API 등록 예정
-                          </div>
+                          <VenueMap
+                            address={event.venue.address}
+                            detailAddress={event.venue.detailAddress}
+                          />
                         </div>
                       </div>
                     </section>

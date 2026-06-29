@@ -1,13 +1,13 @@
 import { NextRequest } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
 import { fail, success } from "@/lib/api/api-response";
+import { requireUserApi } from "@/lib/api/require-user";
 import { SELLER_EVENT_LIMITS } from "@/app/seller/_lib/limits";
 import { uploadImageAsWebp } from "@/lib/image/uploadImage";
 
 export async function POST(req: NextRequest) {
-  const user = await getCurrentUser();
-  if (!user) return fail("unauthorized", 401);
+  const ctx = await requireUserApi();
+  if ("error" in ctx) return ctx.error;
+  const { supabase } = ctx;
 
   const formData = await req.formData();
   const files = formData
@@ -24,8 +24,6 @@ export async function POST(req: NextRequest) {
       return fail("image_too_large");
     }
   }
-
-  const supabase = await createClient();
 
   const urls: string[] = [];
   for (const file of files) {
