@@ -43,12 +43,20 @@ export async function POST(req: NextRequest) {
   const isPaid =
     payment.status === "PAID" && payment.amount.total === order.total_price;
 
-  await getSupabaseAdmin()
+  const admin = getSupabaseAdmin();
+
+  await admin
     .from("orders")
     .update({ status: isPaid ? "paid" : "failed" })
     .eq("order_id", orderId);
 
   if (!isPaid) return fail("결제 금액이 일치하지 않습니다.", 400);
+
+  // 좌석 기반 주문이면 점유 상태를 held -> sold로 확정 (안 해주면 TTL 배치가 결제 완료된 좌석을 해제해버림)
+  await admin
+    .from("order_seat")
+    .update({ status: "sold", held_until: null })
+    .eq("order_id", orderId);
 
   return success({ status: "paid" });
 }
