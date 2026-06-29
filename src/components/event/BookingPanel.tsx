@@ -8,7 +8,7 @@ import { todayKST } from "@/lib/date";
 import { Slot, Grade } from "@/types/domain/event";
 import type { SeatLayoutForBooking } from "@/lib/event/queries";
 import BookingCalendar from "./BookingCalendar";
-import SeatPicker from "./SeatPicker";
+import SeatSelectionModal from "./SeatSelectionModal";
 
 const FEE_RATE = 0.05; // 수수료 5%
 const LOW_STOCK = 10; // 잔여 좌석 마감임박 기준
@@ -66,6 +66,7 @@ export default function BookingPanel({
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedSeatIds, setSelectedSeatIds] = useState<Set<string>>(new Set());
+  const [seatModalOpen, setSeatModalOpen] = useState(false);
 
   // 선택 날짜의 회차 (시간순)
   const daySlots = useMemo(
@@ -78,11 +79,16 @@ export default function BookingPanel({
 
   const grade = grades.find((g) => g.gradeId === selectedGradeId);
 
-  // 이 등급에 배치도가 있으면(좌석 1개 이상 매핑됨) 수량 입력 대신 좌석 클릭으로 수량이 정해진다.
-  const hasSeatMap = !!seatLayout && seatLayout.seats.some((s) => s.gradeId === selectedGradeId);
+  // 이벤트 자체에 좌석 배치도가 있으면(좌석이 1개 이상 있으면) 등급 선택+수량 대신
+  // "좌석 선택" 모달 하나로 등급/좌석을 같이 고르게 한다.
+  const eventHasSeatMap = !!seatLayout && seatLayout.seats.length > 0;
+  // 모달에 탭으로 보여줄, 실제로 좌석이 매핑된 등급만
+  const seatGrades = seatLayout
+    ? grades.filter((g) => seatLayout.seats.some((s) => s.gradeId === g.gradeId))
+    : [];
 
   const maxQuantity = grade?.quantity ?? 1;
-  const safeQuantity = hasSeatMap
+  const safeQuantity = eventHasSeatMap
     ? selectedSeatIds.size
     : grade
       ? Math.min(quantity, maxQuantity)
@@ -90,18 +96,20 @@ export default function BookingPanel({
   const subtotal = grade ? grade.price * safeQuantity : 0;
   const fee = Math.round(subtotal * FEE_RATE);
   const total = subtotal + fee;
-  const ready = hasSeatMap
+  const ready = eventHasSeatMap
     ? !!grade && selectedSlotId !== null && safeQuantity > 0
     : !!grade && selectedSlotId !== null && grade.quantity >= safeQuantity;
 
   function handleSelectDate(date: string) {
     setSelectedDate(date);
     setSelectedSlotId(null); // 날짜 바뀌면 회차 초기화
+    setSelectedGradeId(null);
     setSelectedSeatIds(new Set()); // 회차별로 점유 상태가 다르므로 좌석 선택도 초기화
   }
 
   function handleSelectSlot(slotId: string) {
     setSelectedSlotId(slotId);
+    setSelectedGradeId(null);
     setSelectedSeatIds(new Set());
   }
 
@@ -126,7 +134,7 @@ export default function BookingPanel({
       slotId: selectedSlotId,
       gradeId: selectedGradeId,
       quantity: safeQuantity,
-      seatIds: hasSeatMap ? [...selectedSeatIds] : undefined,
+      seatIds: eventHasSeatMap ? [...selectedSeatIds] : undefined,
     });
   }
 
@@ -191,107 +199,134 @@ export default function BookingPanel({
             ))}
         </section>
 
-        {/* 2. 좌석 등급 */}
-        <section className="flex flex-col gap-3">
-          <p className="text-sm font-semibold text-gray-700">2. 좌석 등급</p>
-          <div className="flex flex-col gap-2">
-            {grades.map((g) => {
-              const active = selectedGradeId === g.gradeId;
-              const soldOut = g.quantity <= 0;
-              return (
-                <button
-                  key={g.gradeId}
-                  type="button"
-                  disabled={soldOut}
-                  onClick={() => handleSelectGrade(g.gradeId)}
-                  className={cn(
-                    "flex items-center justify-between rounded-xl border px-4 py-3 text-left transition-colors",
-                    active
-                      ? "border-primary-500 bg-primary-100 text-primary-900"
-                      : "border-gray-200 bg-white hover:border-primary-200 hover:bg-primary-50",
-                    soldOut &&
-                      "cursor-not-allowed bg-gray-50 text-gray-300 hover:border-gray-200 hover:bg-gray-50",
-                  )}
-                >
-                  <span className="flex flex-col gap-0.5">
-                    <span className="flex items-center gap-2">
-                      <span className="text-sm font-semibold">{g.name}</span>
-                      {soldOut && (
-                        <span className="rounded-full bg-danger-100 px-2 py-0.5 text-xs font-medium text-danger-600">
-                          매진
-                        </span>
-                      )}
-                    </span>
-                    {!soldOut && (
-                      <span
+        {/* 회차를 선택해야 다음 단계(등급/좌석)가 보인다 */}
+        {selectedSlotId &&
+          (eventHasSeatMap ? (
+            /* 2. 좌석 선택 — 등급 고르기까지 모달 안에서 같이 처리 */
+            <section className="flex flex-col gap-3">
+              <p className="text-sm font-semibold text-gray-700">2. 좌석 선택</p>
+              <Button
+                variant="outlinePrimary"
+                fullWidth
+                onClick={() => setSeatModalOpen(true)}
+              >
+                {selectedSeatIds.size > 0
+                  ? `좌석 ${selectedSeatIds.size}석 선택됨 · 다시 선택하기`
+                  : "좌석 선택하기"}
+              </Button>
+              {seatLayout && grade && selectedSeatIds.size > 0 && (
+                <p className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
+                  {grade.name} ·{" "}
+                  {seatLayout.seats
+                    .filter((s) => selectedSeatIds.has(s.seatId))
+                    .map((s) => s.label)
+                    .join(", ")}
+                </p>
+              )}
+            </section>
+          ) : (
+            <>
+              {/* 2. 좌석 등급 */}
+              <section className="flex flex-col gap-3">
+                <p className="text-sm font-semibold text-gray-700">2. 좌석 등급</p>
+                <div className="flex flex-col gap-2">
+                  {grades.map((g) => {
+                    const active = selectedGradeId === g.gradeId;
+                    const soldOut = g.quantity <= 0;
+                    return (
+                      <button
+                        key={g.gradeId}
+                        type="button"
+                        disabled={soldOut}
+                        onClick={() => handleSelectGrade(g.gradeId)}
                         className={cn(
-                          "text-xs",
-                          g.quantity <= LOW_STOCK
-                            ? "font-medium text-danger-500"
-                            : "text-gray-400",
+                          "flex items-center justify-between rounded-xl border px-4 py-3 text-left transition-colors",
+                          active
+                            ? "border-primary-500 bg-primary-100 text-primary-900"
+                            : "border-gray-200 bg-white hover:border-primary-200 hover:bg-primary-50",
+                          soldOut &&
+                            "cursor-not-allowed bg-gray-50 text-gray-300 hover:border-gray-200 hover:bg-gray-50",
                         )}
                       >
-                        잔여 {g.quantity.toLocaleString()}석
-                        {g.quantity <= LOW_STOCK && " · 마감임박"}
-                      </span>
-                    )}
-                  </span>
-                  <span className="text-sm font-semibold">
-                    {g.price.toLocaleString()}원
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
+                        <span className="flex flex-col gap-0.5">
+                          <span className="flex items-center gap-2">
+                            <span className="text-sm font-semibold">{g.name}</span>
+                            {soldOut && (
+                              <span className="rounded-full bg-danger-100 px-2 py-0.5 text-xs font-medium text-danger-600">
+                                매진
+                              </span>
+                            )}
+                          </span>
+                          {!soldOut && (
+                            <span
+                              className={cn(
+                                "text-xs",
+                                g.quantity <= LOW_STOCK
+                                  ? "font-medium text-danger-500"
+                                  : "text-gray-400",
+                              )}
+                            >
+                              잔여 {g.quantity.toLocaleString()}석
+                              {g.quantity <= LOW_STOCK && " · 마감임박"}
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-sm font-semibold">
+                          {g.price.toLocaleString()}원
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
 
-        {/* 3. 좌석 선택 (배치도가 있는 등급) 또는 수량 (배치도가 없는 기존 방식) */}
-        {seatLayout && hasSeatMap && grade && selectedSlotId ? (
-          <section className="flex flex-col gap-3">
-            <p className="text-sm font-semibold text-gray-700">
-              3. 좌석 선택 ({safeQuantity}석 선택됨)
-            </p>
-            <SeatPicker
-              key={selectedSlotId}
-              layout={seatLayout}
-              slotId={selectedSlotId}
-              gradeId={grade.gradeId}
-              selectedSeatIds={selectedSeatIds}
-              onToggle={toggleSeat}
-            />
-          </section>
-        ) : (
-          <section className="flex flex-col gap-3">
-            <p className="text-sm font-semibold text-gray-700">3. 수량</p>
-            <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
-              <span className="text-sm text-gray-600">매수</span>
-              <div className="flex items-center gap-4">
-                <button
-                  type="button"
-                  aria-label="수량 감소"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  disabled={!grade || safeQuantity <= 1}
-                  className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300"
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="w-6 text-center font-semibold">
-                  {safeQuantity}
-                </span>
-                <button
-                  type="button"
-                  aria-label="수량 증가"
-                  onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
-                  disabled={!grade || safeQuantity >= maxQuantity}
-                  className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </section>
-        )}
+              {/* 3. 수량 */}
+              <section className="flex flex-col gap-3">
+                <p className="text-sm font-semibold text-gray-700">3. 수량</p>
+                <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
+                  <span className="text-sm text-gray-600">매수</span>
+                  <div className="flex items-center gap-4">
+                    <button
+                      type="button"
+                      aria-label="수량 감소"
+                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                      disabled={!grade || safeQuantity <= 1}
+                      className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="w-6 text-center font-semibold">
+                      {safeQuantity}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label="수량 증가"
+                      onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
+                      disabled={!grade || safeQuantity >= maxQuantity}
+                      className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </section>
+            </>
+          ))}
       </div>
+
+      {seatLayout && selectedSlotId && (
+        <SeatSelectionModal
+          open={seatModalOpen}
+          onClose={() => setSeatModalOpen(false)}
+          layout={seatLayout}
+          grades={seatGrades}
+          slotId={selectedSlotId}
+          selectedGradeId={selectedGradeId}
+          selectedSeatIds={selectedSeatIds}
+          onSelectGrade={setSelectedGradeId}
+          onToggleSeat={toggleSeat}
+        />
+      )}
 
       {/* 고정 푸터 : 합계 + 버튼 (스크롤 없이 항상 보임) */}
       <div className="shrink-0 border-t border-gray-100 px-6 py-3 lg:py-5">
