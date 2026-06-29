@@ -22,6 +22,7 @@ export interface BookingSummary {
   quantity: number;
   subtotal: number;
   fee: number;
+  seatLabels?: string[]; // 좌석 배치도가 있는 이벤트만 채워짐 (예: ["A1", "A2"])
 }
 
 export interface BuyerDefaults {
@@ -185,6 +186,11 @@ export default function PaymentForm({
                 <p className="text-sm text-gray-600">
                   {booking.gradeName} · {booking.quantity}매
                 </p>
+                {booking.seatLabels && (
+                  <p className="text-sm text-gray-600">
+                    좌석 {booking.seatLabels.join(", ")}
+                  </p>
+                )}
               </div>
             </div>
           </section>
