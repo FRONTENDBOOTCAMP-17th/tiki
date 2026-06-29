@@ -296,8 +296,7 @@ export default function EventCreateForm({
         }),
       });
       if (!res.ok) {
-        const json = await res.json().catch(() => null);
-        toast.error(json?.message ? `등록 실패: ${json.message}` : "등록에 실패했습니다");
+        toast.error("등록에 실패했습니다");
         return;
       }
       toast.success("등록 완료! 이벤트 관리에서 공개로 전환하세요");
