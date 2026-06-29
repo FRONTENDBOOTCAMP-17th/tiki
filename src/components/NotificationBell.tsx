@@ -72,8 +72,12 @@ function formatTime(dateString: string) {
 
 export default function NotificationBell({
   className = "hover:text-white",
+  size = 22,
+  strokeWidth = 1.5,
 }: {
   className?: string;
+  size?: number;
+  strokeWidth?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[]>([]);
@@ -176,7 +180,7 @@ export default function NotificationBell({
           className,
         )}
       >
-        <Bell size={22} strokeWidth={1.5} />
+        <Bell size={size} strokeWidth={strokeWidth} />
         {unreadCount > 0 && (
           <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-red-500" />
         )}

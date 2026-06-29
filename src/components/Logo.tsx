@@ -3,16 +3,21 @@ import Link from "next/link";
 interface LogoProps {
   color?: string;
   href?: string;
+  className?: string;
 }
 
-export default function Logo({ color = "white", href = "/" }: LogoProps) {
+export default function Logo({
+  color = "white",
+  href = "/",
+  className = "h-8 w-auto",
+}: LogoProps) {
   return (
     <Link href={href} aria-label="tiki" className="shrink-0">
       <svg
         viewBox="0 0 168 80"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-8 w-auto"
+        className={className}
       >
         <rect x="12" y="10" width="44" height="12" rx="6" fill={color} />
         <rect x="28" y="22" width="12" height="48" rx="6" fill={color} />
