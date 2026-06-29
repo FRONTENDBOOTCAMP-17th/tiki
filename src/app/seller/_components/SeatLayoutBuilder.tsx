@@ -55,6 +55,13 @@ const PRESET_FIELD_LABELS: Record<PresetShape, [string, string | null, string | 
   fan: ["행 수", "행당 좌석 수", "벌어지는 각도(°)"],
 };
 
+// square/rectangle은 가로·세로 간격, fan은 시작 반지름·줄 간격으로 같은 입력칸(presetGapX/Y)을 재사용한다.
+const GAP_FIELD_LABELS: Record<"square" | "rectangle" | "fan", [string, string]> = {
+  square: ["가로 간격(%)", "세로 간격(%)"],
+  rectangle: ["가로 간격(%)", "세로 간격(%)"],
+  fan: ["시작 반지름(%)", "줄 간격(%)"],
+};
+
 // 무대 블록. 위치만 드래그로 옮길 수 있고 크기는 숫자 입력으로 조절한다(드래그 리사이즈는 스코프 외).
 // dragOffsetPx: 드래그 중일 때 부모가 내려주는 실시간 픽셀 이동량 (커서를 계속 따라오게 함)
 function StageBlock({
@@ -327,12 +334,17 @@ export default function SeatLayoutBuilder({
 
   // 무대를 기준점으로 부채꼴(공연장형)로 펼쳐지는 좌석 배치. 행이 늘어날수록 반지름이 커진다.
   // spreadDeg: 좌석들이 양쪽으로 벌어지는 전체 각도 (180에 가까울수록 무대를 넓게 감싸는 모양)
-  function addFanPreset(rows: number, seatsPerRow: number, spreadDeg: number) {
+  // startRadius: 무대에서 첫 줄까지 떨어진 거리, radiusStep: 줄 사이 간격(반지름 증가량)
+  function addFanPreset(
+    rows: number,
+    seatsPerRow: number,
+    spreadDeg: number,
+    startRadius: number,
+    radiusStep: number,
+  ) {
     if (rows < 1 || seatsPerRow < 1 || spreadDeg <= 0) return;
     const centerX = 50;
     const centerY = clampPercent(stage.y + stage.height / 2 + 5);
-    const startRadius = 15;
-    const radiusStep = 10;
     const newSeats: DraftSeat[] = [];
     for (let r = 0; r < rows; r++) {
       const radius = startRadius + r * radiusStep;
@@ -357,7 +369,7 @@ export default function SeatLayoutBuilder({
     else if (presetShape === "rectangle")
       addRectanglePreset(presetA, presetB, presetGapX, presetGapY);
     else if (presetShape === "circle") addCirclePreset(presetA, presetB);
-    else addFanPreset(presetA, presetB, presetC);
+    else addFanPreset(presetA, presetB, presetC, presetGapX, presetGapY);
   }
 
   function toggleSelect(seatId: string, shiftKey: boolean) {
@@ -593,10 +605,10 @@ export default function SeatLayoutBuilder({
             />
           </label>
         )}
-        {(presetShape === "square" || presetShape === "rectangle") && (
+        {presetShape !== "circle" && (
           <>
             <label className="flex flex-col gap-1 text-xs text-gray-500">
-              가로 간격(%)
+              {GAP_FIELD_LABELS[presetShape][0]}
               <input
                 type="number"
                 min={1}
@@ -606,7 +618,7 @@ export default function SeatLayoutBuilder({
               />
             </label>
             <label className="flex flex-col gap-1 text-xs text-gray-500">
-              세로 간격(%)
+              {GAP_FIELD_LABELS[presetShape][1]}
               <input
                 type="number"
                 min={1}
