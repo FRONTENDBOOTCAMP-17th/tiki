@@ -294,6 +294,24 @@ export default function SeatLayoutBuilder({
     return false;
   }
 
+  // "라벨+번호" 형식(예: A1, A2...)으로 겹치지 않는 라벨을 count개 만들어준다.
+  // 이미 있는 좌석의 라벨(다른 줄/프리셋으로 만든 것 포함)과 절대 겹치지 않도록
+  // 번호를 1부터 훑으면서 비어있는 것만 골라 쓴다.
+  function generateLabels(prefix: string, count: number) {
+    const used = new Set(seats.map((s) => s.label));
+    const labels: string[] = [];
+    let n = 1;
+    while (labels.length < count) {
+      const label = `${prefix}${n}`;
+      if (!used.has(label)) {
+        labels.push(label);
+        used.add(label);
+      }
+      n++;
+    }
+    return labels;
+  }
+
   // 좌석을 한 줄로 N개 생성 (좌석 수백 개를 하나씩 만들지 않게 하는 핵심 도구)
   // rowGapX: 좌석 사이 가로 간격(%). 시작점(x=10)부터 간격만큼씩 옆으로 배치한다.
   // 줄은 1차원이라 일부만 만들어도 모양이 안 깨지므로, 남은 자리만큼만 잘라서 만든다.
@@ -308,9 +326,10 @@ export default function SeatLayoutBuilder({
       toast.error(`남은 자리가 ${count}개뿐이라 ${count}개만 생성했어요.`);
     }
     const startX = 10;
-    const newSeats: DraftSeat[] = Array.from({ length: count }, (_, i) => ({
+    const labels = generateLabels(labelPrefix, count);
+    const newSeats: DraftSeat[] = labels.map((label, i) => ({
       id: crypto.randomUUID(),
-      label: `${labelPrefix}${i + 1}`,
+      label,
       x: clampPercent(startX + rowGapX * i),
       y: 50,
       gradeId: null, groupName: null,
@@ -329,12 +348,14 @@ export default function SeatLayoutBuilder({
     if (blockIfOverCapacity(rows * cols)) return;
     const startX = 10;
     const startY = 25;
+    const labels = generateLabels(labelPrefix, rows * cols);
     const newSeats: DraftSeat[] = [];
+    let i = 0;
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         newSeats.push({
           id: crypto.randomUUID(),
-          label: `${labelPrefix}${r + 1}-${c + 1}`,
+          label: labels[i++],
           x: clampPercent(startX + gapX * c),
           y: clampPercent(startY + gapY * r),
           gradeId: null, groupName: null,
@@ -350,11 +371,12 @@ export default function SeatLayoutBuilder({
     if (blockIfOverCapacity(count)) return;
     const centerX = 50;
     const centerY = 55;
-    const newSeats: DraftSeat[] = Array.from({ length: count }, (_, i) => {
+    const labels = generateLabels(labelPrefix, count);
+    const newSeats: DraftSeat[] = labels.map((label, i) => {
       const angle = (2 * Math.PI * i) / count;
       return {
         id: crypto.randomUUID(),
-        label: `${labelPrefix}${i + 1}`,
+        label,
         x: clampPercent(centerX + radiusPercent * Math.cos(angle)),
         y: clampPercent(centerY + radiusPercent * CANVAS_ASPECT * Math.sin(angle)),
         gradeId: null, groupName: null,
@@ -377,7 +399,9 @@ export default function SeatLayoutBuilder({
     if (blockIfOverCapacity(rows * seatsPerRow)) return;
     const centerX = 50;
     const centerY = clampPercent(stage.y + stage.height / 2 + 5);
+    const labels = generateLabels(labelPrefix, rows * seatsPerRow);
     const newSeats: DraftSeat[] = [];
+    let i = 0;
     for (let r = 0; r < rows; r++) {
       const radius = startRadius + r * radiusStep;
       for (let c = 0; c < seatsPerRow; c++) {
@@ -386,7 +410,7 @@ export default function SeatLayoutBuilder({
         const angleRad = (angleDeg * Math.PI) / 180;
         newSeats.push({
           id: crypto.randomUUID(),
-          label: `${labelPrefix}${r + 1}-${c + 1}`,
+          label: labels[i++],
           x: clampPercent(centerX + radius * Math.sin(angleRad)),
           y: clampPercent(centerY + radius * Math.cos(angleRad) * CANVAS_ASPECT),
           gradeId: null, groupName: null,
