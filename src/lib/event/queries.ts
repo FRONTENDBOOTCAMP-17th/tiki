@@ -133,6 +133,45 @@ export async function getSlots(eventId: string): Promise<Slot[]> {
   }));
 }
 
+export interface SeatLayoutForBooking {
+  stage: { x: number; y: number; width: number; height: number };
+  seats: { seatId: string; label: string; x: number; y: number; gradeId: string | null }[];
+}
+
+// 좌석 배치도가 없는(기존 수량 기반) 이벤트는 null — BookingPanel이 기존 수량 스테퍼로 동작
+export async function getSeatLayout(
+  eventId: string,
+): Promise<SeatLayoutForBooking | null> {
+  const supabase = await createClient();
+  const { data: layout } = await supabase
+    .from("seat_layout")
+    .select("layout_id, stage_x, stage_y, stage_width, stage_height")
+    .eq("event_id", eventId)
+    .maybeSingle();
+  if (!layout) return null;
+
+  const { data: seatRows } = await supabase
+    .from("seat")
+    .select("seat_id, label, pos_x, pos_y, grade_id")
+    .eq("layout_id", layout.layout_id);
+
+  return {
+    stage: {
+      x: layout.stage_x,
+      y: layout.stage_y,
+      width: layout.stage_width,
+      height: layout.stage_height,
+    },
+    seats: (seatRows ?? []).map((s) => ({
+      seatId: s.seat_id,
+      label: s.label,
+      x: s.pos_x,
+      y: s.pos_y,
+      gradeId: s.grade_id,
+    })),
+  };
+}
+
 export async function getGrades(eventId: string): Promise<Grade[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
