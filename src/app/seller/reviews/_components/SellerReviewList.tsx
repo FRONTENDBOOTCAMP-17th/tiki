@@ -10,7 +10,8 @@ import Dialog from "@/components/modal/Dialog";
 import SortFilter, { type SortDirection } from "@/components/SortFilter";
 import EmptyState from "@/components/EmptyState";
 import PageHeader from "@/app/seller/_components/PageHeader";
-import ReviewStars from "@/components/reviews/ReviewStars";
+import ReviewBody from "@/components/reviews/ReviewBody";
+import ReviewRating from "@/components/reviews/ReviewRating";
 import useToast from "@/hooks/useToast";
 import { formatDotDate } from "@/lib/format";
 import { requestReviewDeletion } from "../actions";
@@ -246,16 +247,9 @@ export default function SellerReviewList({ reviews, events }: Props) {
                 </span>
               </div>
 
-              <div className="mt-3 flex items-center gap-2">
-                <ReviewStars rating={r.rating} />
-                <span className="text-xs font-semibold text-gray-500">
-                  {r.rating.toFixed(1)}
-                </span>
-              </div>
+              <ReviewRating rating={r.rating} className="mt-3" />
 
-              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-gray-700">
-                {r.memo}
-              </p>
+              <ReviewBody className="mt-2">{r.memo}</ReviewBody>
 
               {r.deleteRequest ? (
                 <button
@@ -346,9 +340,9 @@ export default function SellerReviewList({ reviews, events }: Props) {
                 <p className="mt-0.5 text-sm font-medium text-gray-900">
                   {viewing.eventTitle} · {viewing.author}
                 </p>
-                <p className="mt-1 line-clamp-3 whitespace-pre-line text-sm text-gray-600">
+                <ReviewBody className="mt-1 line-clamp-3 text-gray-600">
                   {viewing.memo}
-                </p>
+                </ReviewBody>
               </div>
               <div>
                 <p className="text-xs text-gray-400">요청 사유</p>
