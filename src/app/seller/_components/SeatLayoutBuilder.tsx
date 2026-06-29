@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DndContext, useDraggable, type DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  useDraggable,
+  type DragEndEvent,
+  type DragMoveEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
 import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -39,10 +45,19 @@ function clampPercent(value: number) {
 }
 
 // 무대 블록. 위치만 드래그로 옮길 수 있고 크기는 숫자 입력으로 조절한다(드래그 리사이즈는 스코프 외).
-function StageBlock({ stage }: { stage: DraftStage }) {
+// dragOffsetPx: 드래그 중일 때 부모가 내려주는 실시간 픽셀 이동량 (커서를 계속 따라오게 함)
+function StageBlock({
+  stage,
+  dragOffsetPx,
+}: {
+  stage: DraftStage;
+  dragOffsetPx: { x: number; y: number } | null;
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: "stage",
   });
+  const dx = dragOffsetPx?.x ?? 0;
+  const dy = dragOffsetPx?.y ?? 0;
 
   return (
     <div
@@ -50,7 +65,7 @@ function StageBlock({ stage }: { stage: DraftStage }) {
       {...attributes}
       {...listeners}
       className={cn(
-        "absolute flex -translate-x-1/2 -translate-y-1/2 cursor-grab touch-none items-center justify-center rounded-md bg-gray-700 text-xs font-medium text-white active:cursor-grabbing",
+        "absolute flex cursor-grab touch-none items-center justify-center rounded-md bg-gray-700 text-xs font-medium text-white active:cursor-grabbing",
         isDragging && "opacity-70",
       )}
       style={{
@@ -58,6 +73,7 @@ function StageBlock({ stage }: { stage: DraftStage }) {
         top: `${stage.y}%`,
         width: `${stage.width}%`,
         height: `${stage.height}%`,
+        transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px)`,
       }}
     >
       무대
@@ -67,25 +83,34 @@ function StageBlock({ stage }: { stage: DraftStage }) {
 
 // 좌석 1개(사각형). 드래그로 자유 이동, 클릭(Shift+클릭은 다중)으로 선택.
 // 라벨(접두사+번호)을 항상 좌석 아래에 작게 표시한다.
+// dragOffsetPx: 이 좌석이 드래그 중(또는 같이 선택되어 따라가는 중)일 때의 실시간 픽셀 이동량
 function SeatDot({
   seat,
   selected,
   color,
+  dragOffsetPx,
   onClick,
 }: {
   seat: DraftSeat;
   selected: boolean;
   color: string;
+  dragOffsetPx: { x: number; y: number } | null;
   onClick: (e: React.MouseEvent) => void;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: seat.id,
   });
+  const dx = dragOffsetPx?.x ?? 0;
+  const dy = dragOffsetPx?.y ?? 0;
 
   return (
     <div
-      className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
-      style={{ left: `${seat.x}%`, top: `${seat.y}%` }}
+      className="absolute flex flex-col items-center"
+      style={{
+        left: `${seat.x}%`,
+        top: `${seat.y}%`,
+        transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px)`,
+      }}
     >
       <button
         ref={setNodeRef}
@@ -115,6 +140,15 @@ interface SelectionBox {
   endY: number;
 }
 
+// 드래그 중인 대상(들)과 현재까지의 실시간 픽셀 이동량.
+// 다중 선택 상태에서 그중 하나를 드래그하면 선택된 전체가 같은 양만큼 같이 움직여야 하므로
+// "누가 움직이는 중인지" 목록(ids)을 따로 들고 있다가 전부에게 같은 offset을 내려준다.
+interface DragState {
+  ids: string[];
+  x: number;
+  y: number;
+}
+
 export default function SeatLayoutBuilder({
   grades,
   initialStage,
@@ -134,6 +168,7 @@ export default function SeatLayoutBuilder({
   const [rowCount, setRowCount] = useState(10);
   const [labelPrefix, setLabelPrefix] = useState("A");
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
+  const [dragState, setDragState] = useState<DragState | null>(null);
 
   useEffect(() => {
     onChange?.(stage, seats);
@@ -150,8 +185,27 @@ export default function SeatLayoutBuilder({
     };
   }
 
+  // 드래그 시작: 잡은 게 다중 선택된 좌석 중 하나면 선택된 전체를 같이 옮길 대상으로 지정한다.
+  function handleDragStart(event: DragStartEvent) {
+    const activeId = String(event.active.id);
+    if (activeId === "stage") {
+      setDragState({ ids: ["stage"], x: 0, y: 0 });
+      return;
+    }
+    const ids = selectedIds.has(activeId) && selectedIds.size > 1
+      ? [...selectedIds]
+      : [activeId];
+    setDragState({ ids, x: 0, y: 0 });
+  }
+
+  // 드래그 중: 실시간 픽셀 이동량을 갱신해서 좌석이 커서를 계속 따라오게 한다.
+  function handleDragMove(event: DragMoveEvent) {
+    setDragState((prev) => (prev ? { ...prev, x: event.delta.x, y: event.delta.y } : prev));
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     const canvas = canvasRef.current;
+    setDragState(null);
     if (!canvas) return;
     const { width, height } = canvas.getBoundingClientRect();
     const dxPercent = (event.delta.x / width) * 100;
@@ -166,9 +220,14 @@ export default function SeatLayoutBuilder({
       return;
     }
 
+    const activeId = String(event.active.id);
+    const movedIds = new Set(
+      selectedIds.has(activeId) && selectedIds.size > 1 ? selectedIds : [activeId],
+    );
+
     setSeats((prev) =>
       prev.map((seat) =>
-        seat.id === event.active.id
+        movedIds.has(seat.id)
           ? {
               ...seat,
               x: clampPercent(seat.x + dxPercent),
@@ -307,7 +366,12 @@ export default function SeatLayoutBuilder({
         선택도 가능합니다.
       </p>
 
-      <DndContext onDragEnd={handleDragEnd}>
+      <DndContext
+        onDragStart={handleDragStart}
+        onDragMove={handleDragMove}
+        onDragEnd={handleDragEnd}
+        onDragCancel={() => setDragState(null)}
+      >
         <div
           ref={canvasRef}
           onMouseDown={handleCanvasMouseDown}
@@ -315,13 +379,17 @@ export default function SeatLayoutBuilder({
           onMouseUp={handleCanvasMouseUp}
           className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-50"
         >
-          <StageBlock stage={stage} />
+          <StageBlock
+            stage={stage}
+            dragOffsetPx={dragState?.ids.includes("stage") ? dragState : null}
+          />
           {seats.map((seat) => (
             <SeatDot
               key={seat.id}
               seat={seat}
               selected={selectedIds.has(seat.id)}
               color={colorForGrade(seat.gradeId, grades)}
+              dragOffsetPx={dragState?.ids.includes(seat.id) ? dragState : null}
               onClick={(e) => toggleSelect(seat.id, e.shiftKey)}
             />
           ))}
