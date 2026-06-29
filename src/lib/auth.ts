@@ -45,3 +45,11 @@ export async function getCurrentProfile() {
 
   return data;
 }
+
+export async function requireAdmin() {
+  const profile = await getCurrentProfile();
+  if (!profile || profile.role !== 'admin') {
+    throw new Error('관리자 권한이 필요합니다.');
+  }
+  return profile;
+}

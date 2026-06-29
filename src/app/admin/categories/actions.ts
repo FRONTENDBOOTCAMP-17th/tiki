@@ -2,10 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { requireAdmin } from "@/lib/auth";
 
 export async function reorderCategories(
   items: { categoryId: string; displayOrder: number }[],
 ) {
+  await requireAdmin();
   const supabase = getSupabaseAdmin();
 
   await Promise.all(
@@ -21,6 +23,7 @@ export async function reorderCategories(
 }
 
 export async function updateCategory(formData: FormData) {
+  await requireAdmin();
   const categoryId = String(formData.get("categoryId") ?? "");
   const name = String(formData.get("name") ?? "").trim();
 
@@ -38,6 +41,7 @@ export async function updateCategory(formData: FormData) {
 }
 
 export async function deleteCategory(categoryId: string) {
+  await requireAdmin();
   const supabase = getSupabaseAdmin();
 
   const { count } = await supabase
