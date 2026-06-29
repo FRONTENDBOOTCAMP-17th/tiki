@@ -7,6 +7,7 @@ import { todayKST } from "@/lib/date";
 import Modal from "@/components/modal/Modal";
 import { Slot, Grade } from "@/types/domain/event";
 import BookingPanel, { BookingSelection } from "./BookingPanel";
+import useToast from "@/hooks/useToast";
 
 interface BookingWidgetProps {
   eventId: string;
@@ -15,6 +16,20 @@ interface BookingWidgetProps {
   soldOut?: boolean;
   suspended?: boolean; // 관리자 예매 일시중지
   loggedIn?: boolean;
+}
+
+const ERROR_MESSAGES: Record<string, string> = {
+  unauthorized: "로그인이 필요합니다.",
+  "event not found": "공연 정보를 찾을 수 없습니다.",
+  "event not available": "현재 예매가 불가한 공연입니다.",
+  "not enough tickets": "잔여 좌석이 부족합니다.",
+  "slot is closed": "마감된 회차입니다.",
+  "slot not found": "회차 정보를 찾을 수 없습니다.",
+};
+
+function toKoreanError(error: unknown): string {
+  const msg = error instanceof Error ? error.message : "";
+  return ERROR_MESSAGES[msg] ?? msg ?? "예매 처리에 실패했습니다.";
 }
 
 // 예매 불가 상태(예매 종료/회차 없음/판매 중지): 예매 박스 형태는 유지하고 버튼만 비활성
@@ -54,6 +69,7 @@ export default function BookingWidget({
   ...panelProps
 }: BookingWidgetProps) {
   const router = useRouter();
+  const toast = useToast();
   const [open, setOpen] = useState(false);
   const today = todayKST();
   const hasBookableSlot = panelProps.slots.some(
@@ -96,9 +112,7 @@ export default function BookingWidget({
       const { orderId } = await createOrder(selection);
       router.push(`/payment/${orderId}`);
     } catch (error) {
-      alert(
-        error instanceof Error ? error.message : "예매 처리에 실패했습니다.",
-      );
+      toast.error(toKoreanError(error));
     }
   }
 
