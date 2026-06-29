@@ -6,7 +6,9 @@ import Button from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { todayKST } from "@/lib/date";
 import { Slot, Grade } from "@/types/domain/event";
+import type { SeatLayoutForBooking } from "@/lib/event/queries";
 import BookingCalendar from "./BookingCalendar";
+import SeatPicker from "./SeatPicker";
 
 const FEE_RATE = 0.05; // 수수료 5%
 const LOW_STOCK = 10; // 잔여 좌석 마감임박 기준
@@ -16,11 +18,13 @@ export interface BookingSelection {
   slotId: string;
   gradeId: string;
   quantity: number;
+  seatIds?: string[]; // 좌석 배치도가 있는 이벤트만 채워짐
 }
 
 interface BookingPanelProps {
   slots: Slot[];
   grades: Grade[]; // 이벤트 등급
+  seatLayout?: SeatLayoutForBooking | null; // 없으면(null) 기존 수량 기반 예매로 동작
   onBookNow: (selection: BookingSelection) => void;
 }
 
@@ -31,6 +35,7 @@ function weekdayOf(date: string) {
 export default function BookingPanel({
   slots,
   grades,
+  seatLayout,
   onBookNow,
 }: BookingPanelProps) {
   const today = todayKST();
@@ -60,6 +65,7 @@ export default function BookingPanel({
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [selectedSeatIds, setSelectedSeatIds] = useState<Set<string>>(new Set());
 
   // 선택 날짜의 회차 (시간순)
   const daySlots = useMemo(
@@ -71,21 +77,47 @@ export default function BookingPanel({
   );
 
   const grade = grades.find((g) => g.gradeId === selectedGradeId);
+
+  // 이 등급에 배치도가 있으면(좌석 1개 이상 매핑됨) 수량 입력 대신 좌석 클릭으로 수량이 정해진다.
+  const hasSeatMap = !!seatLayout && seatLayout.seats.some((s) => s.gradeId === selectedGradeId);
+
   const maxQuantity = grade?.quantity ?? 1;
-  const safeQuantity = grade ? Math.min(quantity, maxQuantity) : quantity;
+  const safeQuantity = hasSeatMap
+    ? selectedSeatIds.size
+    : grade
+      ? Math.min(quantity, maxQuantity)
+      : quantity;
   const subtotal = grade ? grade.price * safeQuantity : 0;
   const fee = Math.round(subtotal * FEE_RATE);
   const total = subtotal + fee;
-  const ready = !!grade && selectedSlotId !== null && grade.quantity >= safeQuantity;
+  const ready = hasSeatMap
+    ? !!grade && selectedSlotId !== null && safeQuantity > 0
+    : !!grade && selectedSlotId !== null && grade.quantity >= safeQuantity;
 
   function handleSelectDate(date: string) {
     setSelectedDate(date);
     setSelectedSlotId(null); // 날짜 바뀌면 회차 초기화
+    setSelectedSeatIds(new Set()); // 회차별로 점유 상태가 다르므로 좌석 선택도 초기화
+  }
+
+  function handleSelectSlot(slotId: string) {
+    setSelectedSlotId(slotId);
+    setSelectedSeatIds(new Set());
   }
 
   function handleSelectGrade(gradeId: string) {
     setSelectedGradeId(gradeId);
     setQuantity(1);
+    setSelectedSeatIds(new Set());
+  }
+
+  function toggleSeat(seatId: string) {
+    setSelectedSeatIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(seatId)) next.delete(seatId);
+      else next.add(seatId);
+      return next;
+    });
   }
 
   function submit(handler: (selection: BookingSelection) => void) {
@@ -94,6 +126,7 @@ export default function BookingPanel({
       slotId: selectedSlotId,
       gradeId: selectedGradeId,
       quantity: safeQuantity,
+      seatIds: hasSeatMap ? [...selectedSeatIds] : undefined,
     });
   }
 
@@ -136,7 +169,7 @@ export default function BookingPanel({
                       key={s.slotId}
                       type="button"
                       disabled={s.isClosed}
-                      onClick={() => setSelectedSlotId(s.slotId)}
+                      onClick={() => handleSelectSlot(s.slotId)}
                       className={cn(
                         "flex shrink-0 flex-col items-center gap-0.5 rounded-xl border px-4 py-2 text-sm",
                         active
@@ -212,36 +245,52 @@ export default function BookingPanel({
           </div>
         </section>
 
-        {/* 3. 수량 */}
-        <section className="flex flex-col gap-3">
-          <p className="text-sm font-semibold text-gray-700">3. 수량</p>
-          <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
-            <span className="text-sm text-gray-600">매수</span>
-            <div className="flex items-center gap-4">
-              <button
-                type="button"
-                aria-label="수량 감소"
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                disabled={!grade || safeQuantity <= 1}
-                className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300"
-              >
-                <Minus className="h-4 w-4" />
-              </button>
-              <span className="w-6 text-center font-semibold">
-                {safeQuantity}
-              </span>
-              <button
-                type="button"
-                aria-label="수량 증가"
-                onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
-                disabled={!grade || safeQuantity >= maxQuantity}
-                className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
+        {/* 3. 좌석 선택 (배치도가 있는 등급) 또는 수량 (배치도가 없는 기존 방식) */}
+        {seatLayout && hasSeatMap && grade && selectedSlotId ? (
+          <section className="flex flex-col gap-3">
+            <p className="text-sm font-semibold text-gray-700">
+              3. 좌석 선택 ({safeQuantity}석 선택됨)
+            </p>
+            <SeatPicker
+              key={selectedSlotId}
+              layout={seatLayout}
+              slotId={selectedSlotId}
+              gradeId={grade.gradeId}
+              selectedSeatIds={selectedSeatIds}
+              onToggle={toggleSeat}
+            />
+          </section>
+        ) : (
+          <section className="flex flex-col gap-3">
+            <p className="text-sm font-semibold text-gray-700">3. 수량</p>
+            <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
+              <span className="text-sm text-gray-600">매수</span>
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  aria-label="수량 감소"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  disabled={!grade || safeQuantity <= 1}
+                  className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="w-6 text-center font-semibold">
+                  {safeQuantity}
+                </span>
+                <button
+                  type="button"
+                  aria-label="수량 증가"
+                  onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
+                  disabled={!grade || safeQuantity >= maxQuantity}
+                  className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </div>
 
       {/* 고정 푸터 : 합계 + 버튼 (스크롤 없이 항상 보임) */}
