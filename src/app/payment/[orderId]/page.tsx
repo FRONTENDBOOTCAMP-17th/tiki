@@ -17,7 +17,7 @@ export default async function PaymentPage({
   const { orderId } = await params;
   if (!UUID_RE.test(orderId)) notFound();
 
-  const user = await requireUser();
+  const user = await requireUser(`/payment/${orderId}`);
   const supabase = await createClient();
 
   // 본인 주문만 결제 페이지에 접근 가능 (order_id + user_id 동시 확인)

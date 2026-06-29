@@ -17,11 +17,12 @@ export async function isAuthenticated() {
   return !!user;
 }
 
-export async function requireUser() {
+export async function requireUser(callbackUrl?: string) {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect('/login');
+    const next = callbackUrl ? `?next=${encodeURIComponent(callbackUrl)}` : '';
+    redirect(`/login${next}`);
   }
 
   return user;

@@ -14,6 +14,7 @@ interface BookingWidgetProps {
   grades: Grade[];
   soldOut?: boolean;
   suspended?: boolean; // 관리자 예매 일시중지
+  loggedIn?: boolean;
 }
 
 // 예매 불가 상태(예매 종료/회차 없음/판매 중지): 예매 박스 형태는 유지하고 버튼만 비활성
@@ -49,6 +50,7 @@ export default function BookingWidget({
   eventId,
   soldOut = false,
   suspended = false,
+  loggedIn = false,
   ...panelProps
 }: BookingWidgetProps) {
   const router = useRouter();
@@ -81,7 +83,15 @@ export default function BookingWidget({
     return json.data as { orderId: string };
   }
 
+  function redirectToLogin() {
+    router.push(`/login?next=${encodeURIComponent(`/${eventId}`)}`);
+  }
+
   async function handleBookNow(selection: BookingSelection) {
+    if (!loggedIn) {
+      redirectToLogin();
+      return;
+    }
     try {
       const { orderId } = await createOrder(selection);
       router.push(`/payment/${orderId}`);
@@ -118,7 +128,7 @@ export default function BookingWidget({
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white p-4 lg:hidden">
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={() => (loggedIn ? setOpen(true) : redirectToLogin())}
           className="flex w-full items-center justify-center gap-1 rounded-md bg-primary-700 py-3 font-medium text-white"
         >
           <ChevronUp className="h-4 w-4" />
