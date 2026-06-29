@@ -1,5 +1,5 @@
 export const SELLER_EVENT_LIMITS = {
-  maxEventsPerSeller: 100,
+  maxEventsPerSeller: 10,
   maxSeatsPerEvent: 1000,
   maxSlotsPerEvent: 120,
   maxTimesPerDay: 8,
