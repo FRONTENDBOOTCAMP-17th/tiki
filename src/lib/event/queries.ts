@@ -196,53 +196,19 @@ export async function getWritableReviewSlots(
   eventId: string,
 ): Promise<WritableReviewSlot[]> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
+  const { data } = await supabase.rpc("get_writable_review_slots", {
+    p_event_id: eventId,
+  });
 
-  const { data: written } = await supabase
-    .from("review")
-    .select("order_id")
-    .eq("event_id", eventId)
-    .eq("user_id", user.id);
-  const reviewedOrders = new Set((written ?? []).map((r) => r.order_id));
-
-  const { data: orders } = await supabase
-    .from("orders")
-    .select("order_id, slot_id, created_at")
-    .eq("user_id", user.id)
-    .eq("event_id", eventId)
-    .eq("status", "paid")
-    .order("created_at", { ascending: false });
-
-  const slotIds = [
-    ...new Set(
-      (orders ?? []).map((o) => o.slot_id).filter(Boolean) as string[],
-    ),
-  ];
-  if (slotIds.length === 0) return [];
-
-  const { data: slots } = await supabase
-    .from("slot")
-    .select("slot_id, date, start_time, end_time")
-    .in("slot_id", slotIds);
-  const slotMap = new Map((slots ?? []).map((s) => [s.slot_id, s]));
-
-  const now = new Date();
-  const result: WritableReviewSlot[] = [];
-  for (const order of orders ?? []) {
-    if (!order.slot_id || reviewedOrders.has(order.order_id)) continue;
-    const slot = slotMap.get(order.slot_id);
-    if (!slot) continue;
-    const end = new Date(`${slot.date}T${slot.end_time.slice(0, 5)}:00+09:00`);
-    if (end > now) continue;
-
-    const d = new Date(`${slot.date}T00:00:00`);
-    result.push({
-      orderId: order.order_id,
-      slotLabel: `${d.getMonth() + 1}/${d.getDate()}(${DAYS[d.getDay()]}) ${slot.start_time.slice(0, 5)}`,
-    });
-  }
-  return result;
+  return ((data ?? []) as {
+    order_id: string;
+    slot_date: string;
+    slot_start_time: string;
+  }[]).map((r) => {
+    const d = new Date(`${r.slot_date}T00:00:00`);
+    return {
+      orderId: r.order_id,
+      slotLabel: `${d.getMonth() + 1}/${d.getDate()}(${DAYS[d.getDay()]}) ${r.slot_start_time.slice(0, 5)}`,
+    };
+  });
 }

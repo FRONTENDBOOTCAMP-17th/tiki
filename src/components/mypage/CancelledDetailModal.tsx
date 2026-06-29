@@ -13,14 +13,24 @@ export default function CancelledDetailModal({
   onClose: () => void;
   reservation: Reservation;
 }) {
+  const isCancelled = r.status === "cancelled";
+
   return (
     <Modal open={open} onClose={onClose}>
       <Modal.Header>예매 상세</Modal.Header>
       <Modal.Body>
-        <div className="flex flex-col gap-1.5 rounded-xl bg-danger-100 p-4">
+        <div
+          className={`flex flex-col gap-1.5 rounded-xl p-4 ${
+            isCancelled ? "bg-danger-100" : "bg-primary-100"
+          }`}
+        >
           <div className="flex items-center gap-2">
             <p className="font-bold text-gray-900">{r.title}</p>
-            <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-danger-600">
+            <span
+              className={`rounded-full bg-white px-2 py-0.5 text-xs font-medium ${
+                isCancelled ? "text-danger-600" : "text-primary-700"
+              }`}
+            >
               {r.statusLabel}
             </span>
           </div>
@@ -59,7 +69,13 @@ export default function CancelledDetailModal({
           </div>
           <div className="rounded-lg bg-gray-50 p-3">
             <p className="text-xs text-gray-400">상태</p>
-            <p className="font-medium text-danger-600">{r.statusLabel}</p>
+            <p
+              className={`font-medium ${
+                isCancelled ? "text-danger-600" : "text-primary-700"
+              }`}
+            >
+              {r.statusLabel}
+            </p>
           </div>
         </div>
       </Modal.Body>

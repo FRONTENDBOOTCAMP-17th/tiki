@@ -1,5 +1,5 @@
 const STATUS_STYLE: Record<string, { label: string; cls: string }> = {
-  pending: { label: "대기중", cls: "bg-gray-100 text-gray-500" },
+  pending: { label: "대기중", cls: "bg-warning-100 text-warning-700" },
   accepted: { label: "수락됨", cls: "bg-primary-100 text-primary-700" },
   rejected: { label: "거절됨", cls: "bg-danger-100 text-danger-600" },
 };

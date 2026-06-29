@@ -159,10 +159,15 @@ export default async function ReservationsPage({
       slotIds.length
         ? supabase
             .from("slot")
-            .select("slot_id, date, start_time")
+            .select("slot_id, date, start_time, end_time")
             .in("slot_id", slotIds)
         : Promise.resolve({
-            data: [] as { slot_id: string; date: string; start_time: string }[],
+            data: [] as {
+              slot_id: string;
+              date: string;
+              start_time: string;
+              end_time: string;
+            }[],
           }),
       gradeIds.length
         ? supabase
@@ -178,12 +183,20 @@ export default async function ReservationsPage({
   const slotMap = new Map((slots ?? []).map((s) => [s.slot_id, s]));
   const gradeMap = new Map((grades ?? []).map((g) => [g.grade_id, g]));
 
+  const now = new Date();
+
   const reservations: Reservation[] = (orders ?? []).map((o) => {
     const ev = eventMap.get(o.event_id);
     const sl = o.slot_id ? slotMap.get(o.slot_id) : null;
     const gr = o.ticket_grade_id ? gradeMap.get(o.ticket_grade_id) : null;
     const place = [ev?.venue_address, ev?.venue_name].filter(Boolean).join(" ");
     const cancelled = o.status === "cancelled";
+
+    // 공연 종료 여부 (slot 종료시각이 지났으면 true)
+    const isEnded =
+      !!sl?.date &&
+      !!sl?.end_time &&
+      new Date(`${sl.date}T${sl.end_time.slice(0, 5)}:00+09:00`) <= now;
 
     return {
       id: o.order_id,
@@ -199,6 +212,7 @@ export default async function ReservationsPage({
       place,
       orderNo: o.order_id.slice(0, 8).toUpperCase(),
       price: o.total_price,
+      isEnded,
     };
   });
 

@@ -187,7 +187,10 @@ export default async function EventDetailPage({
                       )}
                     </section>
 
-                    <section className="flex min-w-0 flex-col gap-5">
+                    <section
+                      id="reviews"
+                      className="flex min-w-0 flex-col gap-5 scroll-mt-24"
+                    >
                       {writableSlots.length > 0 && (
                         <ReviewComposer
                           eventId={eventId}

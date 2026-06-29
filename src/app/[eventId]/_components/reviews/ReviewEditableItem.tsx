@@ -2,16 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import Avatar from "@/components/Avatar";
 import Button from "@/components/Button";
+import Dialog from "@/components/modal/Dialog";
 import ReviewStars from "@/components/reviews/ReviewStars";
 import { cn } from "@/lib/cn";
 import { formatDotDate } from "@/lib/format";
-import {
-  deleteReviewAction,
-  updateReviewAction,
-} from "@/lib/reviews/actions";
+import { deleteReviewAction, updateReviewAction } from "@/lib/reviews/actions";
 import {
   REVIEW_MEMO_MAX_LENGTH,
   REVIEW_MEMO_MIN_LENGTH,
@@ -32,6 +31,7 @@ export default function ReviewEditableItem({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [editing, setEditing] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [rating, setRating] = useState(review.rating);
   const [memo, setMemo] = useState(review.memo);
   const [message, setMessage] = useState("");
@@ -67,7 +67,7 @@ export default function ReviewEditableItem({
   }
 
   function handleDelete() {
-    if (isPending || !confirm("후기를 삭제할까요?")) return;
+    if (isPending) return;
 
     startTransition(async () => {
       const result = await deleteReviewAction({
@@ -76,10 +76,13 @@ export default function ReviewEditableItem({
       });
 
       if (!result.success) {
-        setMessage(result.message);
+        setDeleteOpen(false);
+        toast.error(result.message);
         return;
       }
 
+      setDeleteOpen(false);
+      toast.success("후기가 삭제되었습니다");
       router.refresh();
     });
   }
@@ -121,7 +124,7 @@ export default function ReviewEditableItem({
                   <button
                     type="button"
                     className="text-sm text-gray-400 underline underline-offset-2 transition-colors hover:text-gray-600"
-                    onClick={handleDelete}
+                    onClick={() => setDeleteOpen(true)}
                   >
                     삭제
                   </button>
@@ -194,6 +197,18 @@ export default function ReviewEditableItem({
           )}
         </div>
       </div>
+
+      <Dialog
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        title="후기 삭제"
+        description="작성한 후기를 삭제할까요? 삭제 후에는 되돌릴 수 없습니다."
+        confirmText={isPending ? "삭제 중..." : "삭제"}
+        confirmVariant="danger"
+        cancelText="취소"
+        cancelVariant="outline"
+        onConfirm={handleDelete}
+      />
     </li>
   );
 }
