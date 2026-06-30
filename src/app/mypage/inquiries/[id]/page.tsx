@@ -78,7 +78,7 @@ export default async function InquiryDetailPage({
 
       <article className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
         <div className="mb-3 flex items-center gap-2">
-          <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-600">
+          <span className="rounded-full bg-primary-200 px-2 py-0.5 text-xs font-medium text-primary-800">
             {CATEGORY_LABEL[inquiry.category] ?? "기타"}
           </span>
           {inquiry.status === "answered" ? (
@@ -114,9 +114,9 @@ export default async function InquiryDetailPage({
 
       <section className="mt-4">
         {inquiry.status === "answered" && inquiry.answer ? (
-          <div className="rounded-2xl border border-violet-100 bg-violet-50/50 p-6 sm:p-8">
+          <div className="rounded-2xl border border-primary-300 bg-primary-100 p-6 sm:p-8">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-sm font-semibold text-violet-700">
+              <span className="text-sm font-semibold text-primary-800">
                 TiKi 답변
               </span>
               {inquiry.answered_at && (
