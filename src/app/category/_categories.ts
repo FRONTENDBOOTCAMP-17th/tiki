@@ -40,3 +40,22 @@ const iconBySlug = new Map(categories.map((c) => [c.slug, c.Icon]));
 export function getCategoryIcon(slug: string): LucideIcon {
   return iconBySlug.get(slug) ?? Tag;
 }
+
+// 카테고리 타일 아이콘 색 (slug 기준). purge 때문에 전체 클래스 문자열로 둔다.
+const colorBySlug: Record<string, string> = {
+  concert: "bg-violet-100 text-violet-600",
+  fanmeeting: "bg-rose-100 text-rose-600",
+  musical: "bg-amber-100 text-amber-600",
+  exhibition: "bg-emerald-100 text-emerald-600",
+  class: "bg-sky-100 text-sky-600",
+  sports: "bg-orange-100 text-orange-600",
+  festival: "bg-fuchsia-100 text-fuchsia-600",
+  performance: "bg-indigo-100 text-indigo-600",
+  speech: "bg-teal-100 text-teal-600",
+  music: "bg-pink-100 text-pink-600",
+};
+
+// slug에 매핑된 아이콘 색 (없으면 기본 회색)
+export function getCategoryColor(slug: string): string {
+  return colorBySlug[slug] ?? "bg-gray-100 text-gray-500";
+}
