@@ -5,9 +5,9 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/auth";
 
 type NotificationTarget = "all" | "buyer" | "seller" | "specific";
+export type NotificationType = "ad" | "order";
 
-// type 필드에 대상 정보를 인코딩 → 히스토리에서 라벨로 표시
-const TARGET_TYPE: Record<NotificationTarget, string> = {
+const TARGET_REF: Record<NotificationTarget, string> = {
   all: "admin_all",
   buyer: "admin_buyer",
   seller: "admin_seller",
@@ -18,10 +18,14 @@ export async function sendNotification({
   target,
   userIds,
   title,
+  notificationType,
+  link,
 }: {
   target: NotificationTarget;
   userIds?: string[];
   title: string;
+  notificationType: NotificationType;
+  link?: string;
 }) {
   await requireAdmin();
   if (!title.trim()) return { error: "알림 내용을 입력해주세요" };
@@ -46,9 +50,10 @@ export async function sendNotification({
 
   const rows = targetIds.map((userId) => ({
     user_id: userId,
-    type: TARGET_TYPE[target],
+    type: notificationType,
     title: title.trim(),
-    link: null,
+    link: link?.trim() || null,
+    ref_id: TARGET_REF[target],
     is_read: false,
   }));
 

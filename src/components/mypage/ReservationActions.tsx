@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { QrCode, Share2, Star } from "lucide-react";
-import { toast } from "sonner";
+import useToast from "@/hooks/useToast";
 import type { Reservation } from "./ReservationCard";
 import QrTicketModal from "./QrTicketModal";
 import ShareTicketModal from "./ShareTicketModal";
@@ -15,6 +15,7 @@ export default function ReservationActions({
 }: {
   reservation: Reservation;
 }) {
+  const { success, error } = useToast();
   const [modal, setModal] = useState<
     "none" | "qr" | "share" | "detail" | "cancel"
   >("none");
@@ -26,10 +27,10 @@ export default function ReservationActions({
     setPending(false);
     setModal("none");
     if (result?.error) {
-      toast.error(result.error);
+      error(result.error);
       return;
     }
-    toast.success("예매가 취소되었습니다");
+    success("예매가 취소되었습니다");
   };
 
   // ① 예매 취소 → 상세보기 + 재예매

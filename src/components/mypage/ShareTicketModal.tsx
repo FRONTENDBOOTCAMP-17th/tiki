@@ -6,7 +6,7 @@ import Button from "@/components/Button";
 import { createClient } from "@/lib/supabase/client";
 import { shareTicket } from "@/app/action";
 import type { Reservation } from "./ReservationCard";
-import { toast } from "sonner";
+import useToast from "@/hooks/useToast";
 
 interface Friend {
   user_id: string;
@@ -25,6 +25,7 @@ export default function ShareTicketModal({
   onClose: () => void;
   reservation: Reservation;
 }) {
+  const { success, error } = useToast();
   const max = Math.max(1, r.count - 1);
   const [qty, setQty] = useState(1);
   const [selected, setSelected] = useState<string | null>(null);
@@ -46,10 +47,10 @@ export default function ShareTicketModal({
     const result = await shareTicket(r.id, selected, qty);
     setSharing(false);
     if (result?.error) {
-      toast.error(result.error);
+      error(result.error);
       return;
     }
-    toast.success("티켓을 공유했습니다");
+    success("티켓을 공유했습니다");
     onClose();
   };
 

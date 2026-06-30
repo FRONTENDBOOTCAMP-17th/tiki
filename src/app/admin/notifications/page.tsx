@@ -19,8 +19,8 @@ export default async function AdminNotificationsPage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("notification")
-      .select("title, type, created_at")
-      .in("type", ["admin_all", "admin_buyer", "admin_seller", "admin_specific"])
+      .select("title, type, created_at, ref_id")
+      .or("ref_id.in.(admin_all,admin_buyer,admin_seller,admin_specific),type.in.(admin_all,admin_buyer,admin_seller,admin_specific)")
       .order("created_at", { ascending: false })
       .limit(2000),
   ]);
@@ -43,7 +43,7 @@ export default async function AdminNotificationsPage() {
     } else {
       batchMap.set(key, {
         title: n.title,
-        type: n.type,
+        type: n.ref_id || n.type,
         sentAt: n.created_at,
         recipientCount: 1,
       });
