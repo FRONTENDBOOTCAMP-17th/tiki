@@ -2,9 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-
 import Button from "@/components/Button";
+import useToast from "@/hooks/useToast";
 import Dialog from "@/components/modal/Dialog";
 import ReviewAuthor from "@/components/reviews/ReviewAuthor";
 import ReviewBody from "@/components/reviews/ReviewBody";
@@ -31,6 +30,7 @@ export default function ReviewEditableItem({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const { success, error } = useToast();
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [rating, setRating] = useState(review.rating);
@@ -78,12 +78,12 @@ export default function ReviewEditableItem({
 
       if (!result.success) {
         setDeleteOpen(false);
-        toast.error(result.message);
+        error(result.message);
         return;
       }
 
       setDeleteOpen(false);
-      toast.success("후기가 삭제되었습니다");
+      success("후기가 삭제되었습니다");
       router.refresh();
     });
   }
