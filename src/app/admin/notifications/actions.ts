@@ -7,13 +7,6 @@ import { requireAdmin } from "@/lib/auth";
 type NotificationTarget = "all" | "buyer" | "seller" | "specific";
 export type NotificationType = "ad" | "order";
 
-const TARGET_REF: Record<NotificationTarget, string> = {
-  all: "admin_all",
-  buyer: "admin_buyer",
-  seller: "admin_seller",
-  specific: "admin_specific",
-};
-
 export async function sendNotification({
   target,
   userIds,
@@ -53,7 +46,6 @@ export async function sendNotification({
     type: notificationType,
     title: title.trim(),
     link: link?.trim() || null,
-    ref_id: TARGET_REF[target],
     is_read: false,
   }));
 

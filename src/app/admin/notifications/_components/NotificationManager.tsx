@@ -27,13 +27,6 @@ const NOTIFICATION_TYPE_OPTIONS: { value: NotificationType; label: string; icon:
   { value: "order", label: "주문/티켓", icon: Ticket, description: "예매 안내, 티켓 관련 공지" },
 ];
 
-const TARGET_LABEL: Record<string, string> = {
-  admin_all: "전체",
-  admin_buyer: "구매자",
-  admin_seller: "판매자",
-  admin_specific: "직접 선택",
-};
-
 const NOTIFICATION_TYPE_LABEL: Record<NotificationType, string> = {
   ad: "공지/이벤트",
   order: "주문/티켓",
@@ -368,9 +361,7 @@ export default function NotificationManager({
                         <p className="truncate text-gray-900">{item.title}</p>
                       </td>
                       <td className="px-5 py-4 text-gray-600">
-                        {TARGET_LABEL[item.type] === "직접 선택"
-                          ? `${item.recipientCount}명`
-                          : TARGET_LABEL[item.type] ?? `${item.recipientCount}명`}
+                        {item.recipientCount}명
                       </td>
                     </tr>
                   ))
