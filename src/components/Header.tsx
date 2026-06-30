@@ -10,6 +10,7 @@ import Logo from "@/components/Logo";
 import NotificationBell from "@/components/NotificationBell";
 import ProfileMenu from "@/components/ProfileMenu";
 import { SearchBarLink } from "@/components/SearchBar";
+import type { HeaderProfile } from "@/lib/auth";
 
 const categories = [
   { label: "전체", href: "/category" },
@@ -24,14 +25,24 @@ const categories = [
 
 interface HeaderProps extends ComponentPropsWithRef<"header"> {
   loggedIn?: boolean;
+  /** 로그인 사용자 정보. 서버에서 조회해 내려주면 프로필 메뉴가 재조회 없이 렌더된다. */
+  profile?: HeaderProfile | null;
   showCategory?: boolean;
   current?: string;
   /** 모바일 우측에 노출할 메뉴(예: 마이페이지 햄버거 드로어). 넘긴 페이지에서만 표시된다. */
   mobileMenu?: ReactNode;
 }
 
+// profile을 넘기지 않은 경우의 안전한 기본값(아바타는 이니셜 "?"로 표시).
+const FALLBACK_PROFILE: HeaderProfile = {
+  name: "",
+  avatarUrl: null,
+  role: "buyer",
+};
+
 export default function Header({
   loggedIn = false,
+  profile,
   showCategory = true,
   current,
   mobileMenu,
@@ -76,7 +87,7 @@ export default function Header({
                 className="size-9 justify-center rounded-full bg-white/20 text-white transition hover:scale-105 hover:bg-white/40"
                 activeClassName="scale-105 bg-white/40"
               />
-              <ProfileMenu />
+              <ProfileMenu profile={profile ?? FALLBACK_PROFILE} />
             </>
           ) : (
             <Link

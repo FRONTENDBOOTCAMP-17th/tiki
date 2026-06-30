@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import {
@@ -13,10 +13,10 @@ import {
   ShieldCheck,
   LogOut,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { logout } from "@/app/action";
 import SidebarMenuItem from "@/components/sidebar/SidebarMenuItem";
 import type { SidebarItem } from "@/components/sidebar/types";
+import type { HeaderProfile } from "@/lib/auth";
 
 const MENU: SidebarItem[] = [
   { label: "프로필", href: "/mypage/profile", icon: User },
@@ -26,21 +26,13 @@ const MENU: SidebarItem[] = [
   { label: "설정", href: "/mypage/settings", icon: Settings },
 ];
 
-interface Profile {
-  name: string;
-  avatarUrl: string | null;
-  role: string;
-}
-
-// 헤더 우측 프로필 아바타 + 계정 드롭다운. 본인 프로필은 클라이언트에서 조회한다.
-export default function ProfileMenu() {
+// 헤더 우측 프로필 아바타 + 계정 드롭다운.
+// 사용자 정보는 서버에서 조회해 props로 받는다(클라이언트 재조회 없음).
+export default function ProfileMenu({ profile }: { profile: HeaderProfile }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [profile, setProfile] = useState<Profile>({
-    name: "",
-    avatarUrl: null,
-    role: "buyer",
-  });
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // 라우트가 바뀌면 드롭다운을 닫는다.
   const [prevPath, setPrevPath] = useState(pathname);
@@ -49,30 +41,44 @@ export default function ProfileMenu() {
     setOpen(false);
   }
 
+  // 열린 동안: Esc로 닫기, 첫 항목으로 포커스 이동, 닫히면 트리거로 포커스 복원.
   useEffect(() => {
-    const supabase = createClient();
-    let ignore = false;
+    if (!open) return;
 
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) return;
-      const { data } = await supabase
-        .from("users")
-        .select("name, avatar_url, role")
-        .eq("id", user.id)
-        .single();
-      if (!ignore && data) {
-        setProfile({
-          name: data.name ?? "",
-          avatarUrl: data.avatar_url ?? null,
-          role: data.role ?? "buyer",
-        });
-      }
-    });
+    const trigger = triggerRef.current;
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+
+    const first = menuRef.current?.querySelector<HTMLElement>("a, button");
+    first?.focus();
 
     return () => {
-      ignore = true;
+      document.removeEventListener("keydown", handleKeyDown);
+      trigger?.focus();
     };
-  }, []);
+  }, [open]);
+
+  // Tab이 드롭다운 밖으로 나가지 않도록 처음/끝에서 순환시킨다(포커스 트랩).
+  function handleTrapTab(e: React.KeyboardEvent) {
+    if (e.key !== "Tab") return;
+
+    const items = menuRef.current?.querySelectorAll<HTMLElement>("a, button");
+    if (!items || items.length === 0) return;
+
+    const first = items[0];
+    const last = items[items.length - 1];
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
 
   const initial = profile.name.trim().charAt(0).toUpperCase() || "?";
   const isStaff = profile.role === "seller" || profile.role === "admin";
@@ -80,8 +86,11 @@ export default function ProfileMenu() {
   return (
     <div className="relative">
       <button
+        ref={triggerRef}
         type="button"
         aria-label="내 메뉴"
+        aria-haspopup="menu"
+        aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className="relative size-9 overflow-hidden rounded-full bg-linear-to-br from-primary-400 to-secondary-400 ring-2 ring-white/60 transition hover:scale-105 hover:ring-white"
       >
@@ -103,7 +112,13 @@ export default function ProfileMenu() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-3 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 text-left shadow-xl">
+          <div
+            ref={menuRef}
+            role="menu"
+            aria-label="내 메뉴"
+            onKeyDown={handleTrapTab}
+            className="absolute right-0 z-50 mt-3 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 text-left shadow-xl"
+          >
             {profile.name && (
               <p className="truncate px-3 py-2 text-sm font-semibold text-gray-900">
                 {profile.name}님

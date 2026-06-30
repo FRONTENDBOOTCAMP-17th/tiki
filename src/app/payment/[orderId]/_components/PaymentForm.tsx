@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import * as PortOne from "@portone/browser-sdk/v2";
 import { cancelReservation } from "@/app/action";
 import Header from "@/components/Header";
+import type { HeaderProfile } from "@/lib/auth";
 import Button from "@/components/Button";
 import { Input } from "@/components/Input";
 import useToast from "@/hooks/useToast";
@@ -34,6 +35,7 @@ export interface BuyerDefaults {
 interface PaymentFormProps {
   orderId: string;
   totalAmount: number;
+  headerProfile: HeaderProfile;
   booking: BookingSummary;
   buyerDefaults: BuyerDefaults;
 }
@@ -75,6 +77,7 @@ async function confirmPayment(orderId: string) {
 export default function PaymentForm({
   orderId,
   totalAmount,
+  headerProfile,
   booking,
   buyerDefaults,
 }: PaymentFormProps) {
@@ -176,7 +179,7 @@ export default function PaymentForm({
 
       {/* 웹: 사이트 공통 헤더 + 타이틀 */}
       <div className="hidden md:block">
-        <Header loggedIn showCategory={false} />
+        <Header loggedIn profile={headerProfile} showCategory={false} />
         <h1 className="mx-auto w-full max-w-5xl px-4 pt-8 text-2xl font-bold text-gray-900">
           결제하기
         </h1>

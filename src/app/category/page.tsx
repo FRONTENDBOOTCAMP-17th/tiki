@@ -5,7 +5,7 @@ import { Trophy, Clock, type LucideIcon } from "lucide-react";
 import HomeSection from "@/app/_components/home/HomeSection";
 import { cn } from "@/lib/cn";
 import { fetchCategories } from "@/lib/api/categories";
-import { isAuthenticated } from "@/lib/auth";
+import { getHeaderProfile } from "@/lib/auth";
 import { getCategoryIcon, getCategoryColor } from "./_categories";
 import BackButton from "./_components/BackButton";
 
@@ -32,14 +32,15 @@ const quickLinks: {
 
 export default async function CategoryPage() {
   // DB에서 활성 카테고리를 display_order 순으로 불러온다.
-  const [categories, loggedIn] = await Promise.all([
+  const [categories, profile] = await Promise.all([
     fetchCategories(),
-    isAuthenticated(),
+    getHeaderProfile(),
   ]);
+  const loggedIn = !!profile;
 
   return (
     <>
-      <Header loggedIn={loggedIn} showCategory={false} />
+      <Header loggedIn={loggedIn} profile={profile} showCategory={false} />
       <main className="flex-1 bg-white pb-20 min-[744px]:pb-0">
         <div className="mx-auto w-full max-w-7xl">
           <div className="px-4 pt-4 md:px-8 lg:px-16">

@@ -1,7 +1,7 @@
 import { MapPin, Star, Clock, Calendar } from "lucide-react";
 
 import Header from "@/components/Header";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, getHeaderProfile } from "@/lib/auth";
 import {
   getEventDetail,
   getSlots,
@@ -48,7 +48,10 @@ export default async function EventDetailPage({
 }) {
   const { eventId } = await params;
   const { reviewSort, reviewDirection } = await searchParams;
-  const user = await getCurrentUser();
+  const [user, profile] = await Promise.all([
+    getCurrentUser(),
+    getHeaderProfile(),
+  ]);
   const loggedIn = !!user;
 
   // 상세/회차/등급/리뷰를 서버에서 병렬 조회 (존재하지 않는 공연이면 event 가 null)
@@ -73,7 +76,7 @@ export default async function EventDetailPage({
   return (
     <>
       {/* Header: 풀폭 (max-width 밖) */}
-      <Header loggedIn={loggedIn} />
+      <Header loggedIn={loggedIn} profile={profile} />
 
       <main className="mx-auto w-full max-w-[1280px] px-4 pb-24 sm:px-6 lg:px-8">
         {/* 목록으로 */}

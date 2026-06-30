@@ -54,7 +54,7 @@ export default async function PaymentPage({
         .single(),
       supabase
         .from("users")
-        .select("name, phone, email")
+        .select("name, phone, email, avatar_url, role")
         .eq("id", user.id)
         .single(),
       supabase
@@ -77,6 +77,11 @@ export default async function PaymentPage({
     <PaymentForm
       orderId={order.order_id}
       totalAmount={order.total_price}
+      headerProfile={{
+        name: profile?.name ?? "",
+        avatarUrl: profile?.avatar_url ?? null,
+        role: profile?.role ?? "buyer",
+      }}
       booking={{
         eventTitle: event.title,
         thumbnail: event.thumbnail,
