@@ -60,6 +60,16 @@ export default function RankingTabs({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 lg:max-w-4xl lg:px-8">
+      {/* 페이지 헤더 */}
+      <header className="mb-6 text-center">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-950 md:text-3xl">
+          랭킹
+        </h1>
+        <p className="mt-2 text-sm text-gray-500">
+          지금 가장 인기 있는 공연 순위
+        </p>
+      </header>
+
       {/* 탭 바 */}
       <div className="scrollbar-hide -mx-4 flex gap-2 overflow-x-auto px-4 pb-3 lg:mx-0 lg:px-0">
         {TABS.map((tab) => {
@@ -71,8 +81,8 @@ export default function RankingTabs({
               onClick={() => handleTab(tab.slug)}
               className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
                 active
-                  ? "border-primary-500 bg-primary-100 text-primary-800"
-                  : "border-gray-200 bg-white text-gray-500 hover:border-gray-300"
+                  ? "border-primary-600 bg-primary-600 text-white"
+                  : "border-gray-200 bg-white text-gray-500 hover:border-primary-300 hover:text-primary-700"
               }`}
             >
               {tab.name}
