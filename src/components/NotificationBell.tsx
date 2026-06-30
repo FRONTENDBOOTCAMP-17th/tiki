@@ -167,11 +167,11 @@ export default function NotificationBell({
 
   async function handleDelete(item: NotificationItem) {
     const supabase = createClient();
-    const { error } = await supabase
+    const { error: deleteError } = await supabase
       .from("notification")
       .delete()
       .eq("notification_id", item.notification_id);
-    if (error) {
+    if (deleteError) {
       error("삭제에 실패했습니다");
       return;
     }
