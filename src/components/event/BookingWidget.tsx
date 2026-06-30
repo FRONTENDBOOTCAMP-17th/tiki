@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { todayKST } from "@/lib/date";
 import Modal from "@/components/modal/Modal";
 import { Slot, Grade } from "@/types/domain/event";
+import type { SeatLayoutForBooking } from "@/lib/event/queries";
 import BookingPanel, { BookingSelection } from "./BookingPanel";
 import useToast from "@/hooks/useToast";
 
@@ -13,6 +14,7 @@ interface BookingWidgetProps {
   eventId: string;
   slots: Slot[];
   grades: Grade[];
+  seatLayout?: SeatLayoutForBooking | null;
   soldOut?: boolean;
   suspended?: boolean; // 관리자 예매 일시중지
   loggedIn?: boolean;
@@ -79,10 +81,13 @@ export default function BookingWidget({
   // 예매 종료(soldOut)거나 남은 회차가 아예 없을 때만 안내로 대체.
   const unavailable = soldOut || !hasBookableSlot;
 
-  // 주문 생성(POST /api/orders) 후 결제 페이지로 이동.
+  // 주문 생성 후 결제 페이지로 이동.
+  // 좌석을 골랐으면(seatIds 존재) 좌석 단위 RPC를 쓰는 /api/orders/seats로,
+  // 아니면 기존 수량 기반 /api/orders로 분기.
   // 서버 컴포넌트에서 함수를 props 로 내릴 수 없어 예매 로직을 위젯이 직접 소유한다.
   async function createOrder(selection: BookingSelection) {
-    const res = await fetch("/api/orders", {
+    const useSeatOrder = !!selection.seatIds && selection.seatIds.length > 0;
+    const res = await fetch(useSeatOrder ? "/api/orders/seats" : "/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -90,6 +95,7 @@ export default function BookingWidget({
         slotId: selection.slotId,
         ticketGradeId: selection.gradeId,
         quantity: selection.quantity,
+        seatIds: selection.seatIds,
       }),
     });
     const json = await res.json();

@@ -35,7 +35,7 @@ export default async function PaymentPage({
   // 이미 결제 완료/실패 처리된 주문이면 결제창을 다시 띄울 필요가 없음
   if (order.status !== "ordered") notFound();
 
-  const [{ data: event }, { data: slot }, { data: grade }, { data: profile }] =
+  const [{ data: event }, { data: slot }, { data: grade }, { data: profile }, { data: orderSeats }] =
     await Promise.all([
       supabase
         .from("event")
@@ -57,12 +57,21 @@ export default async function PaymentPage({
         .select("name, phone, email")
         .eq("id", user.id)
         .single(),
+      supabase
+        .from("order_seat")
+        .select("seat(label)")
+        .eq("order_id", order.order_id),
     ]);
 
   if (!event || !slot || !grade) notFound();
 
   const subtotal = grade.price * order.quantity;
   const fee = Math.round(subtotal * SERVICE_FEE_RATE);
+  const seatLabels = (orderSeats ?? [])
+    .flatMap((row) => (Array.isArray(row.seat) ? row.seat : [row.seat]))
+    .map((seat) => seat?.label)
+    .filter((label): label is string => !!label)
+    .sort();
 
   return (
     <PaymentForm
@@ -78,6 +87,7 @@ export default async function PaymentPage({
         quantity: order.quantity,
         subtotal,
         fee,
+        seatLabels: seatLabels.length > 0 ? seatLabels : undefined,
       }}
       buyerDefaults={{
         name: profile?.name ?? "",

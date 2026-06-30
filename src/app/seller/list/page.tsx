@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import EventList from "./_components/EventList";
-import { sumCapacityByEvent, sumOrdersByEvent } from "../_lib/stats";
+import { isBooked, sumCapacityByEvent, sumOrdersByEvent } from "../_lib/stats";
 import type { Event, EventListItem } from "./types";
 
 export default async function Page() {
@@ -30,7 +30,7 @@ export default async function Page() {
   ] = await Promise.all([
     supabase
       .from("orders")
-      .select("event_id, quantity, total_price")
+      .select("event_id, quantity, total_price, status")
       .in("event_id", eventIds),
 
     supabase
@@ -47,7 +47,7 @@ export default async function Page() {
     throw new Error(gradesError.message);
   }
 
-  const orderStats = sumOrdersByEvent(orders ?? []);
+  const orderStats = sumOrdersByEvent((orders ?? []).filter((o) => isBooked(o.status)));
   const capacityMap = sumCapacityByEvent(grades ?? []);
 
   const list: EventListItem[] = events.map((event: Event) => {

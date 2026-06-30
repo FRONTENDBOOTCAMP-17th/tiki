@@ -12,6 +12,7 @@ import {
   Ticket,
   ChevronLeft,
   ChevronRight,
+  LayoutGrid,
 } from "lucide-react";
 import Button from "@/components/Button";
 import Dialog from "@/components/modal/Dialog";
@@ -85,6 +86,14 @@ export default function EventDetailView({
               예매 관리
             </Button>
           </Link>
+          <Button
+            size="sm"
+            variant="outlinePrimary"
+            onClick={() => router.push(`/seller/events/${event.event_id}/seat-layout`)}
+          >
+            <LayoutGrid className="h-4 w-4" />
+            좌석 배치도
+          </Button>
           <Button
             size="sm"
             onClick={() => router.push(`/seller/events/${event.event_id}/edit`)}
