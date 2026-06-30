@@ -61,6 +61,12 @@ export async function POST(
     return fail("invalid_seats", 400);
   }
 
+  const labelSet = new Set<string>();
+  for (const s of seats) {
+    if (labelSet.has(s.label)) return fail("duplicate_seat_label", 400);
+    labelSet.add(s.label);
+  }
+
   // 등급별 좌석 수(VIP+일반 등) 합계를 넘는 좌석은 저장할 수 없다 (클라이언트 제한 우회 대비 서버 측 재검증)
   const { data: gradeRows } = await supabase
     .from("ticket_grade")

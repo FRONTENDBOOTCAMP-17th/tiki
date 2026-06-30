@@ -4,6 +4,7 @@ import { fail, success } from "@/lib/api/api-response";
 import { createClient } from "@/lib/supabase/server";
 
 const FEE_RATE = 0.05;
+const MAX_SEATS_PER_ORDER = 8;
 
 interface SeatOrderRequestBody {
   eventId?: string;
@@ -25,6 +26,10 @@ export async function POST(req: NextRequest) {
     seatIds.length === 0
   ) {
     return fail("invalid order payload", 400);
+  }
+
+  if (seatIds.length > MAX_SEATS_PER_ORDER) {
+    return fail(`한 번에 최대 ${MAX_SEATS_PER_ORDER}석까지 선택할 수 있습니다.`, 400);
   }
 
   const supabase = await createClient();
