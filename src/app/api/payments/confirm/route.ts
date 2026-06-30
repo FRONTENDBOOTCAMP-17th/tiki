@@ -45,10 +45,16 @@ export async function POST(req: NextRequest) {
 
   const admin = getSupabaseAdmin();
 
-  await admin
+  const { data: updatedOrder, error: updateError } = await admin
     .from("orders")
     .update({ status: isPaid ? "paid" : "failed" })
-    .eq("order_id", orderId);
+    .eq("order_id", orderId)
+    .select("order_id")
+    .single();
+
+  if (updateError || !updatedOrder) {
+    return fail("주문 상태를 업데이트할 수 없습니다.", 500);
+  }
 
   if (!isPaid) return fail("결제 금액이 일치하지 않습니다.", 400);
 
