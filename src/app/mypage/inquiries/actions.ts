@@ -1,20 +1,24 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-const CATEGORIES = ["reservation", "payment", "ticket", "account", "etc"] as const;
+const CATEGORIES = [
+  "reservation",
+  "payment",
+  "ticket",
+  "account",
+  "etc",
+] as const;
 
 export type CreateInquiryResult =
-  | { ok: true; inquiryId: string }
-  | { ok: false; error: string };
+  { ok: true; inquiryId: string } | { ok: false; error: string };
 
-export type MutateInquiryResult =
-  | { ok: true }
-  | { ok: false; error: string };
+export type MutateInquiryResult = { ok: true } | { ok: false; error: string };
 
-export async function createInquiry(formData: FormData): Promise<CreateInquiryResult> {
+export async function createInquiry(
+  formData: FormData,
+): Promise<CreateInquiryResult> {
   const category = String(formData.get("category") ?? "");
   const title = String(formData.get("title") ?? "").trim();
   const content = String(formData.get("content") ?? "").trim();
@@ -23,9 +27,12 @@ export async function createInquiry(formData: FormData): Promise<CreateInquiryRe
     return { ok: false, error: "카테고리를 선택해 주세요." };
   }
   if (title.length === 0) return { ok: false, error: "제목을 입력해 주세요." };
-  if (title.length > 100) return { ok: false, error: "제목은 100자 이내로 입력해 주세요." };
-  if (content.length === 0) return { ok: false, error: "문의 내용을 입력해 주세요." };
-  if (content.length > 2000) return { ok: false, error: "문의 내용은 2000자 이내로 입력해 주세요." };
+  if (title.length > 100)
+    return { ok: false, error: "제목은 100자 이내로 입력해 주세요." };
+  if (content.length === 0)
+    return { ok: false, error: "문의 내용을 입력해 주세요." };
+  if (content.length > 2000)
+    return { ok: false, error: "문의 내용은 2000자 이내로 입력해 주세요." };
 
   const supabase = await createClient();
 
@@ -42,7 +49,10 @@ export async function createInquiry(formData: FormData): Promise<CreateInquiryRe
     .single();
 
   if (error) {
-    return { ok: false, error: "문의 등록에 실패했습니다. 잠시 후 다시 시도해 주세요." };
+    return {
+      ok: false,
+      error: "문의 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+    };
   }
 
   revalidatePath("/mypage/inquiries");
@@ -61,9 +71,12 @@ export async function updateInquiry(
     return { ok: false, error: "카테고리를 선택해 주세요." };
   }
   if (title.length === 0) return { ok: false, error: "제목을 입력해 주세요." };
-  if (title.length > 100) return { ok: false, error: "제목은 100자 이내로 입력해 주세요." };
-  if (content.length === 0) return { ok: false, error: "문의 내용을 입력해 주세요." };
-  if (content.length > 2000) return { ok: false, error: "문의 내용은 2000자 이내로 입력해 주세요." };
+  if (title.length > 100)
+    return { ok: false, error: "제목은 100자 이내로 입력해 주세요." };
+  if (content.length === 0)
+    return { ok: false, error: "문의 내용을 입력해 주세요." };
+  if (content.length > 2000)
+    return { ok: false, error: "문의 내용은 2000자 이내로 입력해 주세요." };
 
   const supabase = await createClient();
 
@@ -82,10 +95,16 @@ export async function updateInquiry(
     .select("inquiry_id");
 
   if (error) {
-    return { ok: false, error: "문의 수정에 실패했습니다. 잠시 후 다시 시도해 주세요." };
+    return {
+      ok: false,
+      error: "문의 수정에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+    };
   }
   if (!data || data.length === 0) {
-    return { ok: false, error: "이미 답변이 완료된 문의는 수정할 수 없습니다." };
+    return {
+      ok: false,
+      error: "이미 답변이 완료된 문의는 수정할 수 없습니다.",
+    };
   }
 
   revalidatePath("/mypage/inquiries");
@@ -93,7 +112,9 @@ export async function updateInquiry(
   return { ok: true };
 }
 
-export async function deleteInquiry(inquiryId: string): Promise<MutateInquiryResult> {
+export async function deleteInquiry(
+  inquiryId: string,
+): Promise<MutateInquiryResult> {
   const supabase = await createClient();
 
   const {
@@ -110,10 +131,16 @@ export async function deleteInquiry(inquiryId: string): Promise<MutateInquiryRes
     .select("inquiry_id");
 
   if (error) {
-    return { ok: false, error: "문의 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요." };
+    return {
+      ok: false,
+      error: "문의 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+    };
   }
   if (!data || data.length === 0) {
-    return { ok: false, error: "이미 답변이 완료된 문의는 삭제할 수 없습니다." };
+    return {
+      ok: false,
+      error: "이미 답변이 완료된 문의는 삭제할 수 없습니다.",
+    };
   }
 
   revalidatePath("/mypage/inquiries");

@@ -60,7 +60,6 @@ export default function FaqSection() {
         자주 묻는 질문
       </h2>
 
-      {/* 카테고리 필터 */}
       <div className="mb-5 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
           <button
@@ -69,7 +68,7 @@ export default function FaqSection() {
             onClick={() => setFilter(f.value)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
               filter === f.value
-                ? "bg-violet-500 text-white"
+                ? "bg-primary-700 text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
@@ -85,10 +84,10 @@ export default function FaqSection() {
             className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
           >
             <details className="group">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-medium text-gray-900 transition-colors hover:bg-violet-50/60">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-medium text-gray-900 transition-colors hover:bg-primary-100">
                 <span>{faq.q}</span>
                 <svg
-                  className="h-5 w-5 shrink-0 text-violet-400 transition-transform duration-200 group-open:rotate-180"
+                  className="h-5 w-5 shrink-0 text-primary-600 transition-transform duration-200 group-open:rotate-180"
                   viewBox="0 0 20 20"
                   fill="none"
                   stroke="currentColor"
