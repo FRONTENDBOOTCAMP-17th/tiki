@@ -1,7 +1,7 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
-import { isAuthenticated } from "@/lib/auth";
+import { getHeaderProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { fetchCategories } from "@/lib/api/categories";
 import HeroSlider from "./_components/home/HeroSlider";
@@ -179,9 +179,9 @@ export default async function Home() {
 
   // 서로 의존성이 없는 조회(로그인 여부/이벤트 풀/카테고리)는 직렬로 기다리지 않고
   // 한 번에 병렬로 보내야 첫 응답까지의 시간(FCP/LCP)이 늘어지지 않는다.
-  const [loggedIn, { data: eventRows, error: eventError }, categories, bestReviews] =
+  const [profile, { data: eventRows, error: eventError }, categories, bestReviews] =
     await Promise.all([
-      isAuthenticated(),
+      getHeaderProfile(),
       supabase
         .from("event")
         .select("event_id, title, thumbnail, start_date, end_date, venue_name, created_at")
@@ -199,6 +199,7 @@ export default async function Home() {
     ]);
   if (eventError) console.error("[HOME] event pool query failed:", eventError);
 
+  const loggedIn = !!profile;
   const pool = eventRows ?? [];
   const topCategories = categories.slice(0, CATEGORY_SECTION_LIMIT);
   const featuredCategories = topCategories.slice(0, FEATURED_CATEGORY_SECTION_LIMIT);
@@ -300,7 +301,7 @@ export default async function Home() {
 
   return (
     <>
-      <Header loggedIn={loggedIn} />
+      <Header loggedIn={loggedIn} profile={profile} />
       <main className="flex-1 bg-white pb-20 min-[744px]:pb-0">
         <HeroSlider slides={heroSlides} />
         <div className="mx-auto w-full max-w-7xl">

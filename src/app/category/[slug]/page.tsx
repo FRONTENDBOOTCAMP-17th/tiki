@@ -10,7 +10,7 @@ import CategorySectionNav, {
   type CategorySection,
 } from "../_components/CategorySectionNav";
 import PosterSlider, { type PosterSlideItem } from "./PosterSlider";
-import { isAuthenticated } from "@/lib/auth";
+import { getHeaderProfile } from "@/lib/auth";
 import { fetchCategoryEvents } from "@/lib/api/categories";
 import { fetchRanking } from "@/lib/event/ranking";
 import { categories } from "../_categories";
@@ -31,11 +31,12 @@ export default async function CategoryDetailPage({
   if (!category) notFound();
 
   // 전체 공개 목록 + 최근 30일 예매 수량 기준 인기 랭킹을 병렬 조회
-  const [events, ranking, loggedIn] = await Promise.all([
+  const [events, ranking, profile] = await Promise.all([
     fetchCategoryEvents(category.slug),
     fetchRanking({ slug: category.slug, limit: 10 }),
-    isAuthenticated(),
+    getHeaderProfile(),
   ]);
+  const loggedIn = !!profile;
 
   const rankingCards: HomeEventCardItem[] = ranking.map((item) => ({
     eventId: item.eventId,
@@ -88,7 +89,7 @@ export default async function CategoryDetailPage({
 
   return (
     <>
-      <Header loggedIn={loggedIn} />
+      <Header loggedIn={loggedIn} profile={profile} />
       <main className="flex-1 bg-white pb-20 min-[744px]:pb-0">
         <PosterSlider items={sliderItems} />
 
