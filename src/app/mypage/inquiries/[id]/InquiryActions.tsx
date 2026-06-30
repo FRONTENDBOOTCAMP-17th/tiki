@@ -57,7 +57,6 @@ export default function InquiryActions({
     });
   }
 
-  // 수정 모드
   if (editing) {
     return (
       <form
@@ -76,7 +75,7 @@ export default function InquiryActions({
               id="category"
               name="category"
               defaultValue={category}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100"
+              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
             >
               {CATEGORY_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -99,7 +98,7 @@ export default function InquiryActions({
               type="text"
               maxLength={100}
               defaultValue={title}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100"
+              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
             />
           </div>
 
@@ -116,7 +115,7 @@ export default function InquiryActions({
               rows={6}
               maxLength={2000}
               defaultValue={content}
-              className="w-full resize-none rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100"
+              className="w-full resize-none rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
             />
           </div>
 
@@ -132,7 +131,7 @@ export default function InquiryActions({
             <button
               type="submit"
               disabled={isPending}
-              className="rounded-xl bg-violet-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-600 disabled:opacity-50"
+              className="rounded-xl bg-primary-700 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-800 disabled:opacity-50"
             >
               {isPending ? "수정 중..." : "수정 완료"}
             </button>
@@ -142,7 +141,6 @@ export default function InquiryActions({
     );
   }
 
-  // 기본: 수정/삭제 버튼
   return (
     <div className="mt-4 flex justify-end gap-2">
       <button
@@ -155,13 +153,13 @@ export default function InquiryActions({
       </button>
 
       {confirmDelete ? (
-        <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-1.5">
-          <span className="text-sm text-red-600">삭제할까요?</span>
+        <div className="flex items-center gap-2 rounded-xl bg-danger-100 px-3 py-1.5">
+          <span className="text-sm text-danger-700">삭제할까요?</span>
           <button
             type="button"
             onClick={handleDelete}
             disabled={isPending}
-            className="rounded-lg bg-red-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50"
+            className="rounded-lg bg-danger-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-danger-600 disabled:opacity-50"
           >
             {isPending ? "삭제 중..." : "삭제"}
           </button>
@@ -179,7 +177,7 @@ export default function InquiryActions({
           type="button"
           onClick={() => setConfirmDelete(true)}
           disabled={isPending}
-          className="rounded-xl border border-red-200 px-5 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-50 disabled:opacity-50"
+          className="rounded-xl border border-danger-300 px-5 py-2.5 text-sm font-medium text-danger-500 transition-colors hover:bg-danger-100 disabled:opacity-50"
         >
           삭제
         </button>

@@ -1,6 +1,14 @@
 "use client";
 
-import { LayoutGrid, Plus, BarChart2, Folder, Bell, LogOut } from "lucide-react";
+import {
+  LayoutGrid,
+  Plus,
+  BarChart2,
+  Folder,
+  Bell,
+  MessageCircle,
+  LogOut,
+} from "lucide-react";
 import SidebarMenuItem from "./SidebarMenuItem";
 import type { SidebarItem } from "./types";
 import { logout } from "@/app/action";
@@ -11,6 +19,7 @@ const ADMIN_MENU: SidebarItem[] = [
   { label: "회원 관리", href: "/admin/members", icon: BarChart2 },
   { label: "카테고리 관리", href: "/admin/categories", icon: Folder },
   { label: "알림 관리", href: "/admin/notifications", icon: Bell },
+  { label: "문의 관리", href: "/admin/inquiries", icon: MessageCircle },
 ];
 
 export default function AdminSidebar() {
@@ -33,7 +42,9 @@ export default function AdminSidebar() {
             A
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-gray-900">관리자</p>
+            <p className="truncate text-sm font-semibold text-gray-900">
+              관리자
+            </p>
             <p className="truncate text-xs text-gray-400">admin@tiki.com</p>
           </div>
         </div>

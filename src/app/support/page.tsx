@@ -30,7 +30,7 @@ export default function SupportPage() {
       <section id="contact" className="mt-12 scroll-mt-24">
         <h2 className="mb-4 text-lg font-semibold text-gray-900">문의하기</h2>
 
-        <div className="rounded-2xl bg-gradient-to-br from-violet-50 to-purple-50 p-6 sm:p-8">
+        <div className="rounded-2xl bg-gradient-to-br from-primary-100 to-secondary-100 p-6 sm:p-8">
           <p className="text-sm leading-relaxed text-gray-700">
             궁금한 점이 해결되지 않으셨나요? 1:1 문의를 남겨주시면 순차적으로
             답변드립니다. 답변은 마이페이지의 1:1 문의 내역에서 확인할 수
@@ -38,7 +38,7 @@ export default function SupportPage() {
           </p>
           <Link
             href="/mypage/inquiries"
-            className="mt-5 inline-flex items-center justify-center rounded-xl bg-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-600"
+            className="mt-5 inline-flex items-center justify-center rounded-xl bg-primary-700 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-800"
           >
             1:1 문의하기
           </Link>

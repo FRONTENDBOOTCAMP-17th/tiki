@@ -80,11 +80,11 @@ export default async function InquiriesPage() {
               <li key={it.inquiry_id}>
                 <Link
                   href={`/mypage/inquiries/${it.inquiry_id}`}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm transition-colors hover:bg-violet-50/50"
+                  className="flex items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm transition-colors hover:bg-primary-100"
                 >
                   <div className="min-w-0">
                     <div className="mb-1 flex items-center gap-2">
-                      <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-600">
+                      <span className="rounded-full bg-primary-200 px-2 py-0.5 text-xs font-medium text-primary-800">
                         {CATEGORY_LABEL[it.category] ?? "기타"}
                       </span>
                       <StatusBadge status={it.status} />
