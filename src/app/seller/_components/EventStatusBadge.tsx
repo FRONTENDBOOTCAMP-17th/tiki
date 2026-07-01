@@ -9,7 +9,7 @@ export default function EventStatusBadge({ status }: Props) {
       className={`rounded-md border px-2 py-0.5 text-xs font-medium ${
         open
           ? "border-primary-200 bg-primary-50 text-primary-700"
-          : "border-gray-200 bg-gray-50 text-gray-500"
+          : "border-gray-200 bg-gray-50 text-gray-500 dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-300"
       }`}
     >
       {status}

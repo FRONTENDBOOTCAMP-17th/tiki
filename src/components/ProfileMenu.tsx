@@ -111,13 +111,13 @@ export default function ProfileMenu({ profile }: { profile: HeaderProfile }) {
 
       {open && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="fixed inset-0 z-[60]" onClick={() => setOpen(false)} />
           <div
             ref={menuRef}
             role="menu"
             aria-label="내 메뉴"
             onKeyDown={handleTrapTab}
-            className="absolute right-0 z-50 mt-3 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 text-left shadow-xl dark:border-[#3c4043] dark:bg-[#2a2b2f]"
+            className="absolute right-0 z-[70] mt-3 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 text-left shadow-xl dark:border-[#3c4043] dark:bg-[#2a2b2f]"
           >
             {profile.name && (
               <p className="truncate px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-50">

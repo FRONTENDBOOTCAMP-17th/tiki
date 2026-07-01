@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ComponentPropsWithRef, type ReactNode } from "react";
-import { Search, LogIn } from "lucide-react";
+import { Search, LogIn, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { categoryItem } from "./Header.styles";
 import Logo from "@/components/Logo";
 import NotificationBell from "@/components/NotificationBell";
 import ProfileMenu from "@/components/ProfileMenu";
 import { SearchBarLink } from "@/components/SearchBar";
+import { useTheme } from "@/components/theme/ThemeProvider";
 import type { HeaderProfile } from "@/lib/auth";
 
 const categories = [
@@ -40,6 +41,24 @@ const FALLBACK_PROFILE: HeaderProfile = {
   role: "buyer",
 };
 
+function HeaderThemeToggle() {
+  const { isDark, toggleTheme } = useTheme();
+  const Icon = isDark ? Sun : Moon;
+
+  return (
+    <button
+      type="button"
+      aria-label={isDark ? "라이트모드로 보기" : "다크모드로 보기"}
+      title={isDark ? "라이트모드로 보기" : "다크모드로 보기"}
+      onClick={toggleTheme}
+      className="inline-flex h-9 items-center gap-1.5 rounded-full px-2.5 text-sm font-semibold text-white/90 transition hover:bg-white/15 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-primary-300 dark:text-gray-100 dark:hover:bg-[#34363a] dark:focus:ring-offset-[#242528] lg:px-3"
+    >
+      <Icon size={18} strokeWidth={2.15} aria-hidden />
+      <span className="hidden lg:inline">{isDark ? "라이트" : "다크"}</span>
+    </button>
+  );
+}
+
 export default function Header({
   loggedIn = false,
   profile,
@@ -55,7 +74,7 @@ export default function Header({
   return (
     <header
       className={cn(
-        "w-full bg-linear-to-r from-primary-300 to-secondary-300 transition-colors dark:from-[#242528] dark:to-[#242528]",
+        "relative z-50 w-full bg-linear-to-r from-primary-300 to-secondary-300 transition-colors dark:from-[#242528] dark:to-[#242528]",
         className,
       )}
       {...props}
@@ -78,25 +97,27 @@ export default function Header({
           <Search className="h-6 w-6" />
         </Link>
 
-        <div className="ml-4 hidden shrink-0 items-center gap-4 text-white min-[744px]:flex lg:ml-6">
+        <div className="ml-1 flex shrink-0 items-center gap-1 rounded-full bg-white/10 p-1 text-white ring-1 ring-white/15 backdrop-blur dark:bg-white/5 dark:ring-white/10 min-[744px]:ml-3 lg:ml-5">
+          <HeaderThemeToggle />
+
           {loggedIn ? (
-            <>
+            <div className="hidden items-center gap-1 min-[744px]:flex">
               <NotificationBell
                 size={20}
                 strokeWidth={2.25}
-                className="size-9 justify-center rounded-full bg-white/20 text-white transition hover:scale-105 hover:bg-white/40"
-                activeClassName="scale-105 bg-white/40"
+                className="size-9 justify-center rounded-full text-white/90 transition hover:bg-white/15 hover:text-white"
+                activeClassName="bg-white/15 text-white"
               />
               <ProfileMenu profile={profile ?? FALLBACK_PROFILE} />
-            </>
+            </div>
           ) : (
             <Link
               href="/login"
               aria-label="로그인"
-              className="flex items-center gap-1.5 text-white transition-colors hover:text-primary-600"
+              className="hidden h-9 items-center gap-1.5 rounded-full bg-white px-3.5 text-sm font-semibold text-primary-700 shadow-sm transition hover:bg-white/90 hover:text-primary-800 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-white min-[744px]:flex"
             >
               <LogIn size={20} strokeWidth={2.25} />
-              <span className="text-sm font-semibold">로그인</span>
+              <span>로그인</span>
             </Link>
           )}
         </div>

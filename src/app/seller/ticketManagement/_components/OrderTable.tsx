@@ -120,9 +120,9 @@ function SortHeader({
     <button
       type="button"
       onClick={() => onSort(sortKey)}
-      className={`flex w-full items-center gap-1.5 font-medium transition-colors hover:text-gray-800 ${
+      className={`flex w-full items-center gap-1.5 font-medium transition-colors hover:text-gray-800 dark:hover:text-gray-100 ${
         align === "right" ? "justify-end" : "justify-start"
-      } ${active ? "text-primary-700" : "text-gray-500"}`}
+      } ${active ? "text-primary-700 dark:text-gray-100" : "text-gray-500 dark:text-gray-400"}`}
     >
       <span>{label}</span>
       <Icon className={`h-3.5 w-3.5 ${active ? "" : "opacity-40"}`} />
@@ -314,7 +314,7 @@ export default function OrderTable({
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 statusTab === tab.label
                   ? "bg-primary-700 text-white"
-                  : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                  : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-300 dark:hover:bg-[#303134]"
               }`}
             >
               {tab.label}
@@ -346,16 +346,16 @@ export default function OrderTable({
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="이벤트 / 구매자 / 이메일 검색"
-              className="h-10 w-full rounded-lg border border-gray-200 pl-9 pr-4 text-sm outline-none focus:border-primary-500"
+              className="h-10 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-4 text-sm text-gray-900 outline-none focus:border-primary-500 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-100 dark:placeholder:text-gray-500"
             />
           </div>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white">
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-[#3c4043] dark:bg-[#2a2b2f]">
         <table className="w-full table-fixed text-sm">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs text-gray-500">
+            <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs text-gray-500 dark:border-[#3c4043] dark:bg-[#303134]">
               {ORDER_SORT_COLUMNS.map((column) => (
                 <th key={column.sortKey} className={column.className}>
                   <SortHeader
@@ -371,7 +371,7 @@ export default function OrderTable({
               <th className="w-12 px-4 py-3 font-medium" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-gray-50 dark:divide-[#3c4043]">
             {sorted.length === 0 ? (
               <tr>
                 <td colSpan={6} className="py-16 text-center text-gray-400">
@@ -383,23 +383,23 @@ export default function OrderTable({
                 <tr
                   key={order.order_id}
                   onClick={() => setReceipt(order)}
-                  className="cursor-pointer hover:bg-gray-50"
+                  className="cursor-pointer hover:bg-gray-50 dark:hover:bg-[#303134]"
                 >
-                  <td className="whitespace-nowrap px-4 py-3 text-gray-500">
+                  <td className="whitespace-nowrap px-4 py-3 text-gray-500 dark:text-gray-400">
                     {formatDate(order.created_at)}
                   </td>
-                  <td className="truncate px-4 py-3 font-medium text-gray-900">
+                  <td className="truncate px-4 py-3 font-medium text-gray-900 dark:text-gray-50">
                     {order.event_title}
                   </td>
                   <td className="px-4 py-3">
-                    <p className="truncate font-medium text-gray-900">
+                    <p className="truncate font-medium text-gray-900 dark:text-gray-50">
                       {order.buyer_name}
                     </p>
-                    <p className="hidden truncate text-xs text-gray-400 xl:block">
+                    <p className="hidden truncate text-xs text-gray-400 dark:text-gray-500 xl:block">
                       {order.buyer_email}
                     </p>
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold text-gray-900">
+                  <td className="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-50">
                     {order.total_price.toLocaleString()}원
                   </td>
                   <td className="px-4 py-3">
@@ -421,7 +421,7 @@ export default function OrderTable({
                             openMenu === order.order_id ? null : order.order_id,
                           )
                         }
-                        className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                        className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-[#34363a] dark:hover:text-gray-100"
                         aria-label="더보기"
                       >
                         <MoreHorizontal size={18} />
@@ -433,11 +433,11 @@ export default function OrderTable({
                             className="fixed inset-0 z-10"
                             onClick={() => setOpenMenu(null)}
                           />
-                          <div className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg">
+                          <div className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-[#3c4043] dark:bg-[#2a2b2f]">
                             <button
                               type="button"
                               onClick={() => copyEmail(order.buyer_email)}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-[#303134]"
                             >
                               <Copy size={15} />
                               이메일 복사
