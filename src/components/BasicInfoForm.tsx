@@ -28,7 +28,7 @@ export default function BasicInfoForm() {
 
   return (
     <div className='w-full max-w-190 space-y-4 md:min-w-90 md:px-0'>
-      <h2 className='flex flex-col text-4xl text-[#0f0f0f] font-bold leading-12 md:hidden'>
+      <h2 className='flex flex-col text-4xl text-[#0f0f0f] font-bold leading-12 md:hidden dark:text-gray-100'>
         <span>기본 정보를</span>
         <span>입력해주세요</span>
       </h2>
