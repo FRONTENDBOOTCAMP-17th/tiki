@@ -39,9 +39,9 @@ export default function HeroSlider({ slides }: { slides: EventCardItem[] }) {
   if (slides.length === 0) return null;
 
   return (
-    <section className="w-full bg-linear-to-b from-primary-100 via-secondary-100 to-white px-4 py-7 md:px-8 lg:px-16">
+    <section className="w-full px-4 py-7 md:px-8 lg:px-16">
       <div className="mx-auto w-full max-w-7xl">
-        <div className="relative h-80 w-full overflow-hidden rounded-2xl bg-mirage shadow-sm select-none md:h-96 lg:h-112">
+        <div className="relative h-80 w-full overflow-hidden rounded-2xl bg-mirage shadow-sm select-none md:h-96 lg:h-112 dark:bg-[#202124]">
           <div
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}

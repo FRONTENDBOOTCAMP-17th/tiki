@@ -20,12 +20,14 @@ export default function ResultCard({ item }: { item: SortItem }) {
         )}
       </div>
       <div className="flex flex-col gap-1 px-0.5 pt-2.5">
-        <h3 className="truncate text-sm font-semibold text-gray-900">
+        <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
           {item.name}
         </h3>
-        <p className="text-xs text-gray-500">{formatEventDate(item.date)}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          {formatEventDate(item.date)}
+        </p>
         {item.location && (
-          <span className="flex items-center gap-1 text-xs text-gray-400">
+          <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
             <MapPin className="h-3 w-3 shrink-0" />
             <span className="truncate">{item.location}</span>
           </span>

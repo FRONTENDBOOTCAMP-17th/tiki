@@ -36,7 +36,7 @@ function PosterCard({
       href={`/${item.eventId}`}
       className="group flex w-36 shrink-0 flex-col gap-2 transition-transform active:scale-95 md:w-44"
     >
-      <div className="relative aspect-3/4 w-full overflow-hidden rounded-xl bg-gray-100 shadow-sm transition-shadow group-hover:shadow-md">
+      <div className="relative aspect-3/4 w-full overflow-hidden rounded-xl bg-gray-100 shadow-sm transition-shadow group-hover:shadow-md dark:bg-[#34363a]">
         <div className="relative size-full transition-transform duration-300 group-hover:scale-105">
           <ThumbnailImage
             src={item.thumbnail}
@@ -52,14 +52,14 @@ function PosterCard({
         )}
       </div>
       <div className="flex flex-col gap-1">
-        <h4 className="truncate text-[15px] font-semibold text-gray-900 transition-colors group-hover:text-primary-700">
+        <h4 className="truncate text-[15px] font-semibold text-gray-900 transition-colors group-hover:text-primary-700 dark:text-gray-100 dark:group-hover:text-white">
           {item.title}
         </h4>
-        <p className="text-xs font-medium text-gray-500">
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
           {formatDateRange(item.startDate, item.endDate)}
         </p>
         {item.venueName && (
-          <p className="flex min-w-0 items-center gap-1 text-xs text-gray-400">
+          <p className="flex min-w-0 items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
             <MapPin className="size-3 shrink-0" />
             <span className="truncate">{item.venueName}</span>
           </p>

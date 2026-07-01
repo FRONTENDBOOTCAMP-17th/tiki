@@ -37,9 +37,9 @@ export default function PosterSlider({
   const duration = items.length * SECONDS_PER_CARD;
 
   return (
-    <section className="overflow-hidden py-6">
+    <section className="overflow-hidden py-6 dark:bg-[#202124]">
       {title && (
-        <h2 className="mb-4 px-4 text-lg font-bold tracking-tight text-gray-950 md:px-8 md:text-xl lg:px-16">
+        <h2 className="mb-4 px-4 text-lg font-bold tracking-tight text-gray-950 dark:text-gray-50 md:px-8 md:text-xl lg:px-16">
           {title}
         </h2>
       )}
@@ -77,13 +77,13 @@ export default function PosterSlider({
                 )}
               </div>
               <div className="flex flex-col gap-1">
-                <h3 className="line-clamp-2 text-[15px] font-semibold text-gray-900 transition-colors group-hover:text-primary-700">
+                <h3 className="line-clamp-2 text-[15px] font-semibold text-gray-900 transition-colors group-hover:text-primary-700 dark:text-gray-50 dark:group-hover:text-gray-200">
                   {item.title}
                 </h3>
-                <p className="truncate text-xs text-gray-500">
+                <p className="truncate text-xs text-gray-500 dark:text-gray-400">
                   {item.venueName}
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-gray-400 dark:text-gray-500">
                   {formatDate(item.startDate)}
                   {item.endDate ? ` ~ ${formatDate(item.endDate)}` : ""}
                 </p>

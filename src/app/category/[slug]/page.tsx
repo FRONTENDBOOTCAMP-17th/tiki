@@ -90,11 +90,11 @@ export default async function CategoryDetailPage({
   return (
     <>
       <Header loggedIn={loggedIn} profile={profile} />
-      <main className="flex-1 bg-white pb-20 min-[744px]:pb-0">
+      <main className="flex-1 bg-white pb-20 dark:bg-[#202124] min-[744px]:pb-0">
         <PosterSlider items={sliderItems} />
 
         <div className="mx-auto w-full max-w-7xl px-4 pt-2 md:px-8 lg:px-16">
-          <h1 className="text-center text-2xl font-bold tracking-tight text-gray-950">
+          <h1 className="text-center text-2xl font-bold tracking-tight text-gray-950 dark:text-gray-50">
             {category.name}
           </h1>
         </div>
@@ -114,7 +114,7 @@ export default async function CategoryDetailPage({
                     title="인기 랭킹"
                     events={rankingFilled}
                     showRank
-                    className="bg-white"
+                    className="bg-white dark:bg-[#202124]"
                   />
                 </div>
               )}
@@ -124,7 +124,7 @@ export default async function CategoryDetailPage({
                   <HorizontalCardSection
                     title="추천 공연"
                     events={recommended}
-                    className="bg-white"
+                    className="bg-white dark:bg-[#202124]"
                   />
                 </div>
               )}
@@ -134,7 +134,7 @@ export default async function CategoryDetailPage({
                   <HorizontalCardSection
                     title="신규 오픈"
                     events={newlyOpened}
-                    className="bg-white"
+                    className="bg-white dark:bg-[#202124]"
                   />
                 </div>
               )}
