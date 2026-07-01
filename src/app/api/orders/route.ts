@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 
 import { fail, success } from "@/lib/api/api-response";
-import { ORDER_STATUS } from "@/lib/constants/order-status";
+import { MAX_TICKETS_PER_ORDER, ORDER_STATUS } from "@/lib/constants/order-status";
 import { createClient } from "@/lib/supabase/server";
 
 const ALLOWED_CREATE_STATUSES = new Set<string>([ORDER_STATUS.ORDERED]);
@@ -28,6 +28,9 @@ export async function POST(req: NextRequest) {
     quantity < 1
   ) {
     return fail("invalid order payload", 400);
+  }
+  if (quantity > MAX_TICKETS_PER_ORDER) {
+    return fail(`한 번에 최대 ${MAX_TICKETS_PER_ORDER}매까지 구매할 수 있습니다.`, 400);
   }
   if (!ALLOWED_CREATE_STATUSES.has(status)) {
     return fail("invalid order status", 400);
