@@ -104,8 +104,15 @@ export default function PaymentForm({
     if (redirectErrorCode) {
       // 결제창에서 취소/실패하고 돌아온 경우, 주문을 ordered 상태로 방치하지 않고
       // 즉시 취소 처리해 예매목록/재고에 남지 않게 한다.
-      cancelReservation(orderId);
-      toast.error(searchParams.get("message") || "결제가 취소되었습니다.");
+      // useEffect는 async 불가이므로 async IIFE로 await + catch 처리한다.
+      (async () => {
+        try {
+          await cancelReservation(orderId);
+        } catch (e) {
+          console.error("[PAY] cancelReservation after redirect failed:", e);
+        }
+        toast.error(searchParams.get("message") || "결제가 취소되었습니다.");
+      })();
       return;
     }
 
