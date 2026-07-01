@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { Webhook } from "@portone/server-sdk";
 import { fail, success } from "@/lib/api/api-response";
+import { ORDER_STATUS, OrderStatus } from "@/lib/constants/order-status";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 // 결제 상태가 바뀔 때 포트원이 호출하는 웹훅.
@@ -22,17 +23,17 @@ export async function POST(req: NextRequest) {
   }
 
   let paymentId: string;
-  let status: "paid" | "failed";
+  let status: OrderStatus;
 
   if (webhook.type === "Transaction.Paid") {
     paymentId = webhook.data.paymentId;
-    status = "paid";
+    status = ORDER_STATUS.PAID;
   } else if (
     webhook.type === "Transaction.Failed" ||
     webhook.type === "Transaction.Cancelled"
   ) {
     paymentId = webhook.data.paymentId;
-    status = "failed";
+    status = ORDER_STATUS.FAILED;
   } else {
     return success({ skipped: true });
   }
@@ -42,7 +43,10 @@ export async function POST(req: NextRequest) {
     .update({ status })
     .eq("order_id", paymentId);
 
-  if (error) return fail(error.message, 500);
+  if (error) {
+    console.error("[PAY-03] webhook orders update failed:", error.message);
+    return fail("주문 상태 업데이트에 실패했습니다.", 500);
+  }
 
   return success({ status });
 }

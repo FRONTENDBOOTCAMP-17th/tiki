@@ -1,10 +1,10 @@
 import { NextRequest } from "next/server";
 
 import { fail, success } from "@/lib/api/api-response";
+import { MAX_TICKETS_PER_ORDER } from "@/lib/constants/order-status";
 import { createClient } from "@/lib/supabase/server";
 
 const FEE_RATE = 0.05;
-const MAX_SEATS_PER_ORDER = 8;
 
 interface SeatOrderRequestBody {
   eventId?: string;
@@ -28,8 +28,8 @@ export async function POST(req: NextRequest) {
     return fail("invalid order payload", 400);
   }
 
-  if (seatIds.length > MAX_SEATS_PER_ORDER) {
-    return fail(`한 번에 최대 ${MAX_SEATS_PER_ORDER}석까지 선택할 수 있습니다.`, 400);
+  if (seatIds.length > MAX_TICKETS_PER_ORDER) {
+    return fail(`한 번에 최대 ${MAX_TICKETS_PER_ORDER}석까지 선택할 수 있습니다.`, 400);
   }
 
   const supabase = await createClient();
@@ -80,6 +80,9 @@ export async function POST(req: NextRequest) {
     p_total_price: totalPrice,
   });
   if (error) {
+    if (error.message.includes("TOO_MANY_SEATS")) {
+      return fail(`한 번에 최대 ${MAX_TICKETS_PER_ORDER}석까지 선택할 수 있습니다.`, 400);
+    }
     if (error.message.includes("SEAT_TAKEN")) {
       return fail("이미 선택된 좌석이 있습니다. 다시 선택해주세요.", 409);
     }

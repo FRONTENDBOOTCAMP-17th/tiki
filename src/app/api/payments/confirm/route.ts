@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { fail, success } from "@/lib/api/api-response";
+import { ORDER_STATUS } from "@/lib/constants/order-status";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { portone } from "@/lib/portone/server";
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
   if (!order) return fail("order not found", 404);
 
   // 이미 승인 처리된 주문이면 재조회 없이 그대로 성공 응답
-  if (order.status === "paid") return success({ status: "paid" });
+  if (order.status === ORDER_STATUS.PAID) return success({ status: ORDER_STATUS.PAID });
 
   let payment;
   try {
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
 
   const { data: updatedOrder, error: updateError } = await admin
     .from("orders")
-    .update({ status: isPaid ? "paid" : "failed" })
+    .update({ status: isPaid ? ORDER_STATUS.PAID : ORDER_STATUS.FAILED })
     .eq("order_id", orderId)
     .select("order_id")
     .single();
@@ -64,5 +65,5 @@ export async function POST(req: NextRequest) {
     .update({ status: "sold", held_until: null })
     .eq("order_id", orderId);
 
-  return success({ status: "paid" });
+  return success({ status: ORDER_STATUS.PAID });
 }

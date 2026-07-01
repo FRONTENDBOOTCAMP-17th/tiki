@@ -1,9 +1,10 @@
 import { NextRequest } from "next/server";
 
 import { fail, success } from "@/lib/api/api-response";
+import { MAX_TICKETS_PER_ORDER, ORDER_STATUS } from "@/lib/constants/order-status";
 import { createClient } from "@/lib/supabase/server";
 
-const ORDER_STATUSES = new Set(["ordered"]);
+const ALLOWED_CREATE_STATUSES = new Set<string>([ORDER_STATUS.ORDERED]);
 const FEE_RATE = 0.05;
 
 interface OrderRequestBody {
@@ -16,7 +17,7 @@ interface OrderRequestBody {
 
 export async function POST(req: NextRequest) {
   const body = (await req.json()) as OrderRequestBody;
-  const { eventId, slotId, ticketGradeId, status = "ordered" } = body;
+  const { eventId, slotId, ticketGradeId, status = ORDER_STATUS.ORDERED } = body;
   const quantity = Number(body.quantity);
 
   if (
@@ -28,7 +29,10 @@ export async function POST(req: NextRequest) {
   ) {
     return fail("invalid order payload", 400);
   }
-  if (!ORDER_STATUSES.has(status)) {
+  if (quantity > MAX_TICKETS_PER_ORDER) {
+    return fail(`한 번에 최대 ${MAX_TICKETS_PER_ORDER}매까지 구매할 수 있습니다.`, 400);
+  }
+  if (!ALLOWED_CREATE_STATUSES.has(status)) {
     return fail("invalid order status", 400);
   }
 

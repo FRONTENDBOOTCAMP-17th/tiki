@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/cn';
+import { toKoreanJoinError } from '@/lib/auth/join-errors';
 import useSignup from '@/hooks/useSignup';
 import useToast from '@/hooks/useToast';
 import BasicInfoForm from './BasicInfoForm';
@@ -52,7 +53,7 @@ export default function SignupFormDesktopRenderer() {
         toast.success('가입 완료! 이메일 인증 후 로그인해주세요');
         router.push('/login');
       } else {
-        toast.error(data.message ?? '회원가입에 실패했습니다');
+        toast.error(toKoreanJoinError(data.message));
       }
     } catch {
       toast.error('오류가 발생했습니다. 다시 시도해주세요');
