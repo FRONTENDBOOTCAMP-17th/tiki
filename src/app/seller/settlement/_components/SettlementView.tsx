@@ -1,16 +1,37 @@
 "use client";
 
-import { useState } from "react";
-import { Banknote, ChevronDown, Wallet, Receipt, Pencil } from "lucide-react";
+import { useState, useTransition } from "react";
+import {
+  Banknote,
+  ChevronDown,
+  Wallet,
+  Receipt,
+  Pencil,
+  Send,
+} from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 import Button from "@/components/Button";
 import StatCard from "@/components/StatCard";
-import { isBooked, serviceFee, SERVICE_FEE_RATE } from "../../_lib/stats";
-import type { BankAccount, MonthSummary, SettlementOrder } from "../types";
+import {
+  isBooked,
+  serviceFee,
+  monthsInRange,
+  SERVICE_FEE_RATE,
+} from "../../_lib/stats";
+import type {
+  BankAccount,
+  MonthSummary,
+  SettlementOrder,
+  SettlementRequest,
+} from "../types";
+import { requestSettlement } from "../actions";
+import SettlementCharts from "./SettlementCharts";
 
 interface Props {
   orders: SettlementOrder[];
   bank: BankAccount | null;
+  requests: SettlementRequest[];
 }
 
 function summarize(orders: SettlementOrder[]): Omit<MonthSummary, "month"> {
@@ -25,12 +46,36 @@ function summarize(orders: SettlementOrder[]): Omit<MonthSummary, "month"> {
   };
 }
 
-export default function SettlementView({ orders, bank }: Props) {
+export default function SettlementView({ orders, bank, requests }: Props) {
   const months = [...new Set(orders.map((o) => o.month).filter(Boolean))].sort(
     (a, b) => b.localeCompare(a),
   );
 
   const [selected, setSelected] = useState(months[0] ?? "");
+  const [isPending, startTransition] = useTransition();
+
+  function handleRequest() {
+    startTransition(async () => {
+      const result = await requestSettlement();
+      if (result?.error) {
+        toast.error(result.error);
+      } else if (result?.success) {
+        toast.success(`${result.count}개월치 정산을 신청했습니다`);
+      }
+    });
+  }
+
+  // 월 → 정산 상태 (승인이 신청보다 우선)
+  const monthStatus = new Map<string, "approved" | "requested">();
+  for (const req of requests) {
+    for (const month of monthsInRange(req.period_start, req.period_end)) {
+      if (req.status === "approved") {
+        monthStatus.set(month, "approved");
+      } else if (monthStatus.get(month) !== "approved") {
+        monthStatus.set(month, "requested");
+      }
+    }
+  }
 
   const monthlyHistory: MonthSummary[] = months.map((month) => ({
     month,
@@ -60,6 +105,31 @@ export default function SettlementView({ orders, bank }: Props) {
 
   const thisMonth = new Date().toISOString().slice(0, 7);
   const formatMonth = (month: string) => month.replace("-", ". ");
+
+  // 차트 데이터: 선 그래프는 월 오름차순, 막대 그래프는 선택월 이벤트 상위 8개
+  const monthlyChart = [...monthlyHistory].reverse().map((row) => ({
+    label: row.month.slice(2).replace("-", "."), // "26.07"
+    gross: row.gross,
+    net: row.net,
+  }));
+  const eventChart = byEvent.slice(0, 8).map((event) => ({
+    title: event.title,
+    gross: event.gross,
+  }));
+
+  function monthStatusBadge(month: string) {
+    const status = monthStatus.get(month);
+    if (status === "approved") {
+      return { label: "정산완료", className: "bg-green-50 text-green-700" };
+    }
+    if (status === "requested") {
+      return { label: "승인대기", className: "bg-blue-50 text-blue-600" };
+    }
+    if (month >= thisMonth) {
+      return { label: "정산예정", className: "bg-amber-50 text-amber-600" };
+    }
+    return { label: "미신청", className: "bg-gray-100 text-gray-500" };
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 py-6">
@@ -110,10 +180,22 @@ export default function SettlementView({ orders, bank }: Props) {
         />
       </div>
 
+      <SettlementCharts monthly={monthlyChart} byEvent={eventChart} />
+
       <div className="grid gap-6 min-[1360px]:grid-cols-[minmax(640px,1.4fr)_minmax(300px,1fr)]">
         <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900 dark:text-gray-50">월별 정산 내역</h2>
+            <h2 className="font-semibold text-gray-900">월별 정산 내역</h2>
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={handleRequest}
+              loading={isPending}
+              disabled={isPending}
+            >
+              <Send size={14} />
+              정산 신청
+            </Button>
           </div>
           {monthlyHistory.length === 0 ? (
             <EmptyHint />
@@ -157,15 +239,16 @@ export default function SettlementView({ orders, bank }: Props) {
                         {row.net.toLocaleString()}원
                       </td>
                       <td className="hidden px-4 py-3 min-[1180px]:table-cell">
-                        <span
-                          className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${
-                            row.month < thisMonth
-                              ? "bg-green-50 text-green-700"
-                              : "bg-amber-50 text-amber-600"
-                          }`}
-                        >
-                          {row.month < thisMonth ? "정산 완료" : "정산 예정"}
-                        </span>
+                        {(() => {
+                          const badge = monthStatusBadge(row.month);
+                          return (
+                            <span
+                              className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${badge.className}`}
+                            >
+                              {badge.label}
+                            </span>
+                          );
+                        })()}
                       </td>
                     </tr>
                   ))}

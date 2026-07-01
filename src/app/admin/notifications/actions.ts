@@ -31,7 +31,9 @@ export async function sendNotification({
     if (!userIds || userIds.length === 0) return { error: "발송 대상 회원을 선택해주세요" };
     targetIds = userIds;
   } else {
-    let query = supabase.from("users").select("id");
+    // 관리자는 발송 대상에서 제외한다. (target "all"에 관리자가 섞여
+    // 본인이 보낸 공지를 스스로 수신하는 문제 방지)
+    let query = supabase.from("users").select("id").neq("role", "admin");
     if (target === "buyer") query = query.eq("role", "buyer");
     if (target === "seller") query = query.eq("role", "seller");
     const { data, error } = await query;

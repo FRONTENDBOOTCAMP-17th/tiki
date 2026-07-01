@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import SettlementView from "./_components/SettlementView";
-import type { BankAccount, SettlementOrder } from "./types";
+import type { BankAccount, SettlementOrder, SettlementRequest } from "./types";
 
 export default async function SettlementPage() {
   const user = await requireUser();
@@ -38,10 +38,19 @@ export default async function SettlementPage() {
     month: (order.created_at ?? "").slice(0, 7),
   }));
 
+  const { data: requestRows } = await supabase
+    .from("settlement_request")
+    .select(
+      "settlement_id, period_start, period_end, gross, fee, net, status, requested_at, approved_at",
+    )
+    .eq("seller_id", user.id)
+    .order("requested_at", { ascending: false });
+
   return (
     <SettlementView
       orders={orders}
       bank={(store ?? null) as BankAccount | null}
+      requests={(requestRows ?? []) as SettlementRequest[]}
     />
   );
 }
