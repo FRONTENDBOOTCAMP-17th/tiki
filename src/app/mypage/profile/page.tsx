@@ -36,8 +36,10 @@ export default async function ProfilePage() {
     : "-";
 
   return (
-    <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
-      <h1 className="mb-6 text-xl font-bold text-gray-900">프로필 정보</h1>
+    <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f] md:p-8">
+      <h1 className="mb-6 text-xl font-bold text-gray-900 dark:text-gray-50">
+        프로필 정보
+      </h1>
 
       <form action={updateProfile} className="flex flex-col gap-5">
         <div className="flex flex-col items-center gap-2">

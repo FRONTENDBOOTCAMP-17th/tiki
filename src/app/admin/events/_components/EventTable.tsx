@@ -123,7 +123,7 @@ export default function EventTable({
           placeholder="이벤트 제목 또는 카테고리 검색..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400"
+          className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-4 text-sm text-gray-900 outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-100 dark:placeholder:text-gray-500"
         />
       </form>
 
@@ -141,7 +141,7 @@ export default function EventTable({
                 className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-primary-500 text-white"
-                    : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                    : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-300 dark:hover:bg-[#303134]"
                 }`}
               >
                 {cat.category_name}
@@ -165,7 +165,7 @@ export default function EventTable({
                 className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-primary-500 text-white"
-                    : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                    : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-300 dark:hover:bg-[#303134]"
                 }`}
               >
                 {label}
@@ -176,11 +176,11 @@ export default function EventTable({
       </div>
 
       {/* 테이블 */}
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f]">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 text-left text-gray-500">
+              <tr className="border-b border-gray-100 text-left text-gray-500 dark:border-[#3c4043] dark:text-gray-400">
                 <th className="w-14 px-5 py-3.5 font-medium">ID</th>
                 <th className="px-5 py-3.5 font-medium">제목</th>
                 <th className="px-5 py-3.5 font-medium">카테고리</th>
@@ -190,7 +190,7 @@ export default function EventTable({
                 <th className="px-5 py-3.5 font-medium">관리</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-50 dark:divide-[#3c4043]">
               {events.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-16 text-center text-gray-400">
@@ -205,14 +205,25 @@ export default function EventTable({
                   const processing = isProcessing(event.event_id);
 
                   return (
-                    <tr key={event.event_id} className="hover:bg-gray-50/60">
+                    <tr
+                      key={event.event_id}
+                      className="hover:bg-gray-50/60 dark:hover:bg-[#303134]"
+                    >
                       <td className="px-5 py-4 text-gray-400">{event.index}</td>
                       <td className="max-w-60 px-5 py-4">
-                        <p className="truncate font-medium text-gray-900">{event.title}</p>
+                        <p className="truncate font-medium text-gray-900 dark:text-gray-50">
+                          {event.title}
+                        </p>
                       </td>
-                      <td className="px-5 py-4 text-gray-500">{event.categoryName}</td>
-                      <td className="px-5 py-4 text-gray-500">{event.start_date}</td>
-                      <td className="px-5 py-4 text-gray-600">{event.partyCount}개</td>
+                      <td className="px-5 py-4 text-gray-500 dark:text-gray-400">
+                        {event.categoryName}
+                      </td>
+                      <td className="px-5 py-4 text-gray-500 dark:text-gray-400">
+                        {event.start_date}
+                      </td>
+                      <td className="px-5 py-4 text-gray-600 dark:text-gray-300">
+                        {event.partyCount}개
+                      </td>
                       <td className="px-5 py-4">
                         <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${display.className}`}>
                           {display.label}
@@ -254,7 +265,7 @@ export default function EventTable({
             </tbody>
           </table>
         </div>
-        <div className="border-t border-gray-100 px-5 py-3 text-xs text-gray-400">
+        <div className="border-t border-gray-100 px-5 py-3 text-xs text-gray-400 dark:border-[#3c4043]">
           총 {events.length}개
         </div>
       </div>
