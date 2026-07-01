@@ -44,13 +44,19 @@ export default async function LoginPage({
           </div>
           <EmailAuthContainer emailSignin={signInWithEmail} next={safeNext} />
           <div className='text-center text-sm text-gray-500 md:hidden'>
-            <Link href='/find-id' className='hover:text-primary-700'>
+            <span
+              className='cursor-not-allowed text-gray-300'
+              title='준비 중입니다'
+            >
               아이디 찾기
-            </Link>
+            </span>
             <span className='mx-2 text-gray-300'>|</span>
-            <Link href='/find-password' className='hover:text-primary-700'>
+            <span
+              className='cursor-not-allowed text-gray-300'
+              title='준비 중입니다'
+            >
               비밀번호 찾기
-            </Link>
+            </span>
             <span className='mx-2 text-gray-300'>|</span>
             <Link href='/join' className='hover:text-primary-700'>
               회원가입

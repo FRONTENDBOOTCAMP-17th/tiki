@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
+import { ORDER_STATUS } from "@/lib/constants/order-status";
 import { createClient } from "@/lib/supabase/server";
 import PaymentForm from "./_components/PaymentForm";
 
@@ -33,7 +34,7 @@ export default async function PaymentPage({
   if (!order) notFound();
 
   // 이미 결제 완료/실패 처리된 주문이면 결제창을 다시 띄울 필요가 없음
-  if (order.status !== "ordered") notFound();
+  if (order.status !== ORDER_STATUS.ORDERED) notFound();
 
   const [{ data: event }, { data: slot }, { data: grade }, { data: profile }, { data: orderSeats }] =
     await Promise.all([

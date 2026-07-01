@@ -54,7 +54,14 @@ export async function POST(req: NextRequest) {
   });
 
   if (error) {
-    return fail(error.message);
+    console.error("[AUTH-JOIN] signUp error:", error.message);
+    if (
+      error.message.includes("User already registered") ||
+      error.message.includes("already been registered")
+    ) {
+      return fail("email_already_exists", 409);
+    }
+    return fail("signup_failed", 500);
   }
 
   return success(null, 'verification_email_sent');
