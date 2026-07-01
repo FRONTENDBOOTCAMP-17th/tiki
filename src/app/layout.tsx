@@ -3,11 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ToastProvider from "@/components/ToastProvider";
 import { Toaster } from "sonner";
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-import './globals.css';
-import ToastProvider from '@/components/ToastProvider';
-import FloatingActions from '@/components/FloatingActions';
+import FloatingActions from "@/components/FloatingActions";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tiki-final.vercel.app/"),
+  metadataBase: new URL("https://tiki-final.vercel.app"),
   title: {
     default: "TiKi - 티켓 마켓",
     template: "%s | TiKi",
