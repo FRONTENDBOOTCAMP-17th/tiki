@@ -26,15 +26,15 @@ function FilterButton({
     <button
       type="button"
       onClick={onClick} // 받은 핸들러 그대로 연결
-      className={`flex w-fit items-center font-medium gap-1.5 cursor-pointer border rounded-full px-4 py-1.5 text-sm transition-colors ${
+      className={`flex w-fit cursor-pointer items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
         active
-          ? "border-accent-500 bg-search-background-pink text-accent-800"
-          : "border-gray-200 text-gray-500 bg-white"
+          ? "border-accent-500 bg-search-background-pink text-accent-800 dark:border-gray-500 dark:bg-[#303134] dark:text-gray-100"
+          : "border-gray-200 bg-white text-gray-500 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-400 dark:hover:bg-[#303134]"
       }`}
     >
       <span>{label}</span>
       <Chevron
-        className={`w-5 h-5 ${active ? "" : "opacity-30"}`}
+        className={`h-5 w-5 ${active ? "" : "opacity-30"}`}
         aria-label={isAsc ? "오름차순" : "내림차순"}
       />
     </button>

@@ -1,16 +1,25 @@
 import { MapPin, Star, Clock, Calendar } from "lucide-react";
 
 import Header from "@/components/Header";
-import { isAuthenticated } from "@/lib/auth";
-import { getEventDetail, getSlots, getGrades, getReviews } from "@/lib/event/queries";
+import { getCurrentUser, getHeaderProfile } from "@/lib/auth";
+import {
+  getEventDetail,
+  getSlots,
+  getGrades,
+  getSeatLayout,
+  getReviews,
+  getWritableReviewSlots,
+} from "@/lib/event/queries";
 import EventImg from "@/components/event/EventImg";
 import Notice from "@/components/Notice";
 import BookingWidget from "@/components/event/BookingWidget";
-import ReviewSection from "@/components/event/ReviewSection";
 import EventIntro from "@/components/event/EventIntro";
 import { Slot } from "@/types/domain/event";
 import BackButton from "./_components/BackButton";
 import DetailTabs from "./_components/DetailTabs";
+import VenueMap from "./_components/VenueMap";
+import ReviewComposer from "./_components/reviews/ReviewComposer";
+import ReviewSection from "./_components/reviews/ReviewSection";
 
 // 최초 공연 날짜 (가장 이른 회차)
 function formatFirstDate(slots: Slot[]) {
@@ -32,18 +41,27 @@ function formatPeriod(start: string, end: string) {
 
 export default async function EventDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ eventId: string }>;
+  searchParams: Promise<{ reviewSort?: string; reviewDirection?: string }>;
 }) {
   const { eventId } = await params;
-  const loggedIn = await isAuthenticated();
+  const { reviewSort, reviewDirection } = await searchParams;
+  const [user, profile] = await Promise.all([
+    getCurrentUser(),
+    getHeaderProfile(),
+  ]);
+  const loggedIn = !!user;
 
   // 상세/회차/등급/리뷰를 서버에서 병렬 조회 (존재하지 않는 공연이면 event 가 null)
-  const [event, slots, grades, reviewData] = await Promise.all([
+  const [event, slots, grades, seatLayout, reviewData, writableSlots] = await Promise.all([
     getEventDetail(eventId),
     getSlots(eventId),
     getGrades(eventId),
+    getSeatLayout(eventId),
     getReviews(eventId),
+    getWritableReviewSlots(eventId),
   ]);
 
   const firstShowDate = formatFirstDate(slots);
@@ -58,9 +76,9 @@ export default async function EventDetailPage({
   return (
     <>
       {/* Header: 풀폭 (max-width 밖) */}
-      <Header loggedIn={loggedIn} />
+      <Header loggedIn={loggedIn} profile={profile} />
 
-      <main className="mx-auto w-full max-w-[1180px] px-4 pb-24 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-[1280px] px-4 pb-24 sm:px-6 lg:px-8">
         {/* 목록으로 */}
         <BackButton />
 
@@ -70,7 +88,7 @@ export default async function EventDetailPage({
           </p>
         ) : (
           <>
-            <div className="lg:grid lg:grid-cols-[minmax(0,700px)_340px] lg:items-start lg:gap-7 xl:grid-cols-[minmax(0,720px)_360px] xl:gap-8">
+            <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-12">
               <div className="min-w-0">
                 {/* 상단 포스터 : 블러 배경 + 원본 (썸네일은 images[0]) */}
                 <EventImg poster={event.images[0] ?? ""} title={event.title} />
@@ -111,11 +129,11 @@ export default async function EventDetailPage({
                         공연정보
                       </h2>
 
-                      <ul className="grid gap-3 rounded-lg border border-info-border p-4 sm:grid-cols-2">
+                      <ul className="grid gap-3 rounded-lg border border-info-border p-4 sm:grid-cols-2 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
                         <li className="flex items-center gap-3">
                           <Calendar className="h-5 w-5 shrink-0 text-info-accent" />
                           <div className="flex flex-col gap-0.5">
-                            <p className="text-xs font-medium text-info-accent">
+                            <p className="text-xs font-medium text-info-accent dark:text-gray-300">
                               공연기간
                             </p>
                             <p className="text-sm text-gray-900">
@@ -127,7 +145,7 @@ export default async function EventDetailPage({
                         <li className="flex items-center gap-3">
                           <Clock className="h-5 w-5 shrink-0 text-info-accent" />
                           <div className="flex flex-col gap-0.5">
-                            <p className="text-xs font-medium text-info-accent">
+                            <p className="text-xs font-medium text-info-accent dark:text-gray-300">
                               공연시간
                             </p>
                             <p className="text-sm text-gray-900">
@@ -143,7 +161,7 @@ export default async function EventDetailPage({
                         <li className="flex items-center gap-3">
                           <MapPin className="h-5 w-5 shrink-0 text-info-accent" />
                           <div className="flex flex-col gap-0.5">
-                            <p className="text-xs font-medium text-info-accent">
+                            <p className="text-xs font-medium text-info-accent dark:text-gray-300">
                               공연장
                             </p>
                             <p className="text-sm text-gray-900">
@@ -151,7 +169,6 @@ export default async function EventDetailPage({
                             </p>
                           </div>
                         </li>
-
                       </ul>
 
                       {event.description && (
@@ -175,11 +192,24 @@ export default async function EventDetailPage({
                       )}
                     </section>
 
-                    <section className="min-w-0">
+                    <section
+                      id="reviews"
+                      className="flex min-w-0 flex-col gap-5 scroll-mt-24"
+                    >
+                      {writableSlots.length > 0 && (
+                        <ReviewComposer
+                          eventId={eventId}
+                          slots={writableSlots}
+                        />
+                      )}
                       <ReviewSection
+                        eventId={eventId}
                         rating={averageRating}
                         reviewCount={reviewCount}
                         reviews={reviews}
+                        currentUserId={user?.id}
+                        sortKey={reviewSort}
+                        sortDirection={reviewDirection}
                       />
                     </section>
 
@@ -208,9 +238,10 @@ export default async function EventDetailPage({
                             </div>
                           </dl>
 
-                          <div className="flex min-h-48 items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 text-center text-sm font-medium text-gray-400">
-                            지도 API 등록 예정
-                          </div>
+                          <VenueMap
+                            address={event.venue.address}
+                            detailAddress={event.venue.detailAddress}
+                          />
                         </div>
                       </div>
                     </section>
@@ -223,7 +254,10 @@ export default async function EventDetailPage({
                 eventId={event.eventId}
                 slots={slots}
                 grades={grades}
+                seatLayout={seatLayout}
+                suspended={event.status === "비공개"}
                 soldOut={event.status === "closed"}
+                loggedIn={loggedIn}
               />
             </div>
           </>

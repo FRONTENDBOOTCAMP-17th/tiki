@@ -1,8 +1,8 @@
-import { getCurrentUser } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
 import { fail, success } from "@/lib/api/api-response";
+import { requireUserApi } from "@/lib/api/require-user";
 import { NextRequest } from "next/server";
 import { SELLER_EVENT_LIMITS } from "@/app/seller/_lib/limits";
+import { generateDefaultLayout } from "@/lib/seat/defaultLayout";
 
 interface EventCreateBody {
   title?: unknown;
@@ -76,19 +76,9 @@ function hasOverlap(slots: SlotInput[]) {
 export async function POST(req: NextRequest) {
   const body = (await req.json()) as EventCreateBody;
 
-  const user = await getCurrentUser();
-  if (!user) return fail("unauthorized", 401);
-
-  const supabase = await createClient();
-
-  const { count } = await supabase
-    .from("event")
-    .select("event_id", { count: "exact", head: true })
-    .eq("seller_id", user.id);
-
-  if ((count ?? 0) >= SELLER_EVENT_LIMITS.maxEventsPerSeller) {
-    return fail("event_limit_exceeded");
-  }
+  const ctx = await requireUserApi();
+  if ("error" in ctx) return ctx.error;
+  const { user, supabase } = ctx;
 
   const title = text(body.title);
   const categoryId = text(body.categoryId);
@@ -242,11 +232,14 @@ export async function POST(req: NextRequest) {
       created_at: now,
     }));
 
+  let insertedGrades: { grade_id: string; grade_name: string; quantity: number }[] = [];
   if (gradeRows.length > 0) {
-    const { error: gradeError } = await supabase
+    const { data: gradeData, error: gradeError } = await supabase
       .from("ticket_grade")
-      .insert(gradeRows);
+      .insert(gradeRows)
+      .select("grade_id, grade_name, quantity");
     if (gradeError) return fail("grade_create_failed", 500);
+    insertedGrades = gradeData ?? [];
   }
 
   const slotRows = slots.map((slot) => ({
@@ -260,6 +253,42 @@ export async function POST(req: NextRequest) {
 
   const { error: slotError } = await supabase.from("slot").insert(slotRows);
   if (slotError) return fail("slot_create_failed", 500);
+
+  // 기본 좌석 배치도를 자동 생성한다: 사각형 그리드를 채우고,
+  // 입력한 등급 순서대로(일반석을 다 채운 뒤 VIP석 순) 등급을 매긴다.
+  const orderedGrades = grades
+    .map((g) => insertedGrades.find((row) => row.grade_name === g.name))
+    .filter((row): row is { grade_id: string; grade_name: string; quantity: number } => !!row)
+    .map((row) => ({ gradeId: row.grade_id, quantity: row.quantity }));
+
+  if (orderedGrades.length > 0) {
+    const defaultLayout = generateDefaultLayout(orderedGrades);
+    const { data: layout, error: layoutError } = await supabase
+      .from("seat_layout")
+      .insert({
+        event_id: eventId,
+        stage_x: defaultLayout.stage.x,
+        stage_y: defaultLayout.stage.y,
+        stage_width: defaultLayout.stage.width,
+        stage_height: defaultLayout.stage.height,
+        created_at: now,
+        updated_at: now,
+      })
+      .select("layout_id")
+      .single();
+
+    if (!layoutError && layout && defaultLayout.seats.length > 0) {
+      await supabase.from("seat").insert(
+        defaultLayout.seats.map((seat) => ({
+          layout_id: layout.layout_id,
+          label: seat.label,
+          pos_x: seat.x,
+          pos_y: seat.y,
+          grade_id: seat.gradeId,
+        })),
+      );
+    }
+  }
 
   return success({ eventId }, "event_created");
 }

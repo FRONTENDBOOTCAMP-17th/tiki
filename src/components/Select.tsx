@@ -40,9 +40,11 @@ export default function Select({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-primary-500"
+        className="flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-primary-500 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-100 dark:hover:border-gray-500"
       >
-        <span className={`truncate ${selected ? "" : "text-gray-400"}`}>
+        <span
+          className={`truncate ${selected ? "" : "text-gray-400 dark:text-gray-500"}`}
+        >
           {selected ? selected.label : placeholder}
         </span>
         <ChevronDown
@@ -54,7 +56,7 @@ export default function Select({
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute z-20 mt-1 max-h-64 w-full min-w-max overflow-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg">
+          <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-[#3c4043] dark:bg-[#2a2b2f]">
             {options.map((opt) => {
               const active = opt.value === value;
               return (
@@ -65,8 +67,10 @@ export default function Select({
                     onChange(opt.value);
                     setOpen(false);
                   }}
-                  className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-gray-50 ${
-                    active ? "font-medium text-primary-700" : "text-gray-700"
+                  className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-gray-50 dark:hover:bg-[#303134] ${
+                    active
+                      ? "font-medium text-primary-700 dark:text-gray-50"
+                      : "text-gray-700 dark:text-gray-300"
                   }`}
                 >
                   <span className="truncate">{opt.label}</span>

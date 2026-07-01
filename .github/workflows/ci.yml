@@ -1,6 +1,8 @@
-# CI에 build + tsc 걸기 (재발 방지)
+# CI에 build + tsc + lint 걸기 (재발 방지)
 name: CI
 on:
+  push:
+    branches: [develop]
   pull_request:
     branches: [develop]
 jobs:
@@ -11,12 +13,14 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
       - run: npm ci
+      - run: npm run lint
       - run: npx tsc --noEmit
       - run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_KAKAO_MAP_APP_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_APP_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_PORTONE_STORE_ID: ${{ secrets.NEXT_PUBLIC_PORTONE_STORE_ID }}
           NEXT_PUBLIC_PORTONE_CHANNEL_KEY: ${{ secrets.NEXT_PUBLIC_PORTONE_CHANNEL_KEY }}

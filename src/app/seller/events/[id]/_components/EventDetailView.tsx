@@ -12,6 +12,7 @@ import {
   Ticket,
   ChevronLeft,
   ChevronRight,
+  LayoutGrid,
 } from "lucide-react";
 import Button from "@/components/Button";
 import Dialog from "@/components/modal/Dialog";
@@ -74,7 +75,7 @@ export default function EventDetailView({
     <div className="mx-auto max-w-4xl space-y-6 py-6">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">{event.title}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">{event.title}</h1>
           <EventStatusBadge status={event.status} />
         </div>
 
@@ -87,6 +88,14 @@ export default function EventDetailView({
           </Link>
           <Button
             size="sm"
+            variant="outlinePrimary"
+            onClick={() => router.push(`/seller/events/${event.event_id}/seat-layout`)}
+          >
+            <LayoutGrid className="h-4 w-4" />
+            좌석 배치도
+          </Button>
+          <Button
+            size="sm"
             onClick={() => router.push(`/seller/events/${event.event_id}/edit`)}
           >
             <Pencil className="h-4 w-4" />
@@ -96,7 +105,7 @@ export default function EventDetailView({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-        <div className="relative h-60 overflow-hidden rounded-2xl bg-gray-100">
+        <div className="relative h-60 overflow-hidden rounded-2xl bg-gray-100 dark:bg-[#303134]">
           {event.thumbnail ? (
             <Image
               src={event.thumbnail}
@@ -113,7 +122,7 @@ export default function EventDetailView({
         </div>
 
         <div className="space-y-4">
-          <section className="rounded-2xl border border-gray-200 bg-white p-5">
+          <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
             <div className="grid grid-cols-3 gap-3">
               <Stat
                 label="예매"
@@ -131,12 +140,12 @@ export default function EventDetailView({
 
             <div className="mt-5">
               <div className="mb-1.5 flex items-center justify-between text-xs">
-                <span className="text-gray-500">예매율</span>
-                <span className="font-semibold text-gray-700">
+                <span className="text-gray-500 dark:text-gray-400">예매율</span>
+                <span className="font-semibold text-gray-700 dark:text-gray-200">
                   {occupancy}% · {stats.totalOrders}/{capacity}석
                 </span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+              <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-[#3c4043]">
                 <div
                   className="h-full rounded-full bg-primary-500"
                   style={{ width: `${occupancy}%` }}
@@ -145,7 +154,7 @@ export default function EventDetailView({
             </div>
           </section>
 
-          <section className="space-y-2 rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-600">
+          <section className="space-y-2 rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-600 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-300">
             <div className="flex items-center gap-2">
               <MapPin size={15} className="text-gray-400" />
               {event.venue_name} · {event.venue_address}
@@ -175,8 +184,8 @@ export default function EventDetailView({
       />
 
       {images.length > 0 && (
-        <section className="rounded-2xl border border-gray-200 bg-white p-5">
-          <h2 className="mb-4 font-semibold text-gray-900">이미지</h2>
+        <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+          <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-50">이미지</h2>
           <div className="relative">
             <div
               ref={scrollRef}
@@ -185,7 +194,7 @@ export default function EventDetailView({
               {images.map((img) => (
                 <div
                   key={img.image_id}
-                  className="relative h-40 w-64 shrink-0 overflow-hidden rounded-xl bg-gray-100"
+                  className="relative h-40 w-64 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-[#303134]"
                 >
                   <Image
                     src={img.url}
@@ -204,7 +213,7 @@ export default function EventDetailView({
                   type="button"
                   onClick={() => scrollByDir(-1)}
                   aria-label="이전 이미지"
-                  className="absolute left-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow ring-1 ring-gray-200 hover:bg-white"
+                  className="absolute left-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow ring-1 ring-gray-200 hover:bg-white dark:bg-[#2a2b2f]/90 dark:text-gray-100 dark:ring-[#3c4043] dark:hover:bg-[#34363a]"
                 >
                   <ChevronLeft size={18} />
                 </button>
@@ -212,7 +221,7 @@ export default function EventDetailView({
                   type="button"
                   onClick={() => scrollByDir(1)}
                   aria-label="다음 이미지"
-                  className="absolute right-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow ring-1 ring-gray-200 hover:bg-white"
+                  className="absolute right-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow ring-1 ring-gray-200 hover:bg-white dark:bg-[#2a2b2f]/90 dark:text-gray-100 dark:ring-[#3c4043] dark:hover:bg-[#34363a]"
                 >
                   <ChevronRight size={18} />
                 </button>
@@ -223,27 +232,27 @@ export default function EventDetailView({
       )}
 
       {event.description && (
-        <section className="rounded-2xl border border-gray-200 bg-white p-5">
-          <h2 className="mb-2 font-semibold text-gray-900">소개</h2>
-          <p className="whitespace-pre-line text-sm text-gray-600">
+        <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+          <h2 className="mb-2 font-semibold text-gray-900 dark:text-gray-50">소개</h2>
+          <p className="whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">
             {event.description}
           </p>
         </section>
       )}
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-5">
-        <h2 className="mb-4 font-semibold text-gray-900">회차</h2>
+      <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+        <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-50">회차</h2>
         {slots.length === 0 ? (
           <p className="text-sm text-gray-400">등록된 회차가 없습니다</p>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 dark:divide-[#3c4043]">
             {slots.map((s) => (
               <div
                 key={s.slot_id}
                 className="flex items-center justify-between py-3 text-sm"
               >
-                <span className="font-medium text-gray-900">{s.date}</span>
-                <span className="text-gray-600">
+                <span className="font-medium text-gray-900 dark:text-gray-50">{s.date}</span>
+                <span className="text-gray-600 dark:text-gray-300">
                   {s.start_time?.slice(0, 5)} ~ {s.end_time?.slice(0, 5)}
                 </span>
               </div>
@@ -252,21 +261,21 @@ export default function EventDetailView({
         )}
       </section>
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-5">
-        <h2 className="mb-4 font-semibold text-gray-900">티켓 등급</h2>
+      <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+        <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-50">티켓 등급</h2>
         {grades.length === 0 ? (
           <p className="text-sm text-gray-400">등록된 등급이 없습니다</p>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 dark:divide-[#3c4043]">
             {grades.map((g) => (
               <div
                 key={g.grade_id}
                 className="flex items-center justify-between py-3"
               >
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
                   {g.grade_name}
                 </span>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-300">
                   {g.price.toLocaleString()}원 · {g.quantity}석
                 </span>
               </div>
@@ -290,8 +299,8 @@ export default function EventDetailView({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="mt-1 text-lg font-bold text-gray-900">{value}</p>
+      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+      <p className="mt-1 text-lg font-bold text-gray-900 dark:text-gray-50">{value}</p>
     </div>
   );
 }

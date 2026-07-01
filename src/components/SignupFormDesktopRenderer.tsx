@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/cn';
+import { toKoreanJoinError } from '@/lib/auth/join-errors';
 import useSignup from '@/hooks/useSignup';
 import useToast from '@/hooks/useToast';
 import BasicInfoForm from './BasicInfoForm';
@@ -52,7 +53,7 @@ export default function SignupFormDesktopRenderer() {
         toast.success('가입 완료! 이메일 인증 후 로그인해주세요');
         router.push('/login');
       } else {
-        toast.error(data.message ?? '회원가입에 실패했습니다');
+        toast.error(toKoreanJoinError(data.message));
       }
     } catch {
       toast.error('오류가 발생했습니다. 다시 시도해주세요');
@@ -68,14 +69,14 @@ export default function SignupFormDesktopRenderer() {
         onSubmit={(e) => { e.preventDefault(); submitForm(); }}
         noValidate
       >
-        <div className='flex w-full rounded-lg overflow-hidden border border-primary-300'>
+        <div className='flex w-full rounded-lg overflow-hidden border border-primary-300 dark:border-[#3c4043]'>
           <button
             type='button'
             className={cn(
               'flex-1 py-3 font-semibold text-base transition-colors',
               signupData.role === 'buyer'
                 ? 'bg-primary-700 text-white'
-                : 'text-primary-700 hover:bg-primary-100',
+                : 'text-primary-700 hover:bg-primary-100 dark:text-primary-300 dark:hover:bg-[#34363a]',
             )}
             onClick={() => setRole('buyer')}
           >
@@ -87,7 +88,7 @@ export default function SignupFormDesktopRenderer() {
               'flex-1 py-3 font-semibold text-base transition-colors',
               signupData.role === 'seller'
                 ? 'bg-primary-700 text-white'
-                : 'text-primary-700 hover:bg-primary-100',
+                : 'text-primary-700 hover:bg-primary-100 dark:text-primary-300 dark:hover:bg-[#34363a]',
             )}
             onClick={() => setRole('seller')}
           >
@@ -105,11 +106,11 @@ export default function SignupFormDesktopRenderer() {
           >
             {signupData.role === 'buyer' ? '구매자로 가입하기' : '판매자로 가입하기'}
           </Button>
-          <p className='text-center text-sm text-gray-500'>
+          <p className='text-center text-sm text-gray-500 dark:text-gray-400'>
             이미 계정이 있으신가요?{' '}
             <Link
               href='/login'
-              className='text-primary-700 font-medium underline'
+              className='text-primary-700 font-medium underline dark:text-primary-400'
             >
               로그인하기
             </Link>

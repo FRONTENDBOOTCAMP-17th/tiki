@@ -15,6 +15,7 @@ export interface Reservation {
   place: string;
   orderNo: string;
   price: number;
+  isEnded: boolean;
 }
 
 const STATUS_STYLE: Record<Reservation["status"], string> = {

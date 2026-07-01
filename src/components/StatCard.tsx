@@ -21,8 +21,8 @@ export default function StatCard({
   className,
 }: StatCardProps) {
   const cardClassName = cn(
-    "flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition-colors",
-    href && "hover:border-primary-300 hover:shadow-sm",
+    "flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition-colors dark:border-[#3c4043] dark:bg-[#2a2b2f]",
+    href && "hover:border-primary-300 hover:shadow-sm dark:hover:border-gray-500",
     className,
   );
 
@@ -32,8 +32,10 @@ export default function StatCard({
         <Icon size={20} />
       </div>
       <div className="min-w-0">
-        <p className="text-xs text-gray-500">{label}</p>
-        <p className="truncate text-lg font-bold text-gray-900">{value}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+        <p className="truncate text-lg font-bold text-gray-900 dark:text-gray-50">
+          {value}
+        </p>
       </div>
     </>
   );

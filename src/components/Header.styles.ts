@@ -5,8 +5,9 @@ export const categoryItem = cva(
   {
     variants: {
       active: {
-        true: "font-semibold text-primary-800",
-        false: "text-primary-600 hover:text-primary-800",
+        true: "font-semibold text-primary-800 dark:text-white",
+        false:
+          "text-primary-600 hover:text-primary-800 dark:text-gray-300 dark:hover:text-white",
       },
     },
     defaultVariants: {

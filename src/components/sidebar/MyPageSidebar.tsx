@@ -7,6 +7,8 @@ import {
   Settings,
   LogOut,
   CalendarCheck,
+  Store,
+  ShieldCheck,
 } from "lucide-react";
 import Image from "next/image";
 import SidebarMenuItem from "./SidebarMenuItem";
@@ -24,6 +26,7 @@ const MY_MENU: SidebarItem[] = [
 const ROLE_LABEL: Record<string, string> = {
   buyer: "구매자",
   seller: "판매자",
+  admin: "관리자",
 };
 
 interface Props {
@@ -42,7 +45,7 @@ export default function MyPageSidebar({
   const roleLabel = ROLE_LABEL[role] ?? "구매자";
 
   return (
-    <aside className="flex h-full w-full flex-col rounded-l-2xl border border-gray-100 bg-white p-4 shadow-sm">
+    <aside className="flex h-full w-full flex-col rounded-l-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-[#3c4043] dark:bg-[#242528]">
       <div className="flex flex-col items-center gap-2 pb-4">
         <div className="relative size-16 overflow-hidden rounded-full bg-gradient-to-br from-primary-300 to-secondary-300">
           {avatarUrl && (
@@ -55,7 +58,9 @@ export default function MyPageSidebar({
             />
           )}
         </div>
-        <p className="text-lg font-bold text-gray-900">{name}님</p>
+        <p className="text-lg font-bold text-gray-900 dark:text-gray-50">
+          {name}님
+        </p>
         <p className="text-sm text-gray-400">{email}</p>
         <span className="rounded-full bg-primary-100 px-3 py-0.5 text-xs font-medium text-primary-800">
           {roleLabel}
@@ -71,10 +76,33 @@ export default function MyPageSidebar({
         ))}
       </nav>
 
-      <form action={logout}>
+      {(role === "seller" || role === "admin") && (
+        <>
+          <div className="my-3 border-t border-gray-100 dark:border-[#3c4043]" />
+          {role === "seller" && (
+            <SidebarMenuItem
+              label="판매자 페이지"
+              href="/seller"
+              icon={Store}
+            />
+          )}
+          {role === "admin" && (
+            <SidebarMenuItem
+              label="관리자 페이지"
+              href="/admin"
+              icon={ShieldCheck}
+            />
+          )}
+        </>
+      )}
+
+      <form
+        action={logout}
+        className="mt-auto border-t border-gray-100 pt-3 dark:border-[#3c4043]"
+      >
         <button
           type="submit"
-          className="mt-1 flex items-center gap-2 px-3 py-2 text-sm font-medium text-danger-500 hover:text-danger-600"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-danger-500 transition-colors hover:bg-gray-50 hover:text-danger-600 dark:hover:bg-[#303134]"
         >
           <LogOut size={18} />
           로그아웃

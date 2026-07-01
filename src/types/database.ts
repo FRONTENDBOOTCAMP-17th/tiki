@@ -144,6 +144,52 @@ export type Database = {
           },
         ]
       }
+      order_seat: {
+        Row: {
+          held_until: string | null
+          order_id: string
+          seat_id: string
+          slot_id: string
+          status: string
+        }
+        Insert: {
+          held_until?: string | null
+          order_id: string
+          seat_id: string
+          slot_id: string
+          status?: string
+        }
+        Update: {
+          held_until?: string | null
+          order_id?: string
+          seat_id?: string
+          slot_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_seat_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["order_id"]
+          },
+          {
+            foreignKeyName: "order_seat_seat_id_fkey"
+            columns: ["seat_id"]
+            isOneToOne: false
+            referencedRelation: "seat"
+            referencedColumns: ["seat_id"]
+          },
+          {
+            foreignKeyName: "order_seat_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "slot"
+            referencedColumns: ["slot_id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           created_at: string | null
@@ -179,6 +225,92 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      seat: {
+        Row: {
+          grade_id: string | null
+          group_name: string | null
+          label: string
+          layout_id: string
+          pos_x: number
+          pos_y: number
+          seat_id: string
+        }
+        Insert: {
+          grade_id?: string | null
+          group_name?: string | null
+          label: string
+          layout_id: string
+          pos_x: number
+          pos_y: number
+          seat_id?: string
+        }
+        Update: {
+          grade_id?: string | null
+          group_name?: string | null
+          label?: string
+          layout_id?: string
+          pos_x?: number
+          pos_y?: number
+          seat_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seat_grade_id_fkey"
+            columns: ["grade_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_grade"
+            referencedColumns: ["grade_id"]
+          },
+          {
+            foreignKeyName: "seat_layout_id_fkey"
+            columns: ["layout_id"]
+            isOneToOne: false
+            referencedRelation: "seat_layout"
+            referencedColumns: ["layout_id"]
+          },
+        ]
+      }
+      seat_layout: {
+        Row: {
+          created_at: string
+          event_id: string
+          layout_id: string
+          stage_height: number
+          stage_width: number
+          stage_x: number
+          stage_y: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          layout_id?: string
+          stage_height?: number
+          stage_width?: number
+          stage_x?: number
+          stage_y?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          layout_id?: string
+          stage_height?: number
+          stage_width?: number
+          stage_x?: number
+          stage_y?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seat_layout_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "event"
+            referencedColumns: ["event_id"]
+          },
+        ]
       }
       seller_profiles: {
         Row: {
@@ -258,6 +390,53 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: true
             referencedRelation: "seller_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      settlement_request: {
+        Row: {
+          settlement_id: string
+          seller_id: string
+          period_start: string
+          period_end: string
+          gross: number
+          fee: number
+          net: number
+          status: string
+          requested_at: string
+          approved_at: string | null
+        }
+        Insert: {
+          settlement_id?: string
+          seller_id: string
+          period_start: string
+          period_end: string
+          gross?: number
+          fee?: number
+          net?: number
+          status?: string
+          requested_at?: string
+          approved_at?: string | null
+        }
+        Update: {
+          settlement_id?: string
+          seller_id?: string
+          period_start?: string
+          period_end?: string
+          gross?: number
+          fee?: number
+          net?: number
+          status?: string
+          requested_at?: string
+          approved_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settlement_request_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]

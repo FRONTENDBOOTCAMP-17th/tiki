@@ -1,5 +1,98 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --app-bg: #ffffff;
+  --app-surface: #ffffff;
+  --app-surface-muted: #f9fafb;
+  --app-text: #111827;
+  --app-text-muted: #6b7280;
+  --app-border: #e5e7eb;
+}
+
+.dark {
+  --app-bg: #202124;
+  --app-surface: #2a2b2f;
+  --app-surface-muted: #303134;
+  --app-text: #f1f3f4;
+  --app-text-muted: #bdc1c6;
+  --app-border: #3c4043;
+}
+
+body {
+  background: var(--app-bg);
+  color: var(--app-text);
+}
+
+.dark :where(.bg-white) {
+  background-color: var(--app-surface);
+}
+
+.dark :where(.bg-gray-50) {
+  background-color: var(--app-surface-muted);
+}
+
+.dark :where(.bg-gray-100) {
+  background-color: #303134;
+}
+
+.dark :where(.bg-gray-200) {
+  background-color: #3c4043;
+}
+
+.dark :where(.bg-whisper, .bg-search-background-pink) {
+  background-color: var(--app-surface);
+}
+
+.dark [class*="bg-[#fafafb]"] {
+  background-color: var(--app-bg);
+}
+
+.dark :where(.text-gray-950, .text-gray-900, .text-gray-800) {
+  color: var(--app-text);
+}
+
+.dark :where(.text-gray-700, .text-gray-600) {
+  color: #d1d5db;
+}
+
+.dark :where(.text-gray-500, .text-gray-400) {
+  color: var(--app-text-muted);
+}
+
+.dark :where(.text-black, .text-mirage) {
+  color: var(--app-text);
+}
+
+.dark [class*="text-[#0f0f0f]"] {
+  color: var(--app-text);
+}
+
+.dark :where(.border-gray-50, .border-gray-100, .border-gray-200, .border-gray-300) {
+  border-color: var(--app-border);
+}
+
+.dark :where(.divide-gray-100, .divide-gray-200) > :not(:last-child) {
+  border-color: var(--app-border);
+}
+
+.dark :where(.shadow-sm, .shadow-md, .shadow-lg) {
+  --tw-shadow-color: rgba(0, 0, 0, 0.35);
+}
+
+.dark :where(.hover\:bg-gray-50:hover, .hover\:bg-gray-100:hover, .hover\:bg-primary-50:hover) {
+  background-color: #303134;
+}
+
+.dark :where(.hover\:border-primary-300:hover) {
+  border-color: #6b7280;
+}
+
+.dark :where(.placeholder\:text-gray-400::placeholder) {
+  color: #6b7280;
+}
+
 @theme {
   --color-primary: #cdb4db;
 
@@ -48,6 +141,18 @@
   --color-danger-700: #b9334e;
   --color-danger-800: #92253c;
   --color-danger-900: #661828;
+
+  --color-warning: #f5a623;
+  
+  --color-warning-100: #fff8eb;
+  --color-warning-200: #fdecc8;
+  --color-warning-300: #fbdca0;
+  --color-warning-400: #f8c560;
+  --color-warning-500: #f5a623;
+  --color-warning-600: #dd8e10;
+  --color-warning-700: #b86f0c;
+  --color-warning-800: #92560f;
+  --color-warning-900: #6b3f0e;
 
   /* Footer color */
   --color-mirage: #1a1f36;
@@ -220,5 +325,15 @@
     to {
       opacity: 0;
     }
+  }
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  [role="tab"],
+  label[for],
+  summary {
+    cursor: pointer;
   }
 }

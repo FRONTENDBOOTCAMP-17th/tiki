@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
+import { ORDER_STATUS } from "@/lib/constants/order-status";
 import { createClient } from "@/lib/supabase/server";
 import PaymentForm from "./_components/PaymentForm";
 
@@ -17,7 +18,7 @@ export default async function PaymentPage({
   const { orderId } = await params;
   if (!UUID_RE.test(orderId)) notFound();
 
-  const user = await requireUser();
+  const user = await requireUser(`/payment/${orderId}`);
   const supabase = await createClient();
 
   // 본인 주문만 결제 페이지에 접근 가능 (order_id + user_id 동시 확인)
@@ -33,9 +34,9 @@ export default async function PaymentPage({
   if (!order) notFound();
 
   // 이미 결제 완료/실패 처리된 주문이면 결제창을 다시 띄울 필요가 없음
-  if (order.status !== "ordered") notFound();
+  if (order.status !== ORDER_STATUS.ORDERED) notFound();
 
-  const [{ data: event }, { data: slot }, { data: grade }, { data: profile }] =
+  const [{ data: event }, { data: slot }, { data: grade }, { data: profile }, { data: orderSeats }] =
     await Promise.all([
       supabase
         .from("event")
@@ -54,20 +55,34 @@ export default async function PaymentPage({
         .single(),
       supabase
         .from("users")
-        .select("name, phone, email")
+        .select("name, phone, email, avatar_url, role")
         .eq("id", user.id)
         .single(),
+      supabase
+        .from("order_seat")
+        .select("seat(label)")
+        .eq("order_id", order.order_id),
     ]);
 
   if (!event || !slot || !grade) notFound();
 
   const subtotal = grade.price * order.quantity;
   const fee = Math.round(subtotal * SERVICE_FEE_RATE);
+  const seatLabels = (orderSeats ?? [])
+    .flatMap((row) => (Array.isArray(row.seat) ? row.seat : [row.seat]))
+    .map((seat) => seat?.label)
+    .filter((label): label is string => !!label)
+    .sort();
 
   return (
     <PaymentForm
       orderId={order.order_id}
       totalAmount={order.total_price}
+      headerProfile={{
+        name: profile?.name ?? "",
+        avatarUrl: profile?.avatar_url ?? null,
+        role: profile?.role ?? "buyer",
+      }}
       booking={{
         eventTitle: event.title,
         thumbnail: event.thumbnail,
@@ -78,6 +93,7 @@ export default async function PaymentPage({
         quantity: order.quantity,
         subtotal,
         fee,
+        seatLabels: seatLabels.length > 0 ? seatLabels : undefined,
       }}
       buyerDefaults={{
         name: profile?.name ?? "",

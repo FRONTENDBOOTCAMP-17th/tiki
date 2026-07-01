@@ -2,117 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ComponentPropsWithRef } from "react";
+import { ComponentPropsWithRef, type ReactNode } from "react";
+import { Search, LogIn, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/cn";
-import Button from "@/components/Button";
 import { categoryItem } from "./Header.styles";
 import Logo from "@/components/Logo";
 import NotificationBell from "@/components/NotificationBell";
-
-function SearchIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-      />
-    </svg>
-  );
-}
-
-function TagIcon() {
-  return (
-    <svg
-      width="24"
-      height="24"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6 6h.008v.008H6V6Z"
-      />
-    </svg>
-  );
-}
-
-function CalendarIcon() {
-  return (
-    <svg
-      width="24"
-      height="24"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-      />
-    </svg>
-  );
-}
-
-function LibraryIcon() {
-  return (
-    <svg
-      width="24"
-      height="24"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122"
-      />
-    </svg>
-  );
-}
-
-function UserIcon() {
-  return (
-    <svg
-      width="24"
-      height="24"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-      />
-    </svg>
-  );
-}
+import ProfileMenu from "@/components/ProfileMenu";
+import { SearchBarLink } from "@/components/SearchBar";
+import { useTheme } from "@/components/theme/ThemeProvider";
+import type { HeaderProfile } from "@/lib/auth";
 
 const categories = [
   { label: "전체", href: "/category" },
@@ -127,14 +26,45 @@ const categories = [
 
 interface HeaderProps extends ComponentPropsWithRef<"header"> {
   loggedIn?: boolean;
+  /** 로그인 사용자 정보. 서버에서 조회해 내려주면 프로필 메뉴가 재조회 없이 렌더된다. */
+  profile?: HeaderProfile | null;
   showCategory?: boolean;
   current?: string;
+  /** 모바일 우측에 노출할 메뉴(예: 마이페이지 햄버거 드로어). 넘긴 페이지에서만 표시된다. */
+  mobileMenu?: ReactNode;
+}
+
+// profile을 넘기지 않은 경우의 안전한 기본값(아바타는 이니셜 "?"로 표시).
+const FALLBACK_PROFILE: HeaderProfile = {
+  name: "",
+  avatarUrl: null,
+  role: "buyer",
+};
+
+function HeaderThemeToggle() {
+  const { isDark, toggleTheme } = useTheme();
+  const Icon = isDark ? Sun : Moon;
+
+  return (
+    <button
+      type="button"
+      aria-label={isDark ? "라이트모드로 보기" : "다크모드로 보기"}
+      title={isDark ? "라이트모드로 보기" : "다크모드로 보기"}
+      onClick={toggleTheme}
+      className="inline-flex h-9 items-center gap-1.5 rounded-full px-2.5 text-sm font-semibold text-white/90 transition hover:bg-white/15 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-primary-300 dark:text-gray-100 dark:hover:bg-[#34363a] dark:focus:ring-offset-[#242528] lg:px-3"
+    >
+      <Icon size={18} strokeWidth={2.15} aria-hidden />
+      <span className="hidden lg:inline">{isDark ? "라이트" : "다크"}</span>
+    </button>
+  );
 }
 
 export default function Header({
   loggedIn = false,
+  profile,
   showCategory = true,
   current,
+  mobileMenu,
   className,
   ...props
 }: HeaderProps) {
@@ -144,93 +74,77 @@ export default function Header({
   return (
     <header
       className={cn(
-        "w-full bg-linear-to-r from-primary-300 to-secondary-300",
+        "relative z-50 w-full bg-linear-to-r from-primary-300 to-secondary-300 transition-colors dark:from-[#242528] dark:to-[#242528]",
         className,
       )}
       {...props}
     >
-      <div className="flex items-center gap-4 h-16 px-6">
-        <Logo />
+      <div className="mx-auto flex max-w-360 items-center gap-3 px-6 py-3 lg:gap-4 lg:px-8 lg:py-4">
+        {/* 검색바 시작 위치를 검색화면 헤더와 맞추기 위한 고정폭 슬롯 (로고는 왼쪽으로 당김) */}
+        <div className="flex w-17 shrink-0 items-center">
+          <span className="min-[744px]:-ml-2">
+            <Logo className="h-7 w-auto md:h-8" />
+          </span>
+        </div>
 
-        <Link
-          href="/search"
-          className="hidden min-[744px]:flex ml-4 w-full max-w-3xl items-center gap-2 h-10 rounded-full bg-white px-4 text-gray-400"
-        >
-          <SearchIcon />
-          <span className="text-sm">공연, 아티스트, 장소 검색</span>
-        </Link>
+        <SearchBarLink className="hidden border-0 min-[744px]:flex" />
 
         <Link
           href="/search"
           aria-label="검색"
-          className="ml-auto text-gray-600 min-[744px]:hidden"
+          className="ml-auto text-white transition-colors hover:text-primary-600 min-[744px]:hidden"
         >
-          <SearchIcon />
+          <Search className="h-6 w-6" />
         </Link>
 
-        <div className="hidden min-[744px]:flex shrink-0 ml-auto min-w-46 justify-end items-center gap-4 text-gray-600">
+        <div className="ml-1 flex shrink-0 items-center gap-1 rounded-full bg-white/10 p-1 text-white ring-1 ring-white/15 backdrop-blur dark:bg-white/5 dark:ring-white/10 min-[744px]:ml-3 lg:ml-5">
+          <HeaderThemeToggle />
+
           {loggedIn ? (
-            <>
-              <NotificationBell />
-              <Link
-                href="/mypage/wishlist"
-                aria-label="찜"
-                className="transition-colors hover:text-white"
-              >
-                <TagIcon />
-              </Link>
-              <Link
-                href="/mypage/reservations"
-                aria-label="예매내역"
-                className="transition-colors hover:text-white"
-              >
-                <CalendarIcon />
-              </Link>
-              <Link
-                href="/mypage/library"
-                aria-label="라이브러리"
-                className="transition-colors hover:text-white"
-              >
-                <LibraryIcon />
-              </Link>
-              <Link
-                href="/mypage"
-                aria-label="마이"
-                className="transition-colors hover:text-white"
-              >
-                <UserIcon />
-              </Link>
-            </>
+            <div className="hidden items-center gap-1 min-[744px]:flex">
+              <NotificationBell
+                size={20}
+                strokeWidth={2.25}
+                className="size-9 justify-center rounded-full text-white/90 transition hover:bg-white/15 hover:text-white"
+                activeClassName="bg-white/15 text-white"
+              />
+              <ProfileMenu profile={profile ?? FALLBACK_PROFILE} />
+            </div>
           ) : (
-            <Link href="/login">
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-gray-400 text-gray-600"
-              >
-                로그인
-              </Button>
+            <Link
+              href="/login"
+              aria-label="로그인"
+              className="hidden h-9 items-center gap-1.5 rounded-full bg-white px-3.5 text-sm font-semibold text-primary-700 shadow-sm transition hover:bg-white/90 hover:text-primary-800 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-white min-[744px]:flex"
+            >
+              <LogIn size={20} strokeWidth={2.25} />
+              <span>로그인</span>
             </Link>
           )}
         </div>
+
+        {mobileMenu && (
+          <div className="text-white lg:hidden">{mobileMenu}</div>
+        )}
       </div>
 
       {showCategory && (
-        <nav className="scrollbar-hide flex items-center gap-5 h-11 overflow-x-auto border-b border-whisper bg-white px-6">
-          {categories.map((cat) => {
-            const active = path === cat.href;
+        <div className="border-b border-gray-100 bg-white transition-colors dark:border-[#3c4043] dark:bg-[#242528]">
+          <nav className="scrollbar-hide mx-auto flex h-11 max-w-360 items-center gap-5 overflow-x-auto px-7 lg:px-8">
+            {categories.map((cat) => {
+              const active = path === cat.href;
 
-            return (
-              <Link
-                key={cat.href}
-                href={cat.href}
-                className={categoryItem({ active })}
-              >
-                {cat.label}
-              </Link>
-            );
-          })}
-        </nav>
+              return (
+                <Link
+                  key={cat.href}
+                  href={cat.href}
+                  className={categoryItem({ active })}
+                >
+                  {cat.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
       )}
     </header>
   );

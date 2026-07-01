@@ -32,7 +32,11 @@ export default async function Page({
       .from("ticket_grade")
       .select("grade_id, grade_name, price, quantity")
       .eq("event_id", id),
-    supabase.from("orders").select("quantity, total_price").eq("event_id", id),
+    supabase
+      .from("orders")
+      .select("quantity, total_price")
+      .eq("event_id", id)
+      .eq("status", "paid"),
     supabase
       .from("event_image")
       .select("image_id, url")

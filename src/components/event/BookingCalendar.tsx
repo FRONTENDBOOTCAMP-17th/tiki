@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/cn";
 
-const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
 interface BookingCalendarProps {
   month: Date; // 표시 중인 달 (1일 기준)
@@ -12,6 +12,7 @@ interface BookingCalendarProps {
   rangeEnd?: string | null;
   markedDates?: Set<string>;
   availableDates: Set<string>; // 회차가 있는 날짜
+  minDate?: string;
   onMonthChange: (month: Date) => void;
   onSelectDate: (date: string) => void;
   hideNav?: boolean;
@@ -30,6 +31,7 @@ export default function BookingCalendar({
   rangeEnd,
   markedDates,
   availableDates,
+  minDate,
   onMonthChange,
   onSelectDate,
   hideNav,
@@ -44,16 +46,19 @@ export default function BookingCalendar({
   for (let i = 0; i < firstWeekday; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
-  const monthLabel = new Intl.DateTimeFormat("en-US", {
+  const monthLabel = new Intl.DateTimeFormat("ko-KR", {
     month: "long",
     year: "numeric",
   }).format(month);
+  const currentMonthStart = toISODate(year, monthIndex, 1);
+  const minMonthStart = minDate ? minDate.slice(0, 7) + "-01" : null;
+  const canGoPrev = !minMonthStart || currentMonthStart > minMonthStart;
 
   return (
-    <div className="flex w-full max-w-60 flex-col gap-1">
+    <div className="flex w-full flex-col gap-2">
       {/* 헤더 : 월 이동 */}
       {hideNav ? (
-        <div className="px-1 py-0.5 text-center text-sm font-semibold text-gray-900">
+        <div className="px-1 py-0.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-100">
           {monthLabel}
         </div>
       ) : (
@@ -61,19 +66,20 @@ export default function BookingCalendar({
           <button
             type="button"
             aria-label="이전 달"
+            disabled={!canGoPrev}
             onClick={() => onMonthChange(new Date(year, monthIndex - 1, 1))}
-            className="flex size-7 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
+            className="flex size-7 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 disabled:text-gray-200 disabled:hover:bg-transparent dark:text-gray-400 dark:hover:bg-[#303134] dark:disabled:text-gray-600"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {monthLabel}
           </span>
           <button
             type="button"
             aria-label="다음 달"
             onClick={() => onMonthChange(new Date(year, monthIndex + 1, 1))}
-            className="flex size-7 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
+            className="flex size-7 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-[#303134]"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -81,7 +87,7 @@ export default function BookingCalendar({
       )}
 
       {/* 요일 */}
-      <div className="grid grid-cols-7 text-center text-xs text-gray-400">
+      <div className="grid grid-cols-7 text-center text-xs text-gray-400 dark:text-gray-500">
         {WEEKDAYS.map((w) => (
           <span key={w}>{w}</span>
         ))}
@@ -94,6 +100,8 @@ export default function BookingCalendar({
 
           const iso = toISODate(year, monthIndex, day);
           const hasSlot = availableDates.has(iso);
+          const beforeMinDate = !!minDate && iso < minDate;
+          const selectable = hasSlot && !beforeMinDate;
           const marked = !!markedDates && markedDates.has(iso);
           const isEndpoint =
             selectedDate === iso || rangeStart === iso || rangeEnd === iso;
@@ -107,7 +115,7 @@ export default function BookingCalendar({
             <button
               key={iso}
               type="button"
-              disabled={!hasSlot}
+              disabled={!selectable}
               onClick={() => onSelectDate(iso)}
               className={cn(
                 "mx-auto flex size-7 items-center justify-center rounded-full",
@@ -117,9 +125,9 @@ export default function BookingCalendar({
                 !marked &&
                   !isEndpoint &&
                   !inRange &&
-                  hasSlot &&
-                  "text-gray-900 hover:bg-primary-100",
-                !hasSlot && "text-gray-300",
+                  selectable &&
+                  "text-gray-900 hover:bg-primary-100 dark:text-gray-100 dark:hover:bg-[#303134]",
+                !selectable && "text-gray-300 dark:text-gray-600",
               )}
             >
               {day}

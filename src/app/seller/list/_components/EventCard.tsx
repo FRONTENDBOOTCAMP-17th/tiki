@@ -42,7 +42,7 @@ export default function EventCard({ event, href }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-primary-300 hover:shadow-sm">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-primary-300 hover:shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:border-gray-500">
       <div className="flex gap-5">
         <Link
           href={href}
@@ -66,7 +66,7 @@ export default function EventCard({ event, href }: Props) {
         <div className="flex flex-1 flex-col">
           <div className="flex items-center justify-between gap-3">
             <Link href={href} className="min-w-0">
-              <h3 className="truncate text-base font-semibold text-gray-900 hover:text-primary-700">
+              <h3 className="truncate text-base font-semibold text-gray-900 hover:text-primary-700 dark:text-gray-50 dark:hover:text-gray-200">
                 {event.title}
               </h3>
             </Link>
@@ -95,7 +95,7 @@ export default function EventCard({ event, href }: Props) {
             </button>
           </div>
 
-          <div className="mt-2 space-y-1 text-sm text-gray-500">
+          <div className="mt-2 space-y-1 text-sm text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1.5">
               <MapPin size={14} />
               {event.venue_name}
@@ -110,22 +110,22 @@ export default function EventCard({ event, href }: Props) {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-3 gap-3 rounded-xl bg-gray-50 p-3">
+          <div className="mt-4 grid grid-cols-3 gap-3 rounded-xl bg-gray-50 p-3 dark:bg-[#303134]">
             <div>
               <p className="text-xs text-gray-500">예매</p>
-              <p className="text-sm font-semibold text-gray-900">
+              <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">
                 {event.totalOrders.toLocaleString()}건
               </p>
             </div>
             <div>
               <p className="text-xs text-gray-500">잔여</p>
-              <p className="text-sm font-semibold text-gray-900">
+              <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">
                 {event.remainingSeats.toLocaleString()}석
               </p>
             </div>
             <div>
               <p className="text-xs text-gray-500">매출</p>
-              <p className="text-sm font-semibold text-gray-900">
+              <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">
                 {event.totalRevenue.toLocaleString()}원
               </p>
             </div>
@@ -133,7 +133,7 @@ export default function EventCard({ event, href }: Props) {
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-4">
+      <div className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-4 dark:border-[#3c4043]">
         <Link href={`${href}/edit`}>
           <Button size="sm" variant="outlinePrimary">
             <Pencil size={14} />

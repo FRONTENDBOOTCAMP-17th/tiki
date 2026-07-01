@@ -1,21 +1,30 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
-import { isAuthenticated } from "@/lib/auth";
+import { getHeaderProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { fetchCategories } from "@/lib/api/categories";
-import type { EventCardItem } from "@/types/domain/event";
 import HeroSlider from "./_components/home/HeroSlider";
-import RankingSection from "./_components/home/RankingSection";
 import TicketOpenSection from "./_components/home/TicketOpenSection";
 import HorizontalCardSection from "./_components/home/HorizontalCardSection";
+import HomeSectionLink from "./_components/home/HomeSectionLink";
+import BestReviewSection from "./_components/home/BestReviewSection";
+import RecommendedSection from "./_components/home/RecommendedSection";
+import type {
+  BestReviewItem,
+  HomeEventCardItem,
+} from "./_components/home/types";
 
 const PUBLISHED_STATUS = "공개";
-const EVENT_POOL_LIMIT = 20; // 랭킹/티켓오픈/히어로 섹션이 고를 후보 풀 크기
+const EVENT_POOL_LIMIT = 36; // 랭킹/티켓오픈/히어로 섹션이 고를 후보 풀 크기
 const HERO_SLIDE_SIZE = 5;
-const RANKING_SIZE = 5;
-const TICKET_OPEN_SIZE = 3;
+const RANKING_SIZE = 10;
+const OPEN_FALLBACK_SIZE = 5;
+const RECOMMENDED_SIZE = 5;
+const REVIEW_POOL_LIMIT = 24;
+const BEST_REVIEW_SIZE = 3;
 const CATEGORY_SECTION_LIMIT = 6; // 홈에 노출할 카테고리 섹션 수
+const FEATURED_CATEGORY_SECTION_LIMIT = 3;
 const CATEGORY_EVENT_LIMIT = 8; // 카테고리 섹션 하나당 보여줄 이벤트 수
 
 type EventRow = {
@@ -23,10 +32,21 @@ type EventRow = {
   title: string;
   thumbnail: string;
   start_date: string;
+  end_date: string;
   venue_name: string;
+  created_at: string;
 };
 
 type CategoryEventRow = EventRow & { category_id: string };
+
+type ReviewRow = {
+  review_id: string;
+  event_id: string;
+  user_id: string;
+  rating: number;
+  memo: string | null;
+  created_at: string;
+};
 
 // 예매 랭킹 집계용 주문 수량 합계 조회. orders 자체는 본인 주문만 보이는
 // RLS가 걸려 있지만, event_id별 합계만 돌려주는 RPC(event_booking_counts)는
@@ -47,15 +67,111 @@ async function fetchBookingCounts(
 function toCardItem(
   event: EventRow,
   minPriceByEvent: Map<string, number>,
-): EventCardItem {
+): HomeEventCardItem {
   return {
     eventId: event.event_id,
     title: event.title,
     startDate: event.start_date,
+    endDate: event.end_date,
+    createdAt: event.created_at,
     thumbnail: event.thumbnail,
     venueName: event.venue_name,
     minPrice: minPriceByEvent.get(event.event_id) ?? null,
   };
+}
+
+function getKstDateKey(date = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+function maskName(name: string) {
+  const trimmed = name.trim();
+  if (!trimmed) return "익명";
+  if (trimmed.length === 1) return trimmed;
+  return `${trimmed[0]}${"*".repeat(trimmed.length - 1)}`;
+}
+
+async function fetchBestReviews(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<BestReviewItem[]> {
+  const { data: reviewRows } = await supabase
+    .from("review")
+    .select("review_id, event_id, user_id, rating, memo, created_at")
+    .not("memo", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(REVIEW_POOL_LIMIT);
+
+  const reviews = ((reviewRows ?? []) as ReviewRow[]).filter((review) =>
+    review.memo?.trim(),
+  );
+  if (reviews.length === 0) return [];
+
+  const eventIds = [...new Set(reviews.map((review) => review.event_id))];
+  const userIds = [...new Set(reviews.map((review) => review.user_id))];
+  const reviewIds = reviews.map((review) => review.review_id);
+
+  const [
+    { data: eventRows },
+    { data: userRows },
+    { data: likeRows },
+  ] = await Promise.all([
+    supabase
+      .from("event")
+      .select("event_id, title, thumbnail, status")
+      .in("event_id", eventIds),
+    supabase.from("users").select("id, name").in("id", userIds),
+    supabase.from("review_like").select("review_id").in("review_id", reviewIds),
+  ]);
+
+  const eventMap = new Map(
+    (eventRows ?? [])
+      .filter((event) => event.status === PUBLISHED_STATUS)
+      .map((event) => [event.event_id, event]),
+  );
+  const nameMap = new Map(
+    (userRows ?? []).map((user) => [user.id, user.name ?? ""]),
+  );
+  const likeCountMap = new Map<string, number>();
+  for (const like of likeRows ?? []) {
+    likeCountMap.set(
+      like.review_id,
+      (likeCountMap.get(like.review_id) ?? 0) + 1,
+    );
+  }
+
+  return reviews
+    .map((review, index) => ({ review, index }))
+    .sort((a, b) => {
+      const likeDiff =
+        (likeCountMap.get(b.review.review_id) ?? 0) -
+        (likeCountMap.get(a.review.review_id) ?? 0);
+      if (likeDiff !== 0) return likeDiff;
+      const dateDiff =
+        +new Date(b.review.created_at) - +new Date(a.review.created_at);
+      return dateDiff || a.index - b.index;
+    })
+    .map(({ review }) => {
+      const event = eventMap.get(review.event_id);
+      if (!event) return null;
+
+      return {
+        reviewId: review.review_id,
+        eventId: review.event_id,
+        eventTitle: event.title,
+        eventThumbnail: event.thumbnail ?? "",
+        author: maskName(nameMap.get(review.user_id) ?? ""),
+        rating: review.rating,
+        memo: review.memo?.trim() ?? "",
+        likeCount: likeCountMap.get(review.review_id) ?? 0,
+      };
+    })
+    .filter((review): review is BestReviewItem => !!review)
+    .slice(0, BEST_REVIEW_SIZE);
 }
 
 export default async function Home() {
@@ -63,12 +179,12 @@ export default async function Home() {
 
   // 서로 의존성이 없는 조회(로그인 여부/이벤트 풀/카테고리)는 직렬로 기다리지 않고
   // 한 번에 병렬로 보내야 첫 응답까지의 시간(FCP/LCP)이 늘어지지 않는다.
-  const [loggedIn, { data: eventRows, error: eventError }, categories] =
+  const [profile, { data: eventRows, error: eventError }, categories, bestReviews] =
     await Promise.all([
-      isAuthenticated(),
+      getHeaderProfile(),
       supabase
         .from("event")
-        .select("event_id, title, thumbnail, start_date, venue_name")
+        .select("event_id, title, thumbnail, start_date, end_date, venue_name, created_at")
         .eq("status", PUBLISHED_STATUS)
         .order("created_at", { ascending: false })
         .limit(EVENT_POOL_LIMIT),
@@ -76,18 +192,24 @@ export default async function Home() {
         console.error("[HOME] fetchCategories failed:", error);
         return [];
       }),
+      fetchBestReviews(supabase).catch((error) => {
+        console.error("[HOME] fetchBestReviews failed:", error);
+        return [];
+      }),
     ]);
   if (eventError) console.error("[HOME] event pool query failed:", eventError);
 
+  const loggedIn = !!profile;
   const pool = eventRows ?? [];
   const topCategories = categories.slice(0, CATEGORY_SECTION_LIMIT);
+  const featuredCategories = topCategories.slice(0, FEATURED_CATEGORY_SECTION_LIMIT);
   const categoryIds = topCategories.map((c) => c.category_id);
 
-  // 카테고리 섹션은 "최근 등록 20개" 풀에 안 든 이벤트도 보여줘야 하므로 별도로 조회한다.
+  // 카테고리 섹션은 "최근 등록" 풀에 안 든 이벤트도 보여줘야 하므로 별도로 조회한다.
   const { data: categoryEventRows, error: categoryEventError } = categoryIds.length
     ? await supabase
         .from("event")
-        .select("event_id, title, thumbnail, start_date, venue_name, category_id")
+        .select("event_id, title, thumbnail, start_date, end_date, venue_name, created_at, category_id")
         .eq("status", PUBLISHED_STATUS)
         .in("category_id", categoryIds)
         .order("created_at", { ascending: false })
@@ -146,12 +268,29 @@ export default async function Home() {
     .map((event) => toCardItem(event, minPriceByEvent));
 
   // 이미 최근 등록순으로 가져왔으니, 앞에서 N개만 잘라내면 "신규 오픈" 목록이 된다.
-  const newlyOpened = pool
-    .slice(0, TICKET_OPEN_SIZE)
+  const todayKey = getKstDateKey();
+  const todayOpened = pool
+    .filter((event) => getKstDateKey(new Date(event.created_at)) === todayKey)
+    .slice(0, OPEN_FALLBACK_SIZE)
+    .map((event) => toCardItem(event, minPriceByEvent));
+
+  const recentlyOpened = pool
+    .filter((event) => getKstDateKey(new Date(event.created_at)) !== todayKey)
+    .slice(0, OPEN_FALLBACK_SIZE)
+    .map((event) => toCardItem(event, minPriceByEvent));
+
+  const excludedRecommendationIds = new Set([
+    ...ranking.map((event) => event.eventId),
+    ...heroSlides.map((event) => event.eventId),
+    ...todayOpened.map((event) => event.eventId),
+  ]);
+  const recommended = pool
+    .filter((event) => !excludedRecommendationIds.has(event.event_id))
+    .slice(0, RECOMMENDED_SIZE)
     .map((event) => toCardItem(event, minPriceByEvent));
 
   // category_id별로 묶고, 카테고리 한 섹션당 보여줄 개수만큼만 자른다.
-  const eventsByCategory = new Map<string, EventCardItem[]>();
+  const eventsByCategory = new Map<string, HomeEventCardItem[]>();
   for (const event of categoryEventRows ?? []) {
     const list = eventsByCategory.get(event.category_id) ?? [];
     if (list.length < CATEGORY_EVENT_LIMIT) {
@@ -162,21 +301,47 @@ export default async function Home() {
 
   return (
     <>
-      <Header loggedIn={loggedIn} />
-      <main className="flex-1 bg-white pb-20 min-[744px]:pb-0">
-        <div className="mx-auto w-full max-w-7xl">
+      <Header loggedIn={loggedIn} profile={profile} />
+      <main className="flex-1 bg-white pb-4 transition-colors dark:bg-[#202124] min-[744px]:pb-0">
+        <div className="bg-linear-to-b from-primary-100 via-secondary-100 to-white transition-colors dark:from-[#242528] dark:via-[#242528] dark:to-[#202124]">
           <HeroSlider slides={heroSlides} />
-          <RankingSection events={ranking} />
-          <TicketOpenSection events={newlyOpened} />
-          {topCategories.map((category) => (
+          <div
+            id="home-content-start"
+            className="mx-auto w-full max-w-7xl scroll-mt-20"
+          >
+            <HomeSectionLink categories={topCategories} />
+          </div>
+        </div>
+        <div className="mx-auto w-full max-w-7xl">
+          <TicketOpenSection
+            todayEvents={todayOpened}
+            fallbackEvents={recentlyOpened}
+          />
+          {/* 예매 랭킹: 누적 예매 수량이 높은 순으로 정렬된 이벤트를 순위 배지와 함께 보여준다. */}
+          <HorizontalCardSection
+            title="예매 랭킹"
+            moreHref="/ranking"
+            events={ranking}
+            showRank
+            className="bg-white dark:bg-[#202124]"
+          />
+          <RecommendedSection events={recommended} />
+          {featuredCategories.map((category) => (
             <HorizontalCardSection
               key={category.category_id}
               title={category.category_name}
               moreHref={`/category/${category.slug}`}
               events={eventsByCategory.get(category.category_id) ?? []}
+              className="bg-white dark:bg-[#202124]"
             />
           ))}
         </div>
+        <BestReviewSection reviews={bestReviews} />
+        <div
+          id="home-page-end"
+          className="h-1 scroll-mt-24 bg-white transition-colors dark:bg-[#202124] min-[744px]:h-12"
+          aria-hidden
+        />
       </main>
       <div className="hidden lg:contents">
         <Footer />

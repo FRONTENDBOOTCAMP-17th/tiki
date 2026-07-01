@@ -51,7 +51,7 @@ function Modal({
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          "flex max-h-[85vh] w-full flex-col overflow-hidden bg-white shadow-xl",
+          "flex max-h-[85vh] w-full flex-col overflow-hidden bg-white shadow-xl dark:border dark:border-[#3c4043] dark:bg-[#2a2b2f]",
           position === "center"
             ? "max-w-md rounded-2xl"
             : "max-w-xl rounded-t-2xl",
@@ -67,7 +67,9 @@ function Modal({
 
 function ModalHeader({ children }: { children: ReactNode }) {
   return (
-    <h2 className="px-6 pt-6 text-lg font-bold text-mirage">{children}</h2>
+    <h2 className="px-6 pt-6 text-lg font-bold text-mirage dark:text-gray-50">
+      {children}
+    </h2>
   );
 }
 

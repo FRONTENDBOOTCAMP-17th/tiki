@@ -1,10 +1,10 @@
 import { NextRequest } from "next/server";
 
 import { fail, success } from "@/lib/api/api-response";
+import { MAX_TICKETS_PER_ORDER, ORDER_STATUS } from "@/lib/constants/order-status";
 import { createClient } from "@/lib/supabase/server";
-import type { TablesInsert } from "@/types/database";
 
-const ORDER_STATUSES = new Set(["ordered"]);
+const ALLOWED_CREATE_STATUSES = new Set<string>([ORDER_STATUS.ORDERED]);
 const FEE_RATE = 0.05;
 
 interface OrderRequestBody {
@@ -17,7 +17,7 @@ interface OrderRequestBody {
 
 export async function POST(req: NextRequest) {
   const body = (await req.json()) as OrderRequestBody;
-  const { eventId, slotId, ticketGradeId, status = "ordered" } = body;
+  const { eventId, slotId, ticketGradeId, status = ORDER_STATUS.ORDERED } = body;
   const quantity = Number(body.quantity);
 
   if (
@@ -29,7 +29,10 @@ export async function POST(req: NextRequest) {
   ) {
     return fail("invalid order payload", 400);
   }
-  if (!ORDER_STATUSES.has(status)) {
+  if (quantity > MAX_TICKETS_PER_ORDER) {
+    return fail(`한 번에 최대 ${MAX_TICKETS_PER_ORDER}매까지 구매할 수 있습니다.`, 400);
+  }
+  if (!ALLOWED_CREATE_STATUSES.has(status)) {
     return fail("invalid order status", 400);
   }
 
@@ -40,6 +43,14 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return fail("unauthorized", 401);
   }
+
+  const { data: event, error: eventError } = await supabase
+    .from("event")
+    .select("status")
+    .eq("event_id", eventId)
+    .single();
+  if (eventError || !event) return fail("event not found", 404);
+  if (event.status !== "공개") return fail("event not available", 400);
 
   const { data: grade, error: gradeError } = await supabase
     .from("ticket_grade")
@@ -67,24 +78,27 @@ export async function POST(req: NextRequest) {
 
   const subtotal = grade.price * quantity;
   const totalPrice = subtotal + Math.round(subtotal * FEE_RATE);
-  const order: TablesInsert<"orders"> = {
-    event_id: eventId,
-    slot_id: slotId,
-    ticket_grade_id: ticketGradeId,
-    quantity,
-    status,
-    total_price: totalPrice,
-    user_id: user.id,
-  };
 
-  const { data, error } = await supabase
-    .from("orders")
-    .insert(order)
-    .select("order_id")
-    .single();
+  const { data: orderId, error } = await supabase.rpc("place_order", {
+    p_event_id: eventId,
+    p_slot_id: slotId,
+    p_grade_id: ticketGradeId,
+    p_quantity: quantity,
+    p_total_price: totalPrice,
+    p_status: status,
+  });
   if (error) {
-    return fail(error.message, 400);
+    if (error.message.includes("SOLD_OUT")) {
+      return fail("잔여 수량이 부족합니다.", 409);
+    }
+    if (error.message.includes("INVALID_QUANTITY")) {
+      return fail("invalid order payload", 400);
+    }
+    if (error.message.includes("UNAUTHORIZED")) {
+      return fail("unauthorized", 401);
+    }
+    return fail("주문을 처리할 수 없습니다.", 400);
   }
 
-  return success({ orderId: data.order_id }, "created", 201);
+  return success({ orderId }, "created", 201);
 }

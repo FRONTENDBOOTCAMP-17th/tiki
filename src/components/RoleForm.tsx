@@ -1,34 +1,72 @@
 'use client';
 
-import Image from 'next/image';
+import { useEffect, useRef } from 'react';
 import Button from './Button';
 import useSignup from '@/hooks/useSignup';
+import TikiCharacterIcon from './icons/TikiCharacterIcon';
+import { UserRole } from '@/types/domain/user-role';
 
-export default function RoleForm() {
-  const { signupData, setRole } = useSignup();
+const BASE_ROLE_BUTTON_CLASS = 'h-fit border-2 flex-col gap-2 md:py-2 md:w-full';
+const UNSELECTED_ROLE_BUTTON_CLASS =
+  'border-primary-300 text-primary-700 hover:bg-primary-100 dark:border-[#3c4043] dark:text-primary-300 dark:hover:bg-[#34363a]';
+const SELECTED_ROLE_BUTTON_CLASS =
+  'border-primary-700 bg-primary-700 text-white hover:bg-primary-700 hover:text-white';
+
+export default function RoleForm({
+  selectedRole,
+  onSelectRole,
+}: {
+  selectedRole: UserRole | null;
+  onSelectRole: (role: UserRole | null) => void;
+}) {
+  const { setRole } = useSignup();
+  const buyerRef = useRef<HTMLButtonElement>(null);
+  const sellerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (selectedRole === 'buyer' && !buyerRef.current?.contains(target)) {
+        onSelectRole(null);
+      }
+      if (selectedRole === 'seller' && !sellerRef.current?.contains(target)) {
+        onSelectRole(null);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [selectedRole, onSelectRole]);
+
+  const selectRole = (role: UserRole) => {
+    if (selectedRole === role) {
+      onSelectRole(null);
+      return;
+    }
+    setRole(role);
+    onSelectRole(role);
+  };
 
   return (
-    <div className='min-w-90 w-full max-w-190 px-10 space-y-4'>
-      <h2 className='flex flex-col text-4xl text-[#0f0f0f] font-bold leading-12 md:hidden'>
+    <div className='w-full max-w-190 space-y-4 md:min-w-90'>
+      <h2 className='flex flex-col text-4xl text-[#0f0f0f] font-bold leading-12 md:hidden dark:text-gray-100'>
         <span>어떻게 티키를</span>
         <span>이용하실 건가요?</span>
       </h2>
-      <p className='text-gray-500 text-md md:hidden'>
+      <p className='text-gray-500 text-md md:hidden dark:text-gray-400'>
         모바일에서는 구매자 회원가입만 가능해요
       </p>
       <div className='flex gap-4 items-center justify-center my-20 md:my-0'>
         <Button
-          className='h-fit border-2 flex-col md:py-2 md:w-full'
-          variant={signupData.role === 'buyer' ? 'primary' : 'outlinePrimary'}
-          onClick={() => setRole('buyer')}
+          ref={buyerRef}
+          className={`${BASE_ROLE_BUTTON_CLASS} ${
+            selectedRole === 'buyer'
+              ? SELECTED_ROLE_BUTTON_CLASS
+              : UNSELECTED_ROLE_BUTTON_CLASS
+          }`}
+          variant='outlinePrimary'
+          onClick={() => selectRole('buyer')}
         >
-          <Image
-            src={'/tiki_character.png'}
-            alt={'티키 캐릭터 이미지'}
-            width={100}
-            height={100}
-            className='md:hidden'
-          />
+          <TikiCharacterIcon className='size-24 md:hidden' />
           <h3 className='font-bold'>구매자</h3>
           <div className='text-sm md:hidden'>
             <p>티켓을 사고</p>
@@ -36,9 +74,14 @@ export default function RoleForm() {
           </div>
         </Button>
         <Button
-          className='hidden h-fit border-2 flex-col md:py-2 md:w-full md:inline-flex'
-          variant={signupData.role === 'seller' ? 'primary' : 'outlinePrimary'}
-          onClick={() => setRole('seller')}
+          ref={sellerRef}
+          className={`hidden md:inline-flex ${BASE_ROLE_BUTTON_CLASS} ${
+            selectedRole === 'seller'
+              ? SELECTED_ROLE_BUTTON_CLASS
+              : UNSELECTED_ROLE_BUTTON_CLASS
+          }`}
+          variant='outlinePrimary'
+          onClick={() => selectRole('seller')}
         >
           <h3 className='font-bold'>판매자</h3>
         </Button>

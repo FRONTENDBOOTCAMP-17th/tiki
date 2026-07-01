@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { cn } from "@/lib/cn";
 import Avatar from "./Avatar";
 
@@ -33,9 +34,11 @@ export default function Profile({
       )}
     >
       {avatarSrc ? (
-        <img
+        <Image
           src={avatarSrc}
           alt={name}
+          width={isRow ? 36 : 64}
+          height={isRow ? 36 : 64}
           className={cn(
             "rounded-full object-cover",
             isRow ? "size-9" : "size-16",

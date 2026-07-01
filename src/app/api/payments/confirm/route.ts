@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { fail, success } from "@/lib/api/api-response";
+import { ORDER_STATUS } from "@/lib/constants/order-status";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { portone } from "@/lib/portone/server";
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
   if (!order) return fail("order not found", 404);
 
   // 이미 승인 처리된 주문이면 재조회 없이 그대로 성공 응답
-  if (order.status === "paid") return success({ status: "paid" });
+  if (order.status === ORDER_STATUS.PAID) return success({ status: ORDER_STATUS.PAID });
 
   let payment;
   try {
@@ -43,12 +44,26 @@ export async function POST(req: NextRequest) {
   const isPaid =
     payment.status === "PAID" && payment.amount.total === order.total_price;
 
-  await getSupabaseAdmin()
+  const admin = getSupabaseAdmin();
+
+  const { data: updatedOrder, error: updateError } = await admin
     .from("orders")
-    .update({ status: isPaid ? "paid" : "failed" })
-    .eq("order_id", orderId);
+    .update({ status: isPaid ? ORDER_STATUS.PAID : ORDER_STATUS.FAILED })
+    .eq("order_id", orderId)
+    .select("order_id")
+    .single();
+
+  if (updateError || !updatedOrder) {
+    return fail("주문 상태를 업데이트할 수 없습니다.", 500);
+  }
 
   if (!isPaid) return fail("결제 금액이 일치하지 않습니다.", 400);
 
-  return success({ status: "paid" });
+  // 좌석 기반 주문이면 점유 상태를 held -> sold로 확정 (안 해주면 TTL 배치가 결제 완료된 좌석을 해제해버림)
+  await admin
+    .from("order_seat")
+    .update({ status: "sold", held_until: null })
+    .eq("order_id", orderId);
+
+  return success({ status: ORDER_STATUS.PAID });
 }

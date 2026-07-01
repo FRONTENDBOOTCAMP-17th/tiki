@@ -13,15 +13,15 @@ type RecentSearchProps = {
 
 export default function RecentSearch({ keyword, onRemove }: RecentSearchProps) {
   return (
-    <div className="flex w-fit items-center font-bold gap-1.5 lg:gap-2 border border-gray-300 bg-gray-200 rounded-4xl px-4 py-1.5 text-sm lg:px-5 lg:py-2 lg:text-base text-gray-700">
+    <div className="flex w-fit items-center gap-1.5 rounded-4xl border border-gray-300 bg-gray-200 px-4 py-1.5 text-sm font-bold text-gray-700 lg:gap-2 lg:px-5 lg:py-2 lg:text-base dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-100">
       <span className="whitespace-nowrap">{keyword}</span>
       <button
         type="button"
         onClick={onRemove}
         aria-label={`${keyword} 검색어 삭제`}
-        className="cursor-pointer"
+        className="cursor-pointer text-gray-500 transition-colors hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"
       >
-        <X className="w-4 h-4 lg:w-5 lg:h-5" />
+        <X className="h-4 w-4 lg:h-5 lg:w-5" />
       </button>
     </div>
   );

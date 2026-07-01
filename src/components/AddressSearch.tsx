@@ -33,7 +33,7 @@ export default function AddressSearch({
           value={value}
           readOnly
           placeholder={placeholder}
-          className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500"
+          className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-100 dark:placeholder:text-gray-500"
         />
         <Button
           type="button"
