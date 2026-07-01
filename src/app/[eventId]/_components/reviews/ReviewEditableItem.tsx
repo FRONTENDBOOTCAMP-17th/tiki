@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -31,6 +31,7 @@ export default function ReviewEditableItem({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const submittingRef = useRef(false);
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [rating, setRating] = useState(review.rating);
@@ -47,44 +48,54 @@ export default function ReviewEditableItem({
   }
 
   function handleSave() {
-    if (!memoValid || rating < 1 || isPending) return;
+    if (!memoValid || rating < 1 || submittingRef.current) return;
+    submittingRef.current = true;
 
     startTransition(async () => {
-      const result = await updateReviewAction({
-        eventId,
-        reviewId: review.reviewId,
-        rating,
-        memo,
-      });
+      try {
+        const result = await updateReviewAction({
+          eventId,
+          reviewId: review.reviewId,
+          rating,
+          memo,
+        });
 
-      if (!result.success) {
-        setMessage(result.message);
-        return;
+        if (!result.success) {
+          setMessage(result.message);
+          return;
+        }
+
+        setEditing(false);
+        router.refresh();
+      } finally {
+        submittingRef.current = false;
       }
-
-      setEditing(false);
-      router.refresh();
     });
   }
 
   function handleDelete() {
-    if (isPending) return;
+    if (submittingRef.current) return;
+    submittingRef.current = true;
 
     startTransition(async () => {
-      const result = await deleteReviewAction({
-        eventId,
-        reviewId: review.reviewId,
-      });
+      try {
+        const result = await deleteReviewAction({
+          eventId,
+          reviewId: review.reviewId,
+        });
 
-      if (!result.success) {
+        if (!result.success) {
+          setDeleteOpen(false);
+          toast.error(result.message);
+          return;
+        }
+
         setDeleteOpen(false);
-        toast.error(result.message);
-        return;
+        toast.success("후기가 삭제되었습니다");
+        router.refresh();
+      } finally {
+        submittingRef.current = false;
       }
-
-      setDeleteOpen(false);
-      toast.success("후기가 삭제되었습니다");
-      router.refresh();
     });
   }
 
