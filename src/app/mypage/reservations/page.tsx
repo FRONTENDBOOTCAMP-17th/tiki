@@ -10,6 +10,7 @@ import ReceivedTicketCard, {
 import SentTicketCard, {
   type SentTicket,
 } from "@/components/mypage/SentTicketCard";
+import { formatKstDate, formatKstDateWithDay } from "@/lib/format";
 
 const FILTERS = [
   { label: "전체", value: "all" },
@@ -18,24 +19,6 @@ const FILTERS = [
   { label: "받은 티켓", value: "shared" },
   { label: "보낸 티켓", value: "sent" },
 ];
-
-const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
-
-function formatDate(date: string) {
-  const d = new Date(date);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}.${m}.${day} (${DAYS[d.getDay()]})`;
-}
-
-function formatShort(date: string) {
-  const d = new Date(date);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}.${m}.${day}`;
-}
 
 function FilterTabs({ filter }: { filter: string }) {
   return (
@@ -206,8 +189,8 @@ export default async function ReservationsPage({
       statusLabel: cancelled ? "예매 취소" : "예매 확정",
       seat: gr?.grade_name ?? "",
       count: o.quantity,
-      bookedAt: o.created_at ? formatShort(o.created_at) : "",
-      date: sl?.date ? formatDate(sl.date) : "",
+      bookedAt: o.created_at ? formatKstDate(o.created_at) : "",
+      date: sl?.date ? formatKstDateWithDay(sl.date) : "",
       time: sl?.start_time ? sl.start_time.slice(0, 5) : "",
       place,
       orderNo: o.order_id.slice(0, 8).toUpperCase(),

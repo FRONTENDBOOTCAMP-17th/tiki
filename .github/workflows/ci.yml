@@ -1,6 +1,8 @@
-# CI에 build + tsc 걸기 (재발 방지)
+# CI에 build + tsc + lint 걸기 (재발 방지)
 name: CI
 on:
+  push:
+    branches: [develop]
   pull_request:
     branches: [develop]
 jobs:
@@ -11,6 +13,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
       - run: npm ci
+      - run: npm run lint
       - run: npx tsc --noEmit
       - run: npm run build
         env:
