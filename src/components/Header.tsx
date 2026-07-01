@@ -55,7 +55,7 @@ export default function Header({
   return (
     <header
       className={cn(
-        "w-full bg-linear-to-r from-primary-300 to-secondary-300",
+        "w-full bg-linear-to-r from-primary-300 to-secondary-300 transition-colors dark:from-[#242528] dark:to-[#242528]",
         className,
       )}
       {...props}
@@ -107,7 +107,7 @@ export default function Header({
       </div>
 
       {showCategory && (
-        <div className="bg-white">
+        <div className="border-b border-gray-100 bg-white transition-colors dark:border-[#3c4043] dark:bg-[#242528]">
           <nav className="scrollbar-hide mx-auto flex h-11 max-w-360 items-center gap-5 overflow-x-auto px-7 lg:px-8">
             {categories.map((cat) => {
               const active = path === cat.href;

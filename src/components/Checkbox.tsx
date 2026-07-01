@@ -32,13 +32,13 @@ export default function Checkbox({
       />
       <CheckIcon
         className={cn(
-          'cursor-pointer text-transparent border-2 rounded-md border-primary-800',
-          checked && 'bg-primary-700 text-white',
+          'cursor-pointer text-transparent border-2 rounded-md border-primary-800 dark:border-primary-400',
+          checked && 'bg-primary-700 text-white dark:border-primary-700',
         )}
         onClick={() => onChange?.()}
       />
       {text ? (
-        <label htmlFor={id ?? ''} className='text-md align-top'>
+        <label htmlFor={id ?? ''} className='text-md align-top dark:text-gray-100'>
           {text}
         </label>
       ) : (
@@ -46,7 +46,7 @@ export default function Checkbox({
       )}
       {required !== undefined ? (
         required ? (
-          <span className='text-primary-800 font-semibold'>(필수)</span>
+          <span className='text-primary-800 font-semibold dark:text-primary-300'>(필수)</span>
         ) : (
           <span className='text-gray-400 font-semibold'>(선택)</span>
         )

@@ -30,7 +30,7 @@ export default function RecentSearchList({
     /* 검색어가 없는 경우 */
   }
   if (keywords.length === 0) {
-    return <p className="text-gray-500">최근 검색어가 없습니다.</p>;
+    return <p className="text-gray-500 dark:text-gray-400">최근 검색어가 없습니다.</p>;
   }
 
   {

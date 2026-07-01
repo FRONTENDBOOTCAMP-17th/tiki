@@ -24,7 +24,12 @@ export default function ReviewAuthor({
         <Avatar seed={name} className={cn("size-9 text-sm", avatarClassName)} />
       )}
       {showName && (
-        <span className={cn("truncate font-semibold text-gray-900", nameClassName)}>
+        <span
+          className={cn(
+            "truncate font-semibold text-gray-900 dark:text-gray-50",
+            nameClassName,
+          )}
+        >
           {name}
         </span>
       )}

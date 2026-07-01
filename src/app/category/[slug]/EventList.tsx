@@ -25,7 +25,7 @@ export default function EventList({ events }: { events: CategoryEventItem[] }) {
 
   return (
     <section className="px-4 py-6 md:px-8 lg:px-16">
-      <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900 md:text-xl">
+      <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-gray-50 md:text-xl">
         <span className="inline-block h-5 w-1.5 rounded-full bg-accent-500" />
         인기순
       </h2>
@@ -34,7 +34,7 @@ export default function EventList({ events }: { events: CategoryEventItem[] }) {
           <li key={event.eventId}>
             <Link
               href={`/${event.eventId}`}
-              className="flex gap-4 rounded-xl p-2 transition-colors hover:bg-primary-100"
+              className="flex gap-4 rounded-xl p-2 transition-colors hover:bg-primary-100 dark:hover:bg-[#303134]"
             >
               <div className="relative aspect-3/4 w-36 shrink-0 overflow-hidden rounded-lg">
                 {event.thumbnail ? (
@@ -50,13 +50,13 @@ export default function EventList({ events }: { events: CategoryEventItem[] }) {
                 )}
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-1.5 py-1">
-                <h3 className="line-clamp-2 text-base font-semibold text-gray-900">
+                <h3 className="line-clamp-2 text-base font-semibold text-gray-900 dark:text-gray-50">
                   {event.title}
                 </h3>
-                <p className="truncate text-sm text-gray-500">
+                <p className="truncate text-sm text-gray-500 dark:text-gray-400">
                   {event.venueName}
                 </p>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-gray-400 dark:text-gray-500">
                   {formatDate(event.startDate)}
                 </p>
                 {event.minPrice != null && (

@@ -25,7 +25,7 @@ function rankBadgeClass(rank: number) {
 export default function PopularList({ events }: { events: PopularEvent[] }) {
   return (
     <section className="flex flex-col gap-4 px-4 py-4 lg:p-0">
-      <h2 className="flex items-center gap-1.5 text-lg font-bold text-gray-900">
+      <h2 className="flex items-center gap-1.5 text-lg font-bold text-gray-900 dark:text-gray-50">
         <TrendingUp className="h-5 w-5 text-accent-700" />
         이번주 인기공연 TOP5
       </h2>
@@ -36,7 +36,7 @@ export default function PopularList({ events }: { events: PopularEvent[] }) {
             <li key={event.id}>
               <Link
                 href={`/${event.id}`}
-                className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 transition-shadow hover:shadow-md"
+                className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 transition-shadow hover:shadow-md dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:bg-[#303134]"
               >
                 <span
                   className={cn(
@@ -58,14 +58,14 @@ export default function PopularList({ events }: { events: PopularEvent[] }) {
                   )}
                 </div>
                 <div className="flex min-w-0 flex-col gap-0.5">
-                  <h3 className="truncate text-sm font-semibold text-gray-900">
+                  <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
                     {event.title}
                   </h3>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {formatEventDate(event.date)}
                   </p>
                   {event.location && (
-                    <span className="flex items-center gap-1 text-xs text-gray-400">
+                    <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
                       <MapPin className="h-3 w-3 shrink-0" />
                       <span className="truncate">{event.location}</span>
                     </span>

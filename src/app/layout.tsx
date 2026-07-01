@@ -4,6 +4,8 @@ import "./globals.css";
 import ToastProvider from "@/components/ToastProvider";
 import { Toaster } from "sonner";
 import FloatingActions from "@/components/FloatingActions";
+import ThemeInitScript from "@/components/theme/ThemeInitScript";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,23 +44,29 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <ToastProvider animation="slide" position="bottom-center">
-          {children}
-          <Toaster
-            position="top-center"
-            richColors
-            toastOptions={{
-              style: {
-                borderRadius: "12px",
-                fontSize: "14px",
-              },
-            }}
-          />
-          <FloatingActions />
-        </ToastProvider>
+      <head>
+        <ThemeInitScript />
+      </head>
+      <body className="min-h-full flex flex-col bg-white dark:bg-[#202124]">
+        <ThemeProvider>
+          <ToastProvider animation="slide" position="bottom-center">
+            {children}
+            <Toaster
+              position="top-center"
+              richColors
+              toastOptions={{
+                style: {
+                  borderRadius: "12px",
+                  fontSize: "14px",
+                },
+              }}
+            />
+            <FloatingActions />
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

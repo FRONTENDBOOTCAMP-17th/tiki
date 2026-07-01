@@ -46,7 +46,7 @@ export default function CategorySectionNav({
   }
 
   return (
-    <nav className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur">
+    <nav className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur dark:border-[#3c4043] dark:bg-[#242528]/95">
       <div className="scrollbar-hide mx-auto flex max-w-7xl justify-center gap-6 overflow-x-auto px-4 md:px-8 lg:px-16">
         {sections.map(({ id, label }) => (
           <button
@@ -56,8 +56,8 @@ export default function CategorySectionNav({
             className={cn(
               "relative shrink-0 cursor-pointer border-b-2 py-3.5 text-sm font-medium transition-colors",
               active === id
-                ? "border-primary-600 text-primary-700"
-                : "border-transparent text-gray-500 hover:text-gray-800",
+                ? "border-primary-600 text-primary-700 dark:border-gray-100 dark:text-gray-50"
+                : "border-transparent text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100",
             )}
           >
             {label}

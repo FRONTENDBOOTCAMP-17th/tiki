@@ -44,7 +44,7 @@ function UpcomingCard({ item }: { item: UpcomingItem }) {
     <li>
       <Link
         href={`/${item.eventId}`}
-        className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 transition-shadow hover:shadow-md"
+        className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 transition-shadow hover:shadow-md dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:bg-[#303134]"
       >
         <span className="flex w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-primary-100 py-2.5 text-center">
           <span className="text-xs font-bold text-primary-700">{dday}</span>
@@ -61,13 +61,13 @@ function UpcomingCard({ item }: { item: UpcomingItem }) {
           )}
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <h3 className="truncate text-sm font-semibold text-gray-900">
+          <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
             {item.title}
           </h3>
           <p className="text-xs font-medium text-accent-600">
             {formatStartDate(item.startDate)}
           </p>
-          <span className="flex items-center gap-1 text-xs text-gray-400">
+          <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
             <MapPin className="h-3 w-3 shrink-0" />
             <span className="truncate">{item.venueName}</span>
           </span>
@@ -124,7 +124,7 @@ export default function UpcomingTabs({
     <div className="mx-auto max-w-2xl px-4 py-6 lg:max-w-4xl lg:px-8">
       {/* 페이지 헤더 */}
       <header className="mb-6 text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-950 md:text-3xl">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-950 dark:text-gray-50 md:text-3xl">
           오픈 예정
         </h1>
         <p className="mt-2 text-sm text-gray-500">곧 예매가 열리는 공연</p>
@@ -142,7 +142,7 @@ export default function UpcomingTabs({
               className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
                 active
                   ? "border-primary-600 bg-primary-600 text-white"
-                  : "border-gray-200 bg-white text-gray-500 hover:border-primary-300 hover:text-primary-700"
+                  : "border-gray-200 bg-white text-gray-500 hover:border-primary-300 hover:text-primary-700 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-100"
               }`}
             >
               {tab.name}
@@ -158,7 +158,7 @@ export default function UpcomingTabs({
           type="button"
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className="flex cursor-pointer items-center gap-1 rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-700 disabled:opacity-40"
+          className="flex cursor-pointer items-center gap-1 rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-700 disabled:opacity-40 dark:border-[#3c4043] dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200"
         >
           <RefreshCw className={`h-3 w-3 ${isRefreshing ? "animate-spin" : ""}`} />
           {isRefreshing ? "업데이트 중..." : "새로고침"}
@@ -175,7 +175,10 @@ export default function UpcomingTabs({
           <>
             <p className="mb-3 text-sm text-gray-400">
               총{" "}
-              <span className="font-semibold text-gray-700">{items.length}개</span>의
+              <span className="font-semibold text-gray-700 dark:text-gray-200">
+                {items.length}개
+              </span>
+              의
               공연이 오픈 예정이에요.
             </p>
             <ul className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 lg:gap-3">

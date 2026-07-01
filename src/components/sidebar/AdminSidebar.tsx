@@ -24,9 +24,9 @@ const ADMIN_MENU: SidebarItem[] = [
 
 export default function AdminSidebar() {
   return (
-    <aside className="flex w-64 shrink-0 flex-col justify-between border-r border-gray-100 bg-white px-4 py-6">
+    <aside className="flex w-64 shrink-0 flex-col justify-between border-r border-gray-100 bg-white px-4 py-6 transition-colors dark:border-[#3c4043] dark:bg-[#242528]">
       <div>
-        <h2 className="mb-4 px-3 text-base font-bold text-primary-600">
+        <h2 className="mb-4 px-3 text-base font-bold text-primary-600 dark:text-gray-100">
           관리자님, 환영합니다
         </h2>
         <nav className="flex flex-col gap-1">
@@ -36,13 +36,13 @@ export default function AdminSidebar() {
         </nav>
       </div>
 
-      <div className="border-t border-gray-100 pt-3">
+      <div className="border-t border-gray-100 pt-3 dark:border-[#3c4043]">
         <div className="flex items-center gap-3 px-1 py-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 text-sm font-bold text-white">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 text-sm font-bold text-white dark:from-gray-700 dark:to-gray-500">
             A
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-gray-900">
+            <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
               관리자
             </p>
             <p className="truncate text-xs text-gray-400">admin@tiki.com</p>
@@ -51,7 +51,7 @@ export default function AdminSidebar() {
         <form action={logout}>
           <button
             type="submit"
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-800"
+            className="flex w-full items-center gap-2 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100"
           >
             <LogOut size={16} />
             로그아웃

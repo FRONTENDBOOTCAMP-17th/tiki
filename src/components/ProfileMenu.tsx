@@ -117,10 +117,10 @@ export default function ProfileMenu({ profile }: { profile: HeaderProfile }) {
             role="menu"
             aria-label="내 메뉴"
             onKeyDown={handleTrapTab}
-            className="absolute right-0 z-50 mt-3 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 text-left shadow-xl"
+            className="absolute right-0 z-50 mt-3 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 text-left shadow-xl dark:border-[#3c4043] dark:bg-[#2a2b2f]"
           >
             {profile.name && (
-              <p className="truncate px-3 py-2 text-sm font-semibold text-gray-900">
+              <p className="truncate px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-50">
                 {profile.name}님
               </p>
             )}
@@ -132,7 +132,7 @@ export default function ProfileMenu({ profile }: { profile: HeaderProfile }) {
 
               {isStaff && (
                 <>
-                  <div className="my-1 border-t border-gray-100" />
+                  <div className="my-1 border-t border-gray-100 dark:border-[#3c4043]" />
                   <SidebarMenuItem
                     label="판매자 페이지"
                     href="/seller"
@@ -149,11 +149,11 @@ export default function ProfileMenu({ profile }: { profile: HeaderProfile }) {
               )}
             </nav>
 
-            <div className="my-1 border-t border-gray-100" />
+            <div className="my-1 border-t border-gray-100 dark:border-[#3c4043]" />
             <form action={logout}>
               <button
                 type="submit"
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-danger-500 transition-colors hover:bg-gray-50 hover:text-danger-600"
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-danger-500 transition-colors hover:bg-gray-50 hover:text-danger-600 dark:hover:bg-[#303134]"
               >
                 <LogOut size={18} />
                 로그아웃

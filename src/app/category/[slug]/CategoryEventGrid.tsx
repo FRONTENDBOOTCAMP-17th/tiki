@@ -55,14 +55,14 @@ export default function CategoryEventGrid({
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <h4 className="truncate text-[15px] font-semibold text-gray-900 transition-colors group-hover:text-primary-700">
+                <h4 className="truncate text-[15px] font-semibold text-gray-900 transition-colors group-hover:text-primary-700 dark:text-gray-50 dark:group-hover:text-gray-200">
                   {event.title}
                 </h4>
-                <p className="text-xs font-medium text-gray-500">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   {formatDateRange(event.startDate, event.endDate)}
                 </p>
                 {event.venueName && (
-                  <p className="flex min-w-0 items-center gap-1 text-xs text-gray-400">
+                  <p className="flex min-w-0 items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
                     <MapPin className="size-3 shrink-0" />
                     <span className="truncate">{event.venueName}</span>
                   </p>
@@ -85,7 +85,7 @@ export default function CategoryEventGrid({
             aria-label="이전 페이지"
             onClick={() => goTo(page - 1)}
             disabled={page === 1}
-            className="flex items-center text-gray-400 transition-colors hover:text-gray-700 disabled:opacity-30 disabled:hover:text-gray-400"
+            className="flex items-center text-gray-400 transition-colors hover:text-gray-700 disabled:opacity-30 disabled:hover:text-gray-400 dark:hover:text-gray-200"
           >
             <ChevronLeft className="size-5" />
           </button>
@@ -100,7 +100,7 @@ export default function CategoryEventGrid({
                 "text-sm transition-colors",
                 p === page
                   ? "font-semibold text-primary-700 underline decoration-primary-600 decoration-2 underline-offset-8"
-                  : "font-medium text-gray-500 hover:text-gray-900",
+                  : "font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100",
               )}
             >
               {p}
@@ -112,7 +112,7 @@ export default function CategoryEventGrid({
             aria-label="다음 페이지"
             onClick={() => goTo(page + 1)}
             disabled={page === totalPages}
-            className="flex items-center text-gray-400 transition-colors hover:text-gray-700 disabled:opacity-30 disabled:hover:text-gray-400"
+            className="flex items-center text-gray-400 transition-colors hover:text-gray-700 disabled:opacity-30 disabled:hover:text-gray-400 dark:hover:text-gray-200"
           >
             <ChevronRight className="size-5" />
           </button>

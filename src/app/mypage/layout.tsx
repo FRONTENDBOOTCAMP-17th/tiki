@@ -45,7 +45,7 @@ export default async function MyPageLayout({
         }
       />
 
-      <div className="flex-1 bg-gray-50">
+      <div className="flex-1 bg-gray-50 dark:bg-[#202124]">
         <div className="mx-auto max-w-screen-xl p-4 md:p-6">
           <div className="flex gap-6">
             {/* 데스크탑(lg+): 세로 사이드바 */}

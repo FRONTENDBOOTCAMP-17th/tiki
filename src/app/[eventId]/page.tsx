@@ -129,11 +129,11 @@ export default async function EventDetailPage({
                         공연정보
                       </h2>
 
-                      <ul className="grid gap-3 rounded-lg border border-info-border p-4 sm:grid-cols-2">
+                      <ul className="grid gap-3 rounded-lg border border-info-border p-4 sm:grid-cols-2 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
                         <li className="flex items-center gap-3">
                           <Calendar className="h-5 w-5 shrink-0 text-info-accent" />
                           <div className="flex flex-col gap-0.5">
-                            <p className="text-xs font-medium text-info-accent">
+                            <p className="text-xs font-medium text-info-accent dark:text-gray-300">
                               공연기간
                             </p>
                             <p className="text-sm text-gray-900">
@@ -145,7 +145,7 @@ export default async function EventDetailPage({
                         <li className="flex items-center gap-3">
                           <Clock className="h-5 w-5 shrink-0 text-info-accent" />
                           <div className="flex flex-col gap-0.5">
-                            <p className="text-xs font-medium text-info-accent">
+                            <p className="text-xs font-medium text-info-accent dark:text-gray-300">
                               공연시간
                             </p>
                             <p className="text-sm text-gray-900">
@@ -161,7 +161,7 @@ export default async function EventDetailPage({
                         <li className="flex items-center gap-3">
                           <MapPin className="h-5 w-5 shrink-0 text-info-accent" />
                           <div className="flex flex-col gap-0.5">
-                            <p className="text-xs font-medium text-info-accent">
+                            <p className="text-xs font-medium text-info-accent dark:text-gray-300">
                               공연장
                             </p>
                             <p className="text-sm text-gray-900">

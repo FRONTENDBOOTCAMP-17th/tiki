@@ -58,7 +58,7 @@ export default function BookingCalendar({
     <div className="flex w-full flex-col gap-2">
       {/* 헤더 : 월 이동 */}
       {hideNav ? (
-        <div className="px-1 py-0.5 text-center text-sm font-semibold text-gray-900">
+        <div className="px-1 py-0.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-100">
           {monthLabel}
         </div>
       ) : (
@@ -68,18 +68,18 @@ export default function BookingCalendar({
             aria-label="이전 달"
             disabled={!canGoPrev}
             onClick={() => onMonthChange(new Date(year, monthIndex - 1, 1))}
-            className="flex size-7 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 disabled:text-gray-200 disabled:hover:bg-transparent"
+            className="flex size-7 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 disabled:text-gray-200 disabled:hover:bg-transparent dark:text-gray-400 dark:hover:bg-[#303134] dark:disabled:text-gray-600"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {monthLabel}
           </span>
           <button
             type="button"
             aria-label="다음 달"
             onClick={() => onMonthChange(new Date(year, monthIndex + 1, 1))}
-            className="flex size-7 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
+            className="flex size-7 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-[#303134]"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -87,7 +87,7 @@ export default function BookingCalendar({
       )}
 
       {/* 요일 */}
-      <div className="grid grid-cols-7 text-center text-xs text-gray-400">
+      <div className="grid grid-cols-7 text-center text-xs text-gray-400 dark:text-gray-500">
         {WEEKDAYS.map((w) => (
           <span key={w}>{w}</span>
         ))}
@@ -126,8 +126,8 @@ export default function BookingCalendar({
                   !isEndpoint &&
                   !inRange &&
                   selectable &&
-                  "text-gray-900 hover:bg-primary-100",
-                !selectable && "text-gray-300",
+                  "text-gray-900 hover:bg-primary-100 dark:text-gray-100 dark:hover:bg-[#303134]",
+                !selectable && "text-gray-300 dark:text-gray-600",
               )}
             >
               {day}

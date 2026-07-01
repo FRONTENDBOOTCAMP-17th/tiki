@@ -10,7 +10,7 @@ export default function PageHeader({ title, description, actions }: Props) {
   return (
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
           {title}
         </h1>
         {description && (

@@ -41,14 +41,14 @@ export default async function CategoryPage() {
   return (
     <>
       <Header loggedIn={loggedIn} profile={profile} showCategory={false} />
-      <main className="flex-1 bg-white pb-20 min-[744px]:pb-0">
+      <main className="flex-1 bg-white pb-20 dark:bg-[#202124] min-[744px]:pb-0">
         <div className="mx-auto w-full max-w-7xl">
           <div className="px-4 pt-4 md:px-8 lg:px-16">
             <BackButton />
           </div>
 
           <header className="px-4 pt-2 pb-2 text-center md:px-8 lg:px-16">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-950 md:text-3xl">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-950 dark:text-gray-50 md:text-3xl">
               카테고리
             </h1>
             <p className="mt-2 text-sm text-gray-500">
@@ -65,7 +65,7 @@ export default async function CategoryPage() {
                   <li key={category.category_id}>
                     <Link
                       href={`/category/${category.slug}`}
-                      className="group flex flex-col items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-white py-8 transition-colors hover:border-primary-300 hover:bg-primary-50"
+                      className="group flex flex-col items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-white py-8 transition-colors hover:border-primary-300 hover:bg-primary-50 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:border-gray-500 dark:hover:bg-[#303134]"
                     >
                       <span
                         className={cn(
@@ -79,7 +79,7 @@ export default async function CategoryPage() {
                           aria-hidden="true"
                         />
                       </span>
-                      <span className="text-sm font-medium text-gray-800 lg:text-base">
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-100 lg:text-base">
                         {category.category_name}
                       </span>
                     </Link>
@@ -95,7 +95,7 @@ export default async function CategoryPage() {
                 <Link
                   key={href}
                   href={href}
-                  className="group flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition-colors hover:border-primary-300 hover:bg-primary-50"
+                  className="group flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition-colors hover:border-primary-300 hover:bg-primary-50 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:border-gray-500 dark:hover:bg-[#303134]"
                 >
                   <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-700">
                     <Icon
@@ -105,8 +105,12 @@ export default async function CategoryPage() {
                     />
                   </span>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-gray-900">{label}</span>
-                    <span className="text-sm text-gray-500">{description}</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-50">
+                      {label}
+                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      {description}
+                    </span>
                   </div>
                 </Link>
               ))}
