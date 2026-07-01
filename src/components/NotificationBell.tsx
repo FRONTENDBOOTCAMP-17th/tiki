@@ -10,8 +10,8 @@ import {
   acceptTicketShare,
   rejectTicketShare,
 } from "@/app/action";
-import { toast } from "sonner";
 import { cn } from "@/lib/cn";
+import useToast from "@/hooks/useToast";
 
 interface NotificationItem {
   notification_id: string;
@@ -38,6 +38,13 @@ const TYPE_STYLE = {
   order: "bg-primary-100 text-primary-700",
   ad: "bg-accent-100 text-accent-700",
 } as const;
+
+const DEFAULT_LINK: Record<string, string> = {
+  order: "/mypage/reservations",
+  friend: "/mypage/friends",
+  friend_request: "/mypage/friends",
+  ticket_share: "/mypage/reservations",
+};
 
 function iconFor(type: string) {
   return TYPE_ICON[type as keyof typeof TYPE_ICON] ?? Bell;
@@ -84,6 +91,7 @@ export default function NotificationBell({
 }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[]>([]);
+  const { success, error } = useToast();
 
   useEffect(() => {
     const supabase = createClient();
@@ -112,7 +120,7 @@ export default function NotificationBell({
     if (!item.ref_id) return;
     const result = await acceptFriendRequest(item.ref_id);
     if (result?.error) {
-      toast.error(result.error);
+      error(result.error);
       return;
     }
     setItems((prev) =>
@@ -124,7 +132,7 @@ export default function NotificationBell({
     if (!item.ref_id) return;
     const result = await rejectFriendRequest(item.ref_id);
     if (result?.error) {
-      toast.error(result.error);
+      error(result.error);
       return;
     }
     setItems((prev) =>
@@ -136,20 +144,20 @@ export default function NotificationBell({
     if (!item.ref_id) return;
     const result = await acceptTicketShare(item.ref_id);
     if (result?.error) {
-      toast.error(result.error);
+      error(result.error);
       return;
     }
     setItems((prev) =>
       prev.filter((n) => n.notification_id !== item.notification_id),
     );
-    toast.success("티켓을 받았습니다");
+    success("티켓을 받았습니다");
   }
 
   async function handleRejectShare(item: NotificationItem) {
     if (!item.ref_id) return;
     const result = await rejectTicketShare(item.ref_id);
     if (result?.error) {
-      toast.error(result.error);
+      error(result.error);
       return;
     }
     setItems((prev) =>
@@ -159,12 +167,12 @@ export default function NotificationBell({
 
   async function handleDelete(item: NotificationItem) {
     const supabase = createClient();
-    const { error } = await supabase
+    const { error: deleteError } = await supabase
       .from("notification")
       .delete()
       .eq("notification_id", item.notification_id);
-    if (error) {
-      toast.error("삭제에 실패했습니다");
+    if (deleteError) {
+      error("삭제에 실패했습니다");
       return;
     }
     setItems((prev) =>
@@ -238,6 +246,8 @@ export default function NotificationBell({
                     </div>
                   );
 
+                  const linkHref = item.link || DEFAULT_LINK[item.type];
+
                   return (
                     <li key={item.notification_id}>
                       {isActionable ? (
@@ -265,7 +275,7 @@ export default function NotificationBell({
                                   ? handleAccept(item)
                                   : handleAcceptShare(item)
                               }
-                              className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+                              className="flex-1 rounded-lg bg-linear-to-r from-primary-400 to-secondary-400 px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
                             >
                               수락
                             </button>
@@ -282,8 +292,8 @@ export default function NotificationBell({
                             </button>
                           </div>
                         </div>
-                      ) : item.link ? (
-                        <Link href={item.link} onClick={() => setOpen(false)}>
+                      ) : linkHref ? (
+                        <Link href={linkHref} onClick={() => setOpen(false)}>
                           {row}
                         </Link>
                       ) : (

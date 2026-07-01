@@ -1,6 +1,12 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
+export interface HeaderProfile {
+  name: string;
+  avatarUrl: string | null;
+  role: string;
+}
+
 export async function getCurrentUser() {
   const supabase = await createClient();
 
@@ -44,6 +50,28 @@ export async function getCurrentProfile() {
     .single();
 
   return data;
+}
+
+export async function getHeaderProfile(): Promise<HeaderProfile | null> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from('users')
+    .select('name, avatar_url, role')
+    .eq('id', user.id)
+    .single();
+
+  return {
+    name: data?.name ?? '',
+    avatarUrl: data?.avatar_url ?? null,
+    role: data?.role ?? 'buyer',
+  };
 }
 
 export async function requireAdmin() {

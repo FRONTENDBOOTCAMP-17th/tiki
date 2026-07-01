@@ -36,6 +36,7 @@ export default async function MyPageLayout({
     <div className="flex min-h-screen flex-col">
       <Header
         loggedIn={loggedIn}
+        profile={profile}
         showCategory={false}
         mobileMenu={
           <MobileDrawer>

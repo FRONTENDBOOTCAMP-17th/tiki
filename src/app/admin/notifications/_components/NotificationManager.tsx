@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Search, Send, Clock } from "lucide-react";
+import { useRef, useState, useTransition } from "react";
+import { Search, Send, Clock, Megaphone, Ticket } from "lucide-react";
 import type { NotificationHistory } from "../page";
 import { sendNotification } from "../actions";
+import type { NotificationType } from "../actions";
+import Dialog from "@/components/modal/Dialog";
 
 interface Member {
   id: string;
@@ -20,11 +22,14 @@ const TARGET_OPTIONS = [
   { value: "specific", label: "직접 선택" },
 ] as const;
 
-const TARGET_LABEL: Record<string, string> = {
-  admin_all: "전체",
-  admin_buyer: "구매자",
-  admin_seller: "판매자",
-  admin_specific: "직접 선택",
+const NOTIFICATION_TYPE_OPTIONS: { value: NotificationType; label: string; icon: React.ElementType; description: string }[] = [
+  { value: "ad", label: "공지/이벤트", icon: Megaphone, description: "공지사항, 프로모션, 이벤트 안내" },
+  { value: "order", label: "주문/티켓", icon: Ticket, description: "예매 안내, 티켓 관련 공지" },
+];
+
+const NOTIFICATION_TYPE_LABEL: Record<NotificationType, string> = {
+  ad: "공지/이벤트",
+  order: "주문/티켓",
 };
 
 function formatDate(iso: string) {
@@ -45,11 +50,15 @@ export default function NotificationManager({
 }) {
   const [tab, setTab] = useState<"send" | "history">("send");
   const [target, setTarget] = useState<"all" | "buyer" | "seller" | "specific">("all");
+  const [notificationType, setNotificationType] = useState<NotificationType>("ad");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [title, setTitle] = useState("");
+  const [link, setLink] = useState("");
   const [memberSearch, setMemberSearch] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<{ success?: boolean; count?: number; error?: string } | null>(null);
+  const isSendingRef = useRef(false);
 
   const filteredMembers = members.filter(
     (m) =>
@@ -72,23 +81,45 @@ export default function NotificationManager({
     });
   }
 
+  const canSend =
+    !!title.trim() && (target !== "specific" || selectedIds.size > 0);
+
   function handleSend() {
+    if (!canSend || isPending || isSendingRef.current) return;
+    setConfirmOpen(true);
+  }
+
+  function handleConfirm() {
+    if (isSendingRef.current) return;
+    isSendingRef.current = true;
+    setConfirmOpen(false);
     setResult(null);
     startTransition(async () => {
-      const res = await sendNotification({
-        target,
-        userIds: target === "specific" ? [...selectedIds] : undefined,
-        title,
-      });
-      setResult(res);
-      if (res.success) {
-        setTitle("");
-        setTarget("all");
-        setSelectedIds(new Set());
-        setMemberSearch("");
+      try {
+        const res = await sendNotification({
+          target,
+          userIds: target === "specific" ? [...selectedIds] : undefined,
+          title,
+          notificationType,
+          link: link || undefined,
+        });
+        setResult(res);
+        if (res.success) {
+          setTitle("");
+          setLink("");
+          setTarget("all");
+          setNotificationType("ad");
+          setSelectedIds(new Set());
+          setMemberSearch("");
+        }
+      } finally {
+        isSendingRef.current = false;
       }
     });
   }
+
+  const targetLabel = TARGET_OPTIONS.find((o) => o.value === target)?.label ?? "";
+  const recipientLabel = target === "specific" ? `${selectedIds.size}명` : `약 ${recipientCount}명`;
 
   return (
     <div className="space-y-4">
@@ -120,9 +151,42 @@ export default function NotificationManager({
       {/* ── 발송하기 탭 ── */}
       {tab === "send" && (
         <div className="space-y-4">
-          {/* 발송 폼 */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="space-y-4">
+            <div className="space-y-5">
+              {/* 알림 유형 */}
+              <div>
+                <p className="mb-2 text-sm font-medium text-gray-700">알림 유형</p>
+                <div className="flex gap-3">
+                  {NOTIFICATION_TYPE_OPTIONS.map((opt) => {
+                    const Icon = opt.icon;
+                    const selected = notificationType === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => setNotificationType(opt.value)}
+                        className={`flex flex-1 items-center gap-3 rounded-xl border p-3.5 text-left transition-colors ${
+                          selected
+                            ? "border-primary-400 bg-primary-50"
+                            : "border-gray-200 bg-white hover:bg-gray-50"
+                        }`}
+                      >
+                        <span className={`flex size-8 shrink-0 items-center justify-center rounded-full ${
+                          selected ? "bg-primary-100 text-primary-600" : "bg-gray-100 text-gray-500"
+                        }`}>
+                          <Icon size={16} />
+                        </span>
+                        <div>
+                          <p className={`text-sm font-semibold ${selected ? "text-primary-700" : "text-gray-800"}`}>
+                            {opt.label}
+                          </p>
+                          <p className="text-xs text-gray-400">{opt.description}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* 발송 대상 */}
               <div>
                 <p className="mb-2 text-sm font-medium text-gray-700">발송 대상</p>
@@ -222,6 +286,23 @@ export default function NotificationManager({
                 />
               </div>
 
+              {/* 링크 (선택) */}
+              <div>
+                <p className="mb-1 text-sm font-medium text-gray-700">
+                  링크 <span className="font-normal text-gray-400">(선택)</span>
+                </p>
+                <input
+                  type="url"
+                  value={link}
+                  onChange={(e) => setLink(e.target.value)}
+                  placeholder="예: /category/concert"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400"
+                />
+                <p className="mt-1 text-xs text-gray-400">
+                  입력 시 알림 클릭하면 해당 페이지로 이동합니다
+                </p>
+              </div>
+
               {/* 결과 메시지 */}
               {result && (
                 <div className={`rounded-xl px-4 py-3 text-sm font-medium ${
@@ -234,12 +315,11 @@ export default function NotificationManager({
               {/* 발송 버튼 */}
               <div className="flex items-center justify-between pt-1">
                 <p className="text-xs text-gray-400">
-                  {TARGET_OPTIONS.find((o) => o.value === target)?.label}
-                  {" "}· {target === "specific" ? `${selectedIds.size}명` : `약 ${recipientCount}명`}에게 발송됩니다
+                  {targetLabel} · {recipientLabel}에게 발송됩니다
                 </p>
                 <button
                   onClick={handleSend}
-                  disabled={isPending || !title.trim() || (target === "specific" && selectedIds.size === 0)}
+                  disabled={isPending || !canSend}
                   className="flex items-center gap-1.5 rounded-xl bg-linear-to-r from-primary-500 to-secondary-500 px-5 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-40"
                 >
                   <Send size={14} />
@@ -248,7 +328,6 @@ export default function NotificationManager({
               </div>
             </div>
           </div>
-
         </div>
       )}
 
@@ -282,9 +361,7 @@ export default function NotificationManager({
                         <p className="truncate text-gray-900">{item.title}</p>
                       </td>
                       <td className="px-5 py-4 text-gray-600">
-                        {TARGET_LABEL[item.type] === "직접 선택"
-                          ? `${item.recipientCount}명`
-                          : TARGET_LABEL[item.type] ?? `${item.recipientCount}명`}
+                        {item.recipientCount}명
                       </td>
                     </tr>
                   ))
@@ -299,6 +376,41 @@ export default function NotificationManager({
           )}
         </div>
       )}
+
+      {/* 전송 전 확인 다이얼로그 */}
+      <Dialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="알림 발송 확인"
+        confirmText={isPending ? "발송 중..." : "발송하기"}
+        confirmVariant="primary"
+        cancelText="취소"
+        onConfirm={handleConfirm}
+        confirmDisabled={isPending}
+      >
+        <div className="space-y-3 text-sm">
+          <div className="rounded-xl bg-gray-50 p-4 space-y-2">
+            <div className="flex justify-between">
+              <span className="text-gray-500">알림 유형</span>
+              <span className="font-medium text-gray-900">{NOTIFICATION_TYPE_LABEL[notificationType]}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">발송 대상</span>
+              <span className="font-medium text-gray-900">{targetLabel} ({recipientLabel})</span>
+            </div>
+            {link && (
+              <div className="flex justify-between gap-4">
+                <span className="shrink-0 text-gray-500">링크</span>
+                <span className="truncate font-medium text-gray-900 text-right">{link}</span>
+              </div>
+            )}
+          </div>
+          <div className="rounded-xl border border-gray-200 px-4 py-3">
+            <p className="text-gray-800">{title}</p>
+          </div>
+          <p className="text-xs text-gray-400">발송 후에는 되돌릴 수 없습니다.</p>
+        </div>
+      </Dialog>
     </div>
   );
 }

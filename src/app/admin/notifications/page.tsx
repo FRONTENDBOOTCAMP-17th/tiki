@@ -17,10 +17,12 @@ export default async function AdminNotificationsPage() {
       .select("id, name, email, role, created_at")
       .neq("role", "admin")
       .order("created_at", { ascending: false }),
+    // 관리자 발송 알림(type='ad')만 발송 내역으로 집계.
+    // 시스템 알림(friend_request/ticket_share/order)과 구분된다.
     supabase
       .from("notification")
       .select("title, type, created_at")
-      .in("type", ["admin_all", "admin_buyer", "admin_seller", "admin_specific"])
+      .eq("type", "ad")
       .order("created_at", { ascending: false })
       .limit(2000),
   ]);
@@ -33,11 +35,11 @@ export default async function AdminNotificationsPage() {
     createdAt: u.created_at,
   }));
 
-  // 1분 단위로 같은 title+type+link를 하나의 발송 건으로 묶음
+  // 같은 제목+분 단위로 한 번의 발송 건으로 묶어 수신자 수를 센다.
   const batchMap = new Map<string, NotificationHistory>();
   for (const n of rawNotifs ?? []) {
     const minute = n.created_at.slice(0, 16);
-    const key = `${n.type}__${n.title}__${minute}`;
+    const key = `${n.title}__${minute}`;
     if (batchMap.has(key)) {
       batchMap.get(key)!.recipientCount += 1;
     } else {
