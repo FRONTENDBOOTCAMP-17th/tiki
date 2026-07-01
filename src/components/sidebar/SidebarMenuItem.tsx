@@ -13,8 +13,8 @@ export default function SidebarMenuItem({ label, href, icon: Icon, badge }: Side
       href={href}
       className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm transition-colors ${
         isActive
-          ? "bg-primary-500 font-semibold text-white"
-          : "text-gray-700 hover:bg-gray-50" // 비활성
+          ? "bg-primary-500 font-semibold text-white dark:bg-white dark:text-gray-950"
+          : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-[#34363a] dark:hover:text-gray-100" // 비활성
       }`}
     >
       <span className="flex items-center gap-3">

@@ -181,8 +181,8 @@ export default function SeatSelectionModal({
                 className={cn(
                   "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
                   active
-                    ? "border-primary-500 bg-primary-100 text-primary-900"
-                    : "border-gray-200 text-gray-600 hover:bg-gray-50",
+                    ? "border-primary-500 bg-primary-100 text-primary-900 dark:border-gray-500 dark:bg-[#303134] dark:text-gray-50"
+                    : "border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-[#3c4043] dark:text-gray-300 dark:hover:bg-[#303134]",
                   disabled && "cursor-not-allowed opacity-40",
                 )}
               >
@@ -192,7 +192,7 @@ export default function SeatSelectionModal({
           })}
         </div>
 
-        <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+        <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-[#3c4043] dark:bg-[#303134]">
           <div
             className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md bg-gray-700 text-xs font-medium text-white"
             style={{
@@ -242,7 +242,7 @@ export default function SeatSelectionModal({
           })}
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+        <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
           <span className="flex items-center gap-1">
             <span className="size-3 rounded-full border border-primary-400 bg-white" />
             선택가능
@@ -261,7 +261,7 @@ export default function SeatSelectionModal({
           </span>
         </div>
 
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 dark:text-gray-300">
           {selectedLabels.length === 0
             ? "좌석을 선택해주세요."
             : `선택한 좌석: ${selectedLabels.join(", ")} (${selectedLabels.length}석)`}

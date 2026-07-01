@@ -5,8 +5,8 @@ export const navItem = cva(
   {
     variants: {
       active: {
-        true: 'text-primary-700',
-        false: 'text-gray-600',
+        true: 'text-primary-700 dark:text-white',
+        false: 'text-gray-600 dark:text-gray-400',
       },
     },
     defaultVariants: {

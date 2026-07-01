@@ -181,12 +181,12 @@ export default function Navigation({
       <div className="h-16 min-[744px]:hidden" aria-hidden="true" />
       <nav
         className={cn(
-          "w-full bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.08)] min-[744px]:hidden fixed bottom-0 left-0 right-0 z-50",
+          "fixed right-0 bottom-0 left-0 z-50 w-full bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.08)] transition-colors min-[744px]:hidden dark:border-t dark:border-[#3c4043] dark:bg-[#242528] dark:shadow-[0_-2px_12px_rgba(0,0,0,0.25)]",
           className,
         )}
         {...props}
       >
-        <ul className="flex items-stretch h-16 list-none w-full">
+        <ul className="flex h-16 w-full list-none items-stretch">
           {items.map((menu) => {
             const active = path === menu.href;
             const Icon = menu.icon;
@@ -195,7 +195,7 @@ export default function Navigation({
               <li key={menu.href} className="relative flex flex-1">
                 <Link href={menu.href} className={navItem({ active })}>
                   {active && (
-                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.75 rounded-[3px] bg-primary-700" />
+                    <span className="absolute top-0 left-1/2 h-0.75 w-8 -translate-x-1/2 rounded-[3px] bg-primary-700 dark:bg-white" />
                   )}
                   <Icon />
                   <span>{menu.label}</span>

@@ -16,15 +16,15 @@ export const buttonVariants = cva(
         danger: 'bg-danger-700 text-white hover:bg-danger-800',
         accent: 'bg-accent-700 text-white hover:bg-accent-800',
         outline:
-          'border border-gray-300 text-gray-700 hover:bg-gray-100',
+          'border border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-800',
         outlinePrimary:
-          'border border-primary-300 text-primary-700 hover:bg-primary-100',
+          'border border-primary-300 text-primary-700 hover:bg-primary-100 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-800',
         outlineSecondary:
-          'border border-secondary-300 text-secondary-700 hover:bg-secondary-200',
+          'border border-secondary-300 text-secondary-700 hover:bg-secondary-200 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-800',
         outlineDanger:
-          'border border-danger-300 text-danger-700 hover:bg-danger-200',
+          'border border-danger-300 text-danger-700 hover:bg-danger-200 dark:border-danger-500/70 dark:text-danger-300 dark:hover:bg-danger-900/30',
         outlineAccent:
-          'border border-accent-300 text-accent-700 hover:bg-accent-200',
+          'border border-accent-300 text-accent-700 hover:bg-accent-200 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-800',
       },
       size: {
         sm: 'h-8 px-3 text-sm',

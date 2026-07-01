@@ -35,7 +35,7 @@ export default function RankingList({
   return (
     <section className="flex flex-col gap-4">
       {title && (
-        <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
+        <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-gray-50">
           <span className="inline-block h-5 w-1.5 rounded-full bg-accent-500" />
           {title}
         </h2>
@@ -52,7 +52,7 @@ export default function RankingList({
             <li key={item.eventId}>
               <Link
                 href={`/${item.eventId}`}
-                className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 transition-shadow hover:shadow-md"
+                className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 transition-shadow hover:shadow-md dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:bg-[#303134]"
               >
                 {/* 순위 배지 */}
                 <span
@@ -79,11 +79,13 @@ export default function RankingList({
 
                 {/* 텍스트 정보 */}
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <h3 className="truncate text-sm font-semibold text-gray-900">
+                  <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
                     {item.title}
                   </h3>
-                  <p className="text-xs text-gray-500">{formatDate(item.startDate)}</p>
-                  <span className="flex items-center gap-1 text-xs text-gray-400">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {formatDate(item.startDate)}
+                  </p>
+                  <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
                     <MapPin className="h-3 w-3 shrink-0" />
                     <span className="truncate">{item.venueName}</span>
                   </span>

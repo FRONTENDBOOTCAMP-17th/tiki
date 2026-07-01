@@ -37,8 +37,8 @@ export default function SortFilter<Key extends string>({
             onClick={() => onChange(option.key)}
             className={`flex w-fit cursor-pointer items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
               active
-                ? "border-accent-500 bg-search-background-pink text-accent-800"
-                : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50"
+                ? "border-accent-500 bg-search-background-pink text-accent-800 dark:border-gray-500 dark:bg-[#303134] dark:text-gray-100"
+                : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-400 dark:hover:bg-[#303134]"
             }`}
           >
             <span>{option.label}</span>

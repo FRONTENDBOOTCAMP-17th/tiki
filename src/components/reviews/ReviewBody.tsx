@@ -10,7 +10,7 @@ export default function ReviewBody({ children, className }: ReviewBodyProps) {
   return (
     <p
       className={cn(
-        "whitespace-pre-line text-sm leading-relaxed text-gray-700",
+        "whitespace-pre-line text-sm leading-relaxed text-gray-700 dark:text-gray-300",
         className,
       )}
     >

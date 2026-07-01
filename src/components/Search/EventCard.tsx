@@ -26,7 +26,7 @@ export default function EventCard({
   rank?: number;
 }) {
   const cardClass =
-    "flex items-center gap-3 px-4 py-3 bg-search-background-pink rounded-2xl";
+    "flex items-center gap-3 rounded-2xl bg-search-background-pink px-4 py-3 dark:bg-[#2a2b2f]";
 
   const content = (
     <>
@@ -49,13 +49,15 @@ export default function EventCard({
         )}
       </div>
       <div className="flex flex-col gap-2 min-w-0">
-        <h4 className="text-sm font-semibold text-gray-900 truncate">
+        <h4 className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
           {item.title}
         </h4>
         <div className="flex flex-col">
-          <p className="text-xs text-gray-500">{formatDate(item.date)}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {formatDate(item.date)}
+          </p>
           {item.location && (
-            <div className="flex items-center gap-1 text-xs text-gray-400">
+            <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
               <MapPin className="w-3 h-3 shrink-0" />
               <span className="truncate">{item.location}</span>
             </div>
