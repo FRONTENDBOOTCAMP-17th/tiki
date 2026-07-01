@@ -91,28 +91,50 @@ export default function NotificationBell({
 }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const { success, error } = useToast();
 
   useEffect(() => {
     const supabase = createClient();
-    supabase
-      .from("notification")
-      .select("notification_id, type, title, link, is_read, created_at, ref_id")
-      .order("created_at", { ascending: false })
-      .limit(20)
-      .then(({ data }) => setItems((data as NotificationItem[] | null) ?? []));
+    let active = true;
+
+    (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user || !active) return;
+      setUserId(user.id);
+
+      // 관리자 계정은 RLS(admin_all)상 모든 알림에 접근 가능하므로,
+      // 반드시 본인 user_id로 필터링해야 남의 알림까지 뜨지 않는다.
+      const { data } = await supabase
+        .from("notification")
+        .select(
+          "notification_id, type, title, link, is_read, created_at, ref_id",
+        )
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (active) setItems((data as NotificationItem[] | null) ?? []);
+    })();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const unreadCount = items.filter((item) => !item.is_read).length;
 
   async function openPanel() {
     setOpen(true);
-    if (unreadCount === 0) return;
+    if (unreadCount === 0 || !userId) return;
     setItems((prev) => prev.map((item) => ({ ...item, is_read: true })));
     const supabase = createClient();
+    // user_id 필터가 없으면 관리자는 전체 유저의 알림을 읽음 처리해버린다.
     await supabase
       .from("notification")
       .update({ is_read: true })
+      .eq("user_id", userId)
       .eq("is_read", false);
   }
 
