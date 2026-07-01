@@ -12,21 +12,20 @@ export default function Footer() {
         <div className="grid grid-cols-3 gap-12 text-left text-sm">
           <div>
             <p className="mb-1 font-semibold">서비스</p>
-            {/* TODO: 서비스 소개 라우트 확정 후 채우기 */}
             <Link
-              href="#"
+              href="/info/about"
               className="block text-gray-400 transition-colors hover:text-white dark:text-gray-300 dark:hover:text-white"
             >
               서비스 소개
             </Link>
             <Link
-              href="/terms"
+              href="/info/terms"
               className="block text-gray-400 transition-colors hover:text-white dark:text-gray-300 dark:hover:text-white"
             >
               이용약관
             </Link>
             <Link
-              href="/privacy"
+              href="/info/privacy"
               className="block text-gray-400 transition-colors hover:text-white dark:text-gray-300 dark:hover:text-white"
             >
               개인정보 처리방침
@@ -35,7 +34,7 @@ export default function Footer() {
           <div>
             <p className="mb-1 font-semibold">고객지원</p>
             <Link
-              href="/support#faq"
+              href="/info/faq"
               className="block text-gray-400 transition-colors hover:text-white dark:text-gray-300 dark:hover:text-white"
             >
               자주 묻는 질문
@@ -47,7 +46,7 @@ export default function Footer() {
               1:1 문의
             </Link>
             <Link
-              href="/support#contact"
+              href="/info/contact"
               className="block text-gray-400 transition-colors hover:text-white dark:text-gray-300 dark:hover:text-white"
             >
               고객센터
@@ -55,21 +54,21 @@ export default function Footer() {
           </div>
           <div>
             <p className="mb-1 font-semibold">판매자</p>
-            {/* TODO: 라우트 확정 후 href 채우기 */}
+            {/* 판매자 안내 링크(등록·가이드·정산 안내 페이지로 이동하도록 수정) */}
             <Link
-              href="#"
+              href="/info/seller-registration"
               className="block text-gray-400 transition-colors hover:text-white dark:text-gray-300 dark:hover:text-white"
             >
               판매자 등록
             </Link>
             <Link
-              href="#"
+              href="/info/seller-guide"
               className="block text-gray-400 transition-colors hover:text-white dark:text-gray-300 dark:hover:text-white"
             >
               판매자 가이드
             </Link>
             <Link
-              href="#"
+              href="/info/settlement"
               className="block text-gray-400 transition-colors hover:text-white dark:text-gray-300 dark:hover:text-white"
             >
               정산 안내

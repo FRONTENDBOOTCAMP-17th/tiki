@@ -48,7 +48,7 @@ const FILTERS = [
   { value: "account", label: "계정" },
 ] as const;
 
-export default function FaqSection() {
+export default function FaqSection({ showTitle = true }: { showTitle?: boolean }) {
   const [filter, setFilter] = useState<string>("all");
 
   const visible =
@@ -56,9 +56,11 @@ export default function FaqSection() {
 
   return (
     <section id="faq" className="scroll-mt-24">
-      <h2 className="mb-4 text-lg font-semibold text-gray-900">
-        자주 묻는 질문
-      </h2>
+      {showTitle && (
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          자주 묻는 질문
+        </h2>
+      )}
 
       <div className="mb-5 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
@@ -68,8 +70,8 @@ export default function FaqSection() {
             onClick={() => setFilter(f.value)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
               filter === f.value
-                ? "bg-primary-700 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-primary-700 text-white dark:bg-gray-100 dark:text-gray-950"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#2a2b2f] dark:text-gray-300 dark:hover:bg-[#303134] dark:hover:text-gray-100"
             }`}
           >
             {f.label}
@@ -81,13 +83,13 @@ export default function FaqSection() {
         {visible.map((faq, i) => (
           <li
             key={`${filter}-${i}`}
-            className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+            className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f]"
           >
             <details className="group">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-medium text-gray-900 transition-colors hover:bg-primary-100">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-medium text-gray-900 transition-colors hover:bg-primary-100 dark:text-gray-100 dark:hover:bg-[#303134]">
                 <span>{faq.q}</span>
                 <svg
-                  className="h-5 w-5 shrink-0 text-primary-600 transition-transform duration-200 group-open:rotate-180"
+                  className="h-5 w-5 shrink-0 text-primary-600 transition-transform duration-200 group-open:rotate-180 dark:text-gray-300"
                   viewBox="0 0 20 20"
                   fill="none"
                   stroke="currentColor"
@@ -100,7 +102,7 @@ export default function FaqSection() {
                   />
                 </svg>
               </summary>
-              <div className="border-t border-gray-100 px-5 py-4 text-sm leading-relaxed text-gray-600">
+              <div className="border-t border-gray-100 px-5 py-4 text-sm leading-relaxed text-gray-600 dark:border-[#3c4043] dark:text-gray-300">
                 {faq.a}
               </div>
             </details>
