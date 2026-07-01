@@ -119,14 +119,14 @@ export default function ReviewEditableItem({
                   />
                   <button
                     type="button"
-                    className="text-sm text-gray-400 underline underline-offset-2 transition-colors hover:text-gray-600"
+                    className="text-sm text-gray-400 underline underline-offset-2 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
                     onClick={() => setEditing(true)}
                   >
                     수정
                   </button>
                   <button
                     type="button"
-                    className="text-sm text-gray-400 underline underline-offset-2 transition-colors hover:text-gray-600"
+                    className="text-sm text-gray-400 underline underline-offset-2 transition-colors hover:text-gray-600 dark:hover:text-gray-200"
                     onClick={() => setDeleteOpen(true)}
                   >
                     삭제
@@ -147,7 +147,7 @@ export default function ReviewEditableItem({
                 }}
                 maxLength={REVIEW_MEMO_MAX_LENGTH}
                 rows={3}
-                className="resize-none rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm leading-relaxed outline-none transition-colors focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100"
+                className="resize-none rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm leading-relaxed text-gray-900 outline-none transition-colors focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100 dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-100 dark:focus:bg-[#303134] dark:focus:ring-[#3c4043]"
               />
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <p
