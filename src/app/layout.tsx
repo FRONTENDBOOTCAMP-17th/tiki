@@ -50,7 +50,7 @@ export default function RootLayout({
       <head>
         <ThemeInitScript />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-white dark:bg-[#202124]">
         <ThemeProvider>
           <ToastProvider animation="slide" position="bottom-center">
             {children}
