@@ -10,13 +10,11 @@ import {
   X,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
 import useToast from "@/hooks/useToast";
 import { cn } from "@/lib/cn";
-
-const THEME_STORAGE_KEY = "tiki-theme";
-const THEME_CHANGE_EVENT = "tiki-theme-change";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
 // 안띄울 path 지정해둔건데 필요하다고 판단되는 화면 있으면 수정하셔도 됩니다
 const HIDDEN_PATH_PREFIXES = [
@@ -31,25 +29,6 @@ const HIDDEN_PATH_PREFIXES = [
 ];
 
 const HIDDEN_PATHS = ["/privacy", "/terms"];
-
-function getThemeSnapshot() {
-  if (typeof document === "undefined") return false;
-  return document.documentElement.classList.contains("dark");
-}
-
-function subscribeTheme(callback: () => void) {
-  window.addEventListener(THEME_CHANGE_EVENT, callback);
-  window.addEventListener("storage", callback);
-
-  return () => {
-    window.removeEventListener(THEME_CHANGE_EVENT, callback);
-    window.removeEventListener("storage", callback);
-  };
-}
-
-function notifyThemeChange() {
-  window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
-}
 
 function getScrollSnapshot() {
   if (typeof window === "undefined") return false;
@@ -91,7 +70,7 @@ function FloatingButton({
       title={label}
       onClick={onClick}
       className={cn(
-        "flex size-11 items-center justify-center rounded-full border border-white/80 bg-white/95 text-gray-800 shadow-lg shadow-primary-200/50 backdrop-blur transition hover:-translate-y-0.5 hover:bg-primary-50 hover:text-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-900/95 dark:text-gray-100 dark:shadow-black/30 dark:hover:bg-gray-800",
+        "flex size-11 items-center justify-center rounded-full border border-white/80 bg-white/95 text-gray-800 shadow-lg shadow-primary-200/50 backdrop-blur transition hover:-translate-y-0.5 hover:bg-primary-50 hover:text-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:border-[#3c4043] dark:bg-[#2a2b2f]/95 dark:text-gray-100 dark:shadow-black/20 dark:hover:bg-[#34363a]",
         className,
       )}
     >
@@ -103,31 +82,18 @@ function FloatingButton({
 export default function FloatingActions() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const isDark = useSyncExternalStore(subscribeTheme, getThemeSnapshot, () => false);
   const isScrolledDown = useSyncExternalStore(
     subscribeScroll,
     getScrollSnapshot,
     () => false,
   );
+  const { isDark, toggleTheme } = useTheme();
   const toast = useToast();
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const shouldUseDark = savedTheme ? savedTheme === "dark" : prefersDark;
-
-    document.documentElement.classList.toggle("dark", shouldUseDark);
-    notifyThemeChange();
-  }, []);
 
   if (shouldHideFloatingActions(pathname)) return null;
 
-  function toggleTheme() {
-    const nextIsDark = !isDark;
-
-    document.documentElement.classList.toggle("dark", nextIsDark);
-    localStorage.setItem(THEME_STORAGE_KEY, nextIsDark ? "dark" : "light");
-    notifyThemeChange();
+  function handleThemeToggle() {
+    toggleTheme();
     setOpen(false);
   }
 
@@ -189,7 +155,7 @@ export default function FloatingActions() {
         </FloatingButton>
         <FloatingButton
           label={isDark ? "라이트모드로 보기" : "다크모드로 보기"}
-          onClick={toggleTheme}
+          onClick={handleThemeToggle}
         >
           {isDark ? <Sun size={19} aria-hidden /> : <Moon size={19} aria-hidden />}
         </FloatingButton>
@@ -207,7 +173,7 @@ export default function FloatingActions() {
       <FloatingButton
         label={open ? "플로팅 메뉴 닫기" : "플로팅 메뉴 열기"}
         onClick={() => setOpen((current) => !current)}
-        className="bg-primary-700 text-white hover:bg-primary-800 hover:text-white dark:border-primary-500 dark:bg-primary-600 dark:hover:bg-primary-700"
+        className="border-gray-950 bg-gray-950 text-white hover:bg-black hover:text-white dark:border-white dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200 dark:hover:text-gray-950"
       >
         {open ? <X size={20} aria-hidden /> : <Plus size={22} aria-hidden />}
       </FloatingButton>
