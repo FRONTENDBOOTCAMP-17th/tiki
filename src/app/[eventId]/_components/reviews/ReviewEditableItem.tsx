@@ -212,6 +212,7 @@ export default function ReviewEditableItem({
         description="작성한 후기를 삭제할까요? 삭제 후에는 되돌릴 수 없습니다."
         confirmText={isPending ? "삭제 중..." : "삭제"}
         confirmVariant="danger"
+        confirmDisabled={isPending}
         cancelText="취소"
         cancelVariant="outline"
         onConfirm={handleDelete}
