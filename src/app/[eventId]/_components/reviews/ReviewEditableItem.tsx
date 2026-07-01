@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import useToast from "@/hooks/useToast";
@@ -30,6 +30,7 @@ export default function ReviewEditableItem({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const submittingRef = useRef(false);
   const { success, error } = useToast();
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -47,44 +48,54 @@ export default function ReviewEditableItem({
   }
 
   function handleSave() {
-    if (!memoValid || rating < 1 || isPending) return;
+    if (!memoValid || rating < 1 || submittingRef.current) return;
+    submittingRef.current = true;
 
     startTransition(async () => {
-      const result = await updateReviewAction({
-        eventId,
-        reviewId: review.reviewId,
-        rating,
-        memo,
-      });
+      try {
+        const result = await updateReviewAction({
+          eventId,
+          reviewId: review.reviewId,
+          rating,
+          memo,
+        });
 
-      if (!result.success) {
-        setMessage(result.message);
-        return;
+        if (!result.success) {
+          setMessage(result.message);
+          return;
+        }
+
+        setEditing(false);
+        router.refresh();
+      } finally {
+        submittingRef.current = false;
       }
-
-      setEditing(false);
-      router.refresh();
     });
   }
 
   function handleDelete() {
-    if (isPending) return;
+    if (submittingRef.current) return;
+    submittingRef.current = true;
 
     startTransition(async () => {
-      const result = await deleteReviewAction({
-        eventId,
-        reviewId: review.reviewId,
-      });
+      try {
+        const result = await deleteReviewAction({
+          eventId,
+          reviewId: review.reviewId,
+        });
 
-      if (!result.success) {
+        if (!result.success) {
+          setDeleteOpen(false);
+          error(result.message);
+          return;
+        }
+
         setDeleteOpen(false);
-        error(result.message);
-        return;
+        success("후기가 삭제되었습니다");
+        router.refresh();
+      } finally {
+        submittingRef.current = false;
       }
-
-      setDeleteOpen(false);
-      success("후기가 삭제되었습니다");
-      router.refresh();
     });
   }
 
@@ -201,6 +212,7 @@ export default function ReviewEditableItem({
         description="작성한 후기를 삭제할까요? 삭제 후에는 되돌릴 수 없습니다."
         confirmText={isPending ? "삭제 중..." : "삭제"}
         confirmVariant="danger"
+        confirmDisabled={isPending}
         cancelText="취소"
         cancelVariant="outline"
         onConfirm={handleDelete}

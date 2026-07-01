@@ -16,12 +16,12 @@ export default function RecommendedSection({
 
   return (
     <HomeSection title="TIKI 추천 공연" className="bg-white">
-      <div className="grid gap-4 lg:grid-cols-[minmax(18rem,1.1fr)_minmax(0,1fr)]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(17rem,0.95fr)_minmax(0,1.15fr)]">
         <Link
           href={`/${featured.eventId}`}
-          className="group grid gap-4 rounded-xl border border-gray-200 bg-white p-4 transition duration-200 hover:-translate-y-1 hover:border-primary-300 hover:shadow-sm sm:grid-cols-[8rem_minmax(0,1fr)]"
+          className="group grid items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 transition duration-200 hover:-translate-y-1 hover:border-primary-300 hover:shadow-sm sm:grid-cols-[8rem_minmax(0,1fr)]"
         >
-          <div className="relative aspect-3/4 w-full overflow-hidden rounded-lg bg-primary-100 sm:w-32">
+          <div className="relative mx-auto aspect-3/4 w-full max-w-40 overflow-hidden rounded-lg bg-primary-100 sm:mx-0 sm:w-32 sm:translate-x-4 lg:translate-x-6">
             <ThumbnailImage
               src={featured.thumbnail}
               alt={featured.title}
@@ -29,7 +29,7 @@ export default function RecommendedSection({
               className="object-cover"
             />
           </div>
-          <div className="flex min-w-0 flex-col justify-center">
+          <div className="flex min-w-0 flex-col items-center justify-center text-center sm:translate-x-4 sm:items-start sm:text-left lg:translate-x-6">
             <p className="text-xs font-semibold text-primary-700">티키 PICK</p>
             <h3 className="mt-2 line-clamp-2 text-lg font-bold leading-snug text-gray-950">
               {featured.title}
