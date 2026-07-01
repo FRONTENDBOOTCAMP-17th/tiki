@@ -22,3 +22,17 @@ export interface MonthSummary {
   fee: number;
   net: number;
 }
+
+// 정산 신청 1건 (신청 범위 = period_start ~ period_end, 양끝 포함)
+export type SettlementRequest = Pick<
+  Tables<"settlement_request">,
+  | "settlement_id"
+  | "period_start"
+  | "period_end"
+  | "gross"
+  | "fee"
+  | "net"
+  | "status"
+  | "requested_at"
+  | "approved_at"
+>;
