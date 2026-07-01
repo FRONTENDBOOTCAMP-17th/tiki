@@ -78,7 +78,7 @@ export default function EventList({ events }: { events: EventListItem[] }) {
               className={`rounded-lg px-4 py-2 text-sm font-medium ${
                 tab === t.label
                   ? "bg-primary-700 text-white"
-                  : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                  : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-300 dark:hover:bg-[#303134]"
               }`}
             >
               {t.label} <span className="text-xs">{t.count}</span>
@@ -90,13 +90,13 @@ export default function EventList({ events }: { events: EventListItem[] }) {
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="이벤트명 / 장소 검색"
-          className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-primary-500 sm:w-72"
+          className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-primary-500 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-100 dark:placeholder:text-gray-500 sm:w-72"
         />
       </div>
 
       <div className="space-y-4">
         {filtered.length === 0 ? (
-          <div className="py-16 text-center text-gray-400">
+          <div className="py-16 text-center text-gray-400 dark:text-gray-500">
             이벤트가 없습니다
           </div>
         ) : (

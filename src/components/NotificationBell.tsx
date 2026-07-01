@@ -222,8 +222,8 @@ export default function NotificationBell({
 
       {open && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-3 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white text-left shadow-xl dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+          <div className="fixed inset-0 z-[60]" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 z-[70] mt-3 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white text-left shadow-xl dark:border-[#3c4043] dark:bg-[#2a2b2f]">
             <div className="border-b border-gray-100 px-4 py-3 dark:border-[#3c4043]">
               <p className="font-bold text-gray-900 dark:text-gray-50">알림</p>
             </div>

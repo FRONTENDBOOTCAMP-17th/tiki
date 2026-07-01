@@ -36,6 +36,10 @@ export interface SeatGradeOption {
 
 // 등급마다 고정 색을 순서대로 배정 (등급 자체에 색 컬럼이 없으므로 인덱스 기반으로 매핑)
 const GRADE_COLORS = ["#a855f7", "#f97316", "#06b6d4", "#22c55e", "#ef4444", "#eab308"];
+const controlClass =
+  "border-gray-200 bg-white text-gray-900 dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-100";
+const controlHoverClass =
+  "hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-[#34363a] dark:hover:text-gray-100";
 
 function colorForGrade(gradeId: string | null, grades: SeatGradeOption[]) {
   if (!gradeId) return "#ffffff";
@@ -611,7 +615,7 @@ export default function SeatLayoutBuilder({
           <input
             value={labelPrefix}
             onChange={(e) => setLabelPrefix(e.target.value)}
-            className="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+            className={cn("w-20 rounded-lg border px-2 py-1.5 text-sm", controlClass)}
           />
         </label>
         <label className="flex flex-col gap-1 text-xs text-gray-500">
@@ -621,7 +625,7 @@ export default function SeatLayoutBuilder({
             min={1}
             value={rowCount}
             onChange={(e) => setRowCount(Number(e.target.value))}
-            className="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+            className={cn("w-20 rounded-lg border px-2 py-1.5 text-sm", controlClass)}
           />
         </label>
         <label className="flex flex-col gap-1 text-xs text-gray-500">
@@ -631,14 +635,14 @@ export default function SeatLayoutBuilder({
             min={1}
             value={rowGapX}
             onChange={(e) => setRowGapX(Number(e.target.value))}
-            className="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+            className={cn("w-20 rounded-lg border px-2 py-1.5 text-sm", controlClass)}
           />
         </label>
         <button
           type="button"
           onClick={addRow}
           disabled={remainingCapacity() <= 0}
-          className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+          className={cn("flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm font-medium disabled:opacity-40", controlClass, controlHoverClass)}
         >
           <Plus size={14} />
           줄 추가
@@ -647,20 +651,20 @@ export default function SeatLayoutBuilder({
           type="button"
           onClick={deleteSelected}
           disabled={selectedIds.size === 0}
-          className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-danger-600 hover:bg-danger-50 disabled:opacity-40"
+          className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-danger-600 hover:bg-danger-50 disabled:opacity-40 dark:border-[#3c4043] dark:hover:bg-danger-950/30"
         >
           <Trash2 size={14} />
           선택 삭제
         </button>
       </div>
 
-      <div className="flex flex-wrap items-end gap-2 rounded-lg bg-gray-50 p-2">
+      <div className="flex flex-wrap items-end gap-2 rounded-lg bg-gray-50 p-2 dark:bg-[#303134]">
         <label className="flex flex-col gap-1 text-xs text-gray-500">
           배치 프리셋
           <select
             value={presetShape}
             onChange={(e) => setPresetShape(e.target.value as PresetShape)}
-            className="rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+            className={cn("rounded-lg border px-2 py-1.5 text-sm", controlClass)}
           >
             <option value="square">정사각형</option>
             <option value="rectangle">직사각형</option>
@@ -675,7 +679,7 @@ export default function SeatLayoutBuilder({
             min={1}
             value={presetA}
             onChange={(e) => setPresetA(Number(e.target.value))}
-            className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+            className={cn("w-24 rounded-lg border px-2 py-1.5 text-sm", controlClass)}
           />
         </label>
         {PRESET_FIELD_LABELS[presetShape][1] && (
@@ -686,7 +690,7 @@ export default function SeatLayoutBuilder({
               min={1}
               value={presetB}
               onChange={(e) => setPresetB(Number(e.target.value))}
-              className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+              className={cn("w-24 rounded-lg border px-2 py-1.5 text-sm", controlClass)}
             />
           </label>
         )}
@@ -699,7 +703,7 @@ export default function SeatLayoutBuilder({
               max={359}
               value={presetC}
               onChange={(e) => setPresetC(Number(e.target.value))}
-              className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+              className={cn("w-24 rounded-lg border px-2 py-1.5 text-sm", controlClass)}
             />
           </label>
         )}
@@ -712,7 +716,7 @@ export default function SeatLayoutBuilder({
                 min={1}
                 value={presetGapX}
                 onChange={(e) => setPresetGapX(Number(e.target.value))}
-                className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+                className={cn("w-24 rounded-lg border px-2 py-1.5 text-sm", controlClass)}
               />
             </label>
             <label className="flex flex-col gap-1 text-xs text-gray-500">
@@ -722,7 +726,7 @@ export default function SeatLayoutBuilder({
                 min={1}
                 value={presetGapY}
                 onChange={(e) => setPresetGapY(Number(e.target.value))}
-                className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+                className={cn("w-24 rounded-lg border px-2 py-1.5 text-sm", controlClass)}
               />
             </label>
           </>
@@ -731,7 +735,7 @@ export default function SeatLayoutBuilder({
           type="button"
           onClick={addPreset}
           disabled={remainingCapacity() <= 0}
-          className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+          className={cn("flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm font-medium disabled:opacity-40", controlClass, controlHoverClass)}
         >
           <Plus size={14} />
           프리셋 추가
@@ -744,7 +748,7 @@ export default function SeatLayoutBuilder({
           <input
             value={selectedSeat.label}
             onChange={(e) => renameSeat(selectedSeat.id, e.target.value)}
-            className="w-32 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+            className={cn("w-32 rounded-lg border px-2 py-1.5 text-sm", controlClass)}
           />
         </label>
       )}
@@ -757,7 +761,7 @@ export default function SeatLayoutBuilder({
             <input
               value={bulkLabelPrefix}
               onChange={(e) => setBulkLabelPrefix(e.target.value)}
-              className="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+              className={cn("w-20 rounded-lg border px-2 py-1.5 text-sm", controlClass)}
             />
           </label>
           <label className="flex flex-col gap-1 text-xs text-gray-500">
@@ -767,13 +771,13 @@ export default function SeatLayoutBuilder({
               min={1}
               value={bulkLabelStart}
               onChange={(e) => setBulkLabelStart(Number(e.target.value))}
-              className="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+              className={cn("w-20 rounded-lg border px-2 py-1.5 text-sm", controlClass)}
             />
           </label>
           <button
             type="button"
             onClick={renameSelectedBulk}
-            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className={cn("rounded-lg border px-3 py-1.5 text-sm font-medium", controlClass, controlHoverClass)}
           >
             일괄 변경
           </button>
@@ -789,7 +793,7 @@ export default function SeatLayoutBuilder({
               type="button"
               onClick={() => assignGrade(grade.gradeId)}
               disabled={selectedIds.size === 0}
-              className="flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1 disabled:opacity-40"
+              className={cn("flex items-center gap-1.5 rounded-full border px-3 py-1 disabled:opacity-40", controlClass, controlHoverClass)}
             >
               <span
                 className="size-3 rounded-full"
@@ -809,7 +813,7 @@ export default function SeatLayoutBuilder({
             value={groupNameInput}
             onChange={(e) => setGroupNameInput(e.target.value)}
             placeholder="예: 1층 A블록"
-            className="w-36 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
+            className={cn("w-36 rounded-lg border px-2 py-1.5 text-sm", controlClass)}
           />
           <datalist id="seat-group-names">
             {groups.map((name) => (
@@ -821,7 +825,7 @@ export default function SeatLayoutBuilder({
           type="button"
           onClick={() => assignGroup(groupNameInput)}
           disabled={selectedIds.size === 0 || !groupNameInput.trim()}
-          className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+          className={cn("rounded-lg border px-3 py-1.5 text-sm font-medium disabled:opacity-40", controlClass, controlHoverClass)}
         >
           선택 좌석 그룹 지정
         </button>
@@ -829,23 +833,23 @@ export default function SeatLayoutBuilder({
           type="button"
           onClick={ungroupSelected}
           disabled={selectedIds.size === 0}
-          className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+          className={cn("rounded-lg border px-3 py-1.5 text-sm font-medium disabled:opacity-40", controlClass, controlHoverClass)}
         >
           선택 좌석 그룹 해제
         </button>
       </div>
 
       {groups.length > 0 && (
-        <div className="flex flex-col gap-2 rounded-lg border border-gray-200 p-3">
+        <div className="flex flex-col gap-2 rounded-lg border border-gray-200 p-3 dark:border-[#3c4043]">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-700">그룹 인스펙터</p>
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">그룹 인스펙터</p>
             <label className="flex items-center gap-1 text-xs text-gray-500">
               회전 각도(°)
               <input
                 type="number"
                 value={rotateAngle}
                 onChange={(e) => setRotateAngle(Number(e.target.value))}
-                className="w-16 rounded border border-gray-200 px-1.5 py-1 text-sm"
+                className={cn("w-16 rounded border px-1.5 py-1 text-sm", controlClass)}
               />
             </label>
           </div>
@@ -855,19 +859,19 @@ export default function SeatLayoutBuilder({
               return (
                 <li
                   key={name}
-                  className="flex flex-wrap items-center gap-2 rounded-md bg-gray-50 px-2 py-1.5 text-sm"
+                  className="flex flex-wrap items-center gap-2 rounded-md bg-gray-50 px-2 py-1.5 text-sm dark:bg-[#303134]"
                 >
                   <input
                     key={name}
                     defaultValue={name}
                     onBlur={(e) => renameGroup(name, e.target.value)}
-                    className="w-28 rounded border border-gray-200 px-1.5 py-1 text-sm"
+                    className={cn("w-28 rounded border px-1.5 py-1 text-sm", controlClass)}
                   />
                   <span className="text-xs text-gray-400">{count}석</span>
                   <button
                     type="button"
                     onClick={() => selectGroup(name)}
-                    className="rounded border border-gray-200 px-2 py-1 text-xs hover:bg-white"
+                    className={cn("rounded border px-2 py-1 text-xs", controlClass, controlHoverClass)}
                   >
                     선택
                   </button>
@@ -875,7 +879,7 @@ export default function SeatLayoutBuilder({
                     type="button"
                     onClick={() => rotateGroup(name, -rotateAngle)}
                     title="반시계 방향으로 회전"
-                    className="rounded border border-gray-200 px-2 py-1 text-xs hover:bg-white"
+                    className={cn("rounded border px-2 py-1 text-xs", controlClass, controlHoverClass)}
                   >
                     ↺
                   </button>
@@ -883,14 +887,14 @@ export default function SeatLayoutBuilder({
                     type="button"
                     onClick={() => rotateGroup(name, rotateAngle)}
                     title="시계 방향으로 회전"
-                    className="rounded border border-gray-200 px-2 py-1 text-xs hover:bg-white"
+                    className={cn("rounded border px-2 py-1 text-xs", controlClass, controlHoverClass)}
                   >
                     ↻
                   </button>
                   <button
                     type="button"
                     onClick={() => ungroupAll(name)}
-                    className="rounded border border-gray-200 px-2 py-1 text-xs text-danger-600 hover:bg-danger-50"
+                    className="rounded border border-gray-200 px-2 py-1 text-xs text-danger-600 hover:bg-danger-50 dark:border-[#3c4043] dark:hover:bg-danger-950/30"
                   >
                     그룹 해제
                   </button>
@@ -917,7 +921,7 @@ export default function SeatLayoutBuilder({
           onMouseDown={handleCanvasMouseDown}
           onMouseMove={handleCanvasMouseMove}
           onMouseUp={handleCanvasMouseUp}
-          className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-50"
+          className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-[#3c4043] dark:bg-[#303134]"
         >
           <StageBlock
             stage={stage}
