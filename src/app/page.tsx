@@ -302,9 +302,9 @@ export default async function Home() {
   return (
     <>
       <Header loggedIn={loggedIn} profile={profile} />
-      <main className="flex-1 bg-white pb-20 min-[744px]:pb-0">
+      <main className="flex-1 bg-white pb-4 transition-colors dark:bg-gray-950 min-[744px]:pb-0">
         <HeroSlider slides={heroSlides} />
-        <div className="mx-auto w-full max-w-7xl">
+        <div id="home-content-start" className="mx-auto w-full max-w-7xl scroll-mt-20">
           <HomeSectionLink categories={topCategories} />
           <TicketOpenSection
             todayEvents={todayOpened}
@@ -330,7 +330,11 @@ export default async function Home() {
           ))}
         </div>
         <BestReviewSection reviews={bestReviews} />
-        <div className="h-12 bg-white" aria-hidden />
+        <div
+          id="home-page-end"
+          className="h-1 scroll-mt-24 bg-white transition-colors dark:bg-gray-950 min-[744px]:h-12"
+          aria-hidden
+        />
       </main>
       <div className="hidden lg:contents">
         <Footer />
