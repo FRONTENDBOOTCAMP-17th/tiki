@@ -101,7 +101,13 @@ export default function PaymentForm({
     if (redirectErrorCode) {
       // 결제창에서 취소/실패하고 돌아온 경우, 주문을 ordered 상태로 방치하지 않고
       // 즉시 취소 처리해 예매목록/재고에 남지 않게 한다.
-      cancelReservation(orderId);
+      void (async () => {
+        try {
+          await cancelReservation(orderId);
+        } catch {
+          // 취소 실패는 서버 측 정리 로직(cron)으로 보완되므로 사용자 안내만 유지한다.
+        }
+      })();
       toast.error(searchParams.get("message") || "결제가 취소되었습니다.");
       return;
     }
