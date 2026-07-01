@@ -24,8 +24,8 @@ import LabelBox from "./LabelBox";
 import type { CategoryOption } from "@/app/seller/events/types";
 
 const inputClass =
-  "rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500";
-const selectClass = `${inputClass} h-10 w-full appearance-none bg-white pr-9`;
+  "rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-gray-500";
+const selectClass = `${inputClass} h-10 w-full appearance-none pr-9`;
 
 type FormErrors = Partial<Record<string, string>>;
 
@@ -386,7 +386,7 @@ export default function EventCreateForm({
                   금지일 (회차 제외할 날짜)
                 </p>
                 {rangeDates.size === 0 ? (
-                  <div className="flex min-h-52 items-center justify-center rounded-xl border border-dashed border-gray-200 px-4 text-center text-sm text-gray-400">
+                  <div className="flex min-h-52 items-center justify-center rounded-xl border border-dashed border-gray-200 px-4 text-center text-sm text-gray-400 dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-500">
                     공연 기간을 먼저 선택하면
                     <br />
                     제외할 날짜를 고를 수 있어요
@@ -588,7 +588,7 @@ export default function EventCreateForm({
         </div>
 
         <aside className="flex h-fit flex-col gap-4 lg:sticky lg:top-10">
-          <div className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-6">
+          <div className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-6 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
             <Button type="submit" fullWidth loading={uploading}>
               등록하기
             </Button>

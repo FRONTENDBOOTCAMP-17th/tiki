@@ -165,7 +165,7 @@ const EventImageFields = forwardRef<EventImageFieldsHandle, Props>(
                   className={`absolute bottom-1 right-1 flex h-7 w-7 items-center justify-center rounded-full transition-colors ${
                     isCover
                       ? "bg-primary-700 text-white"
-                      : "bg-white/85 text-gray-500 hover:text-primary-700"
+                      : "bg-white/85 text-gray-500 hover:text-primary-700 dark:bg-[#2a2b2f]/90 dark:text-gray-300 dark:hover:text-white"
                   }`}
                 >
                   <Star size={15} fill={isCover ? "currentColor" : "none"} />
@@ -175,7 +175,7 @@ const EventImageFields = forwardRef<EventImageFieldsHandle, Props>(
           })}
 
           {images.length < MAX && (
-            <label className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-200 text-gray-400 hover:border-primary-300 hover:text-primary-600">
+            <label className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-200 text-gray-400 hover:border-primary-300 hover:text-primary-600 dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-500 dark:hover:border-gray-500 dark:hover:text-gray-100">
               <Plus size={20} />
               <span className="text-[11px]">이미지 추가</span>
               <input
