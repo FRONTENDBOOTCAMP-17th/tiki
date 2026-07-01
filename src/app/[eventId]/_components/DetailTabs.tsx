@@ -14,31 +14,38 @@ interface DetailTabsProps {
   children: ReactNode;
 }
 
+// 해시 → 탭 매핑 (#reviews 는 구매평 탭)
+const HASH_TO_TAB_ID: Record<string, string> = {
+  reviews: "event-reviews",
+};
+
+// URL 해시로부터 초기 활성 탭 인덱스를 구한다 (없으면 0)
+function getInitialIndex(tabs: DetailTab[]) {
+  if (typeof window === "undefined") return 0;
+  const hash = window.location.hash.replace("#", "");
+  if (!hash) return 0;
+  const targetId = HASH_TO_TAB_ID[hash] ?? hash;
+  const index = tabs.findIndex((t) => t.id === targetId);
+  return index === -1 ? 0 : index;
+}
+
 export default function DetailTabs({ tabs, children }: DetailTabsProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(() => getInitialIndex(tabs));
   const panels = Children.toArray(children);
 
-  // URL 해시(#reviews 등)에 맞는 탭 자동 활성화 + 스크롤
+  // 해시로 진입한 경우 해당 영역으로 스크롤 (활성 탭 계산은 초기값에서 이미 처리됨)
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
     if (!hash) return;
 
-    // 해시 → 탭 매핑 (#reviews 는 구매평 탭)
-    const hashToTabId: Record<string, string> = {
-      reviews: "event-reviews",
-    };
-    const targetId = hashToTabId[hash] ?? hash;
-    const index = tabs.findIndex((t) => t.id === targetId);
-    if (index === -1) return;
+    const targetId = HASH_TO_TAB_ID[hash] ?? hash;
+    if (tabs.findIndex((t) => t.id === targetId) === -1) return;
 
-    const frameId = requestAnimationFrame(() => {
-      setActiveIndex(index);
+    requestAnimationFrame(() => {
       document
         .getElementById("reviews")
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-
-    return () => cancelAnimationFrame(frameId);
   }, [tabs]);
 
   return (

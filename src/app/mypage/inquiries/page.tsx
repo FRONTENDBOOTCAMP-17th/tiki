@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import InquiryForm from "./InquiryForm";
 
@@ -35,17 +36,22 @@ export default async function InquiriesPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // 비로그인 차단 (방어적 가드)
+  if (!user) {
+    redirect("/login");
+  }
+
   // 작성 폼에 표시할 계정 정보
   const { data: profile } = await supabase
     .from("users")
     .select("name, email")
-    .eq("id", user?.id ?? "")
+    .eq("id", user.id)
     .maybeSingle();
 
   const { data } = await supabase
     .from("inquiry")
     .select("inquiry_id, category, title, status, created_at")
-    .eq("user_id", user?.id ?? "")
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
   const inquiries = (data ?? []) as InquiryRow[];
