@@ -3,18 +3,11 @@
 import {
   ArrowDown,
   ArrowUp,
-  Moon,
-  Plus,
-  Share2,
-  Sun,
-  X,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
-import useToast from "@/hooks/useToast";
 import { cn } from "@/lib/cn";
-import { useTheme } from "@/components/theme/ThemeProvider";
 
 // 안띄울 path 지정해둔건데 필요하다고 판단되는 화면 있으면 수정하셔도 됩니다
 const HIDDEN_PATH_PREFIXES = [
@@ -81,49 +74,17 @@ function FloatingButton({
 
 export default function FloatingActions() {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
   const isScrolledDown = useSyncExternalStore(
     subscribeScroll,
     getScrollSnapshot,
     () => false,
   );
-  const { isDark, toggleTheme } = useTheme();
-  const toast = useToast();
 
   if (shouldHideFloatingActions(pathname)) return null;
-
-  function handleThemeToggle() {
-    toggleTheme();
-    setOpen(false);
-  }
-
-  async function handleShare() {
-    const shareData = {
-      title: document.title || "TIKI",
-      text: "TIKI에서 공연과 이벤트를 둘러보세요.",
-      url: window.location.href,
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-        setOpen(false);
-        return;
-      }
-
-      await navigator.clipboard.writeText(shareData.url);
-      toast.success("현재 페이지 링크를 복사했어요.");
-      setOpen(false);
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      toast.error("공유에 실패했어요. 다시 시도해 주세요.");
-    }
-  }
 
   function toggleScrollPosition() {
     if (isScrolledDown) {
       window.scrollTo({ top: 0, behavior: "smooth" });
-      setOpen(false);
       return;
     }
 
@@ -131,7 +92,6 @@ export default function FloatingActions() {
       top: document.documentElement.scrollHeight,
       behavior: "smooth",
     });
-    setOpen(false);
   }
 
   return (
@@ -141,41 +101,16 @@ export default function FloatingActions() {
         "sm:right-6 md:bottom-8",
       )}
     >
-      <div
-        className={cn(
-          "flex flex-col items-center gap-2 transition-all duration-200",
-          open
-            ? "pointer-events-auto translate-y-0 opacity-100"
-            : "pointer-events-none translate-y-3 opacity-0",
-        )}
-        aria-hidden={!open}
-      >
-        <FloatingButton label="현재 페이지 공유" onClick={handleShare}>
-          <Share2 size={19} aria-hidden />
-        </FloatingButton>
-        <FloatingButton
-          label={isDark ? "라이트모드로 보기" : "다크모드로 보기"}
-          onClick={handleThemeToggle}
-        >
-          {isDark ? <Sun size={19} aria-hidden /> : <Moon size={19} aria-hidden />}
-        </FloatingButton>
-        <FloatingButton
-          label={isScrolledDown ? "맨 위로 이동" : "맨 아래로 이동"}
-          onClick={toggleScrollPosition}
-        >
-          {isScrolledDown ? (
-            <ArrowUp size={20} aria-hidden />
-          ) : (
-            <ArrowDown size={20} aria-hidden />
-          )}
-        </FloatingButton>
-      </div>
       <FloatingButton
-        label={open ? "플로팅 메뉴 닫기" : "플로팅 메뉴 열기"}
-        onClick={() => setOpen((current) => !current)}
+        label={isScrolledDown ? "맨 위로 이동" : "맨 아래로 이동"}
+        onClick={toggleScrollPosition}
         className="border-gray-950 bg-gray-950 text-white hover:bg-black hover:text-white dark:border-white dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200 dark:hover:text-gray-950"
       >
-        {open ? <X size={20} aria-hidden /> : <Plus size={22} aria-hidden />}
+        {isScrolledDown ? (
+          <ArrowUp size={20} aria-hidden />
+        ) : (
+          <ArrowDown size={20} aria-hidden />
+        )}
       </FloatingButton>
     </div>
   );
