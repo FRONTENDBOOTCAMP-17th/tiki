@@ -1,34 +1,65 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { Users, CalendarDays, ShoppingCart, Tags } from "lucide-react";
 import StatCard from "@/components/StatCard";
+import { todayKST } from "@/lib/date";
 import Link from "next/link";
+
+// 결제 완료(paid) 주문 매출 합계. select+reduce는 1000행 제한에 걸리므로
+// range로 페이지를 넘겨가며 전량을 합산한다. (누적 매출 정확도 보장)
+async function sumPaidRevenue(
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+): Promise<number> {
+  const pageSize = 1000;
+  let from = 0;
+  let total = 0;
+
+  for (;;) {
+    const { data } = await supabase
+      .from("orders")
+      .select("total_price")
+      .eq("status", "paid")
+      .range(from, from + pageSize - 1);
+
+    const page = data ?? [];
+    total += page.reduce((sum, o) => sum + o.total_price, 0);
+    if (page.length < pageSize) break;
+    from += pageSize;
+  }
+
+  return total;
+}
 
 export default async function AdminDashboardPage() {
   const supabase = getSupabaseAdmin();
 
+  // 이번 달 시작(KST 00:00)을 UTC 시각으로 환산. (서버 타임존과 무관하게 KST 기준)
+  const [year, month] = todayKST().split("-").map(Number);
+  const monthStart = new Date(
+    Date.UTC(year, month - 1, 1) - 9 * 60 * 60 * 1000,
+  ).toISOString();
+
   const [
     { data: userRoles, count: totalUsers },
     { data: events },
-    { data: orders },
+    totalRevenue,
     { count: totalCategories },
+    { count: monthOrderCount },
   ] = await Promise.all([
     supabase.from("users").select("role", { count: "exact" }),
     supabase.from("event").select("status, title, event_id, created_at").order("created_at", { ascending: false }).limit(5),
-    supabase.from("orders").select("total_price, status, created_at"),
+    sumPaidRevenue(supabase),
     supabase.from("category").select("*", { count: "exact", head: true }),
+    // 이번 달 "결제 완료(paid)" 주문만 집계. isBooked 규칙과 동일하게 결제 대기/취소/실패는 제외.
+    // DB에서 count로 세어 1000행 제한과 타임존 문제를 함께 해결한다.
+    supabase
+      .from("orders")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "paid")
+      .gte("created_at", monthStart),
   ]);
 
   const buyerCount = (userRoles ?? []).filter((u) => u.role === "buyer").length;
   const sellerCount = (userRoles ?? []).filter((u) => u.role === "seller").length;
-
-  const paidOrders = (orders ?? []).filter((o) => o.status === "paid");
-  const totalRevenue = paidOrders.reduce((sum, o) => sum + o.total_price, 0);
-
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-  const monthOrders = (orders ?? []).filter(
-    (o) => o.created_at && o.created_at >= monthStart,
-  );
 
   const publishedCount = (events ?? []).filter((e) => e.status === "공개").length;
 
@@ -39,7 +70,8 @@ export default async function AdminDashboardPage() {
           대시보드
         </h1>
         <p className="text-sm text-gray-500">
-          {now.toLocaleDateString("ko-KR", {
+          {new Date().toLocaleDateString("ko-KR", {
+            timeZone: "Asia/Seoul",
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -65,7 +97,7 @@ export default async function AdminDashboardPage() {
         <StatCard
           icon={ShoppingCart}
           label="이번 달 주문"
-          value={`${monthOrders.length.toLocaleString()}건`}
+          value={`${(monthOrderCount ?? 0).toLocaleString()}건`}
           tone="accent"
         />
         <StatCard

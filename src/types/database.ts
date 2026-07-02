@@ -394,6 +394,53 @@ export type Database = {
           },
         ]
       }
+      settlement_request: {
+        Row: {
+          settlement_id: string
+          seller_id: string
+          period_start: string
+          period_end: string
+          gross: number
+          fee: number
+          net: number
+          status: string
+          requested_at: string
+          approved_at: string | null
+        }
+        Insert: {
+          settlement_id?: string
+          seller_id: string
+          period_start: string
+          period_end: string
+          gross?: number
+          fee?: number
+          net?: number
+          status?: string
+          requested_at?: string
+          approved_at?: string | null
+        }
+        Update: {
+          settlement_id?: string
+          seller_id?: string
+          period_start?: string
+          period_end?: string
+          gross?: number
+          fee?: number
+          net?: number
+          status?: string
+          requested_at?: string
+          approved_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settlement_request_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       slot: {
         Row: {
           created_at: string

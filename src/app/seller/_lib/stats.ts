@@ -69,3 +69,24 @@ export function orderStatusLabel(status: string | null | undefined) {
 export function serviceFee(amount: number) {
   return Math.round(amount * SERVICE_FEE_RATE);
 }
+
+// "YYYY-MM" 시작~끝(양끝 포함) 사이의 모든 월을 배열로 반환한다.
+// 정산 신청 범위 안에 어떤 월들이 포함되는지 계산할 때 쓴다.
+export function monthsInRange(start: string, end: string): string[] {
+  const result: string[] = [];
+  const [sy, sm] = start.split("-").map(Number);
+  const [ey, em] = end.split("-").map(Number);
+  if (!sy || !sm || !ey || !em) return result;
+
+  let year = sy;
+  let month = sm;
+  while (year < ey || (year === ey && month <= em)) {
+    result.push(`${year}-${String(month).padStart(2, "0")}`);
+    month += 1;
+    if (month > 12) {
+      month = 1;
+      year += 1;
+    }
+  }
+  return result;
+}
