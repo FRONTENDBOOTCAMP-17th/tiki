@@ -93,6 +93,10 @@ body {
   color: #6b7280;
 }
 
+.dark :where(.hover\:text-gray-900:hover) {
+  color: var(--app-text);
+}
+
 @theme {
   --color-primary: #cdb4db;
 
