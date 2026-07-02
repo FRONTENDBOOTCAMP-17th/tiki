@@ -8,6 +8,7 @@ import {
   Bell,
   MessageCircle,
   Wallet,
+  Star,
   LogOut,
 } from "lucide-react";
 import SidebarMenuItem from "./SidebarMenuItem";
@@ -20,6 +21,7 @@ const ADMIN_MENU: SidebarItem[] = [
   { label: "회원 관리", href: "/admin/members", icon: BarChart2 },
   { label: "카테고리 관리", href: "/admin/categories", icon: Folder },
   { label: "정산 관리", href: "/admin/settlement", icon: Wallet },
+  { label: "리뷰 관리", href: "/admin/reviews", icon: Star },
   { label: "알림 관리", href: "/admin/notifications", icon: Bell },
   { label: "문의 관리", href: "/admin/inquiries", icon: MessageCircle },
 ];
