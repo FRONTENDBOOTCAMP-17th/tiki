@@ -1,6 +1,7 @@
 import { MapPin, Star, Clock, Calendar } from "lucide-react";
 
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { getCurrentUser, getHeaderProfile } from "@/lib/auth";
 import {
   getEventDetail,
@@ -263,6 +264,9 @@ export default async function EventDetailPage({
           </>
         )}
       </main>
+      <div className="hidden lg:contents">
+        <Footer />
+      </div>
     </>
   );
 }
