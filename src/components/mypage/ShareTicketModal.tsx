@@ -36,37 +36,45 @@ export default function ShareTicketModal({
   const shareableTotal = Math.max(0, r.count - 1);
   const remaining = Math.max(0, shareableTotal - alreadyShared);
   const soldOut = remaining === 0;
+  // remaining이 나중에 로드되어 줄어들 수 있으므로 렌더 중 clamp (별도 effect 불필요)
+  const safeQty = Math.min(qty, Math.max(1, remaining));
 
   // 모달 열릴 때 친구 목록 + 이미 공유한 수량 로드
   useEffect(() => {
     if (!open) return;
-    setLoading(true);
-    setSelected(null);
-    setQty(1);
 
-    const supabase = createClient();
-    Promise.all([
-      supabase.rpc("get_my_friends"),
-      supabase.rpc("get_shared_quantity", { p_order_id: r.id }),
-    ])
-      .then(([friendRes, sharedRes]) => {
+    let ignore = false;
+    const load = async () => {
+      setLoading(true);
+      setSelected(null);
+      setQty(1);
+      try {
+        const supabase = createClient();
+        const [friendRes, sharedRes] = await Promise.all([
+          supabase.rpc("get_my_friends"),
+          supabase.rpc("get_shared_quantity", { p_order_id: r.id }),
+        ]);
+        if (ignore) return;
         setFriends((friendRes.data as Friend[] | null) ?? []);
         setAlreadyShared((sharedRes.data as number | null) ?? 0);
-      })
-      .catch(() => toast.error("정보를 불러오지 못했습니다"))
-      .finally(() => setLoading(false));
-  }, [open, r.id]);
+      } catch {
+        if (!ignore) toast.error("정보를 불러오지 못했습니다");
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    };
+    load();
 
-  // remaining 바뀌면 qty 범위 보정
-  useEffect(() => {
-    setQty((q) => Math.min(Math.max(1, q), Math.max(1, remaining)));
-  }, [remaining]);
+    return () => {
+      ignore = true;
+    };
+  }, [open, r.id]);
 
   const handleShare = async () => {
     if (!selected) return;
     setSharing(true);
     try {
-      const result = await shareTicket(r.id, selected, qty);
+      const result = await shareTicket(r.id, selected, safeQty);
       if (result?.error) {
         toast.error(result.error);
         return;
@@ -119,17 +127,17 @@ export default function ShareTicketModal({
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  disabled={qty <= 1}
+                  onClick={() => setQty(Math.max(1, safeQty - 1))}
+                  disabled={safeQty <= 1}
                   className="flex size-8 items-center justify-center rounded-lg border border-gray-200 disabled:opacity-40"
                 >
                   <Minus size={16} />
                 </button>
-                <span className="w-6 text-center font-semibold">{qty}</span>
+                <span className="w-6 text-center font-semibold">{safeQty}</span>
                 <button
                   type="button"
-                  onClick={() => setQty((q) => Math.min(remaining, q + 1))}
-                  disabled={qty >= remaining}
+                  onClick={() => setQty(Math.min(remaining, safeQty + 1))}
+                  disabled={safeQty >= remaining}
                   className="flex size-8 items-center justify-center rounded-lg border border-gray-200 disabled:opacity-40"
                 >
                   <Plus size={16} />
