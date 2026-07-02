@@ -81,7 +81,9 @@ export default function ProfileMenu({ profile }: { profile: HeaderProfile }) {
   }
 
   const initial = profile.name.trim().charAt(0).toUpperCase() || "?";
-  const isStaff = profile.role === "seller" || profile.role === "admin";
+  // 판매자는 판매자 페이지, 관리자는 관리자 페이지만 노출할 수 있게 수정
+  const isSeller = profile.role === "seller";
+  const isAdmin = profile.role === "admin";
 
   return (
     <div className="relative">
@@ -130,22 +132,22 @@ export default function ProfileMenu({ profile }: { profile: HeaderProfile }) {
                 <SidebarMenuItem key={item.href} {...item} />
               ))}
 
-              {isStaff && (
-                <>
-                  <div className="my-1 border-t border-gray-100 dark:border-[#3c4043]" />
-                  <SidebarMenuItem
-                    label="판매자 페이지"
-                    href="/seller"
-                    icon={Store}
-                  />
-                  {profile.role === "admin" && (
-                    <SidebarMenuItem
-                      label="관리자 페이지"
-                      href="/admin"
-                      icon={ShieldCheck}
-                    />
-                  )}
-                </>
+              {(isSeller || isAdmin) && (
+                <div className="my-1 border-t border-gray-100 dark:border-[#3c4043]" />
+              )}
+              {isSeller && (
+                <SidebarMenuItem
+                  label="판매자 페이지"
+                  href="/seller"
+                  icon={Store}
+                />
+              )}
+              {isAdmin && (
+                <SidebarMenuItem
+                  label="관리자 페이지"
+                  href="/admin"
+                  icon={ShieldCheck}
+                />
               )}
             </nav>
 

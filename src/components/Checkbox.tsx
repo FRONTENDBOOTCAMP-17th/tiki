@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/cn';
-import { CheckIcon } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 export default function Checkbox({
   checked,
@@ -19,40 +19,41 @@ export default function Checkbox({
   onChange?: () => void;
 }) {
   return (
-    <div className={cn('flex gap-2 items-center px-4', className)}>
+    <label
+      htmlFor={id ?? ''}
+      className={cn('flex cursor-pointer items-center gap-3', className)}
+    >
       <input
         id={id ?? ''}
         type='checkbox'
-        className='appearance-none'
-        onClick={() => {
-          if (onChange) {
-            onChange();
-          }
-        }}
+        checked={checked}
+        onChange={() => onChange?.()}
+        className='peer sr-only'
       />
-      <CheckIcon
+      <span
         className={cn(
-          'cursor-pointer text-transparent border-2 rounded-md border-primary-800 dark:border-primary-400',
-          checked && 'bg-primary-700 text-white dark:border-primary-700',
+          'flex size-5 shrink-0 items-center justify-center rounded-md border-2 border-gray-300 text-transparent transition-colors dark:border-[#4a4c50]',
+          checked &&
+            'border-primary-700 bg-primary-700 text-white dark:border-primary-600 dark:bg-primary-600',
         )}
-        onClick={() => onChange?.()}
-      />
+      >
+        <Check className='size-3.5' strokeWidth={3} />
+      </span>
       {text ? (
-        <label htmlFor={id ?? ''} className='text-md align-top dark:text-gray-100'>
-          {text}
-        </label>
-      ) : (
-        ''
-      )}
+        <span className='text-sm text-gray-800 dark:text-gray-100'>{text}</span>
+      ) : null}
       {required !== undefined ? (
-        required ? (
-          <span className='text-primary-800 font-semibold dark:text-primary-300'>(필수)</span>
-        ) : (
-          <span className='text-gray-400 font-semibold'>(선택)</span>
-        )
-      ) : (
-        ''
-      )}
-    </div>
+        <span
+          className={cn(
+            'ml-auto text-xs font-medium',
+            required
+              ? 'text-primary-700 dark:text-primary-300'
+              : 'text-gray-400 dark:text-gray-500',
+          )}
+        >
+          {required ? '필수' : '선택'}
+        </span>
+      ) : null}
+    </label>
   );
 }

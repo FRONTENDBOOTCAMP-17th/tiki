@@ -48,11 +48,12 @@ export default function RoleForm({
 
   return (
     <div className='w-full max-w-190 space-y-4 md:min-w-90'>
-      <h2 className='flex flex-col text-4xl text-[#0f0f0f] font-bold leading-12 md:hidden dark:text-gray-100'>
-        <span>어떻게 티키를</span>
-        <span>이용하실 건가요?</span>
+      <h2 className='text-2xl font-bold leading-snug text-gray-900 md:hidden dark:text-gray-100'>
+        어떻게 티키를
+        <br />
+        이용하실 건가요?
       </h2>
-      <p className='text-gray-500 text-md md:hidden dark:text-gray-400'>
+      <p className='text-sm text-gray-500 md:hidden dark:text-gray-400'>
         모바일에서는 구매자 회원가입만 가능해요
       </p>
       <div className='flex gap-4 items-center justify-center my-20 md:my-0'>

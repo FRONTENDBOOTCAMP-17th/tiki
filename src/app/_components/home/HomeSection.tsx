@@ -19,22 +19,24 @@ export default function HomeSection({
 }: HomeSectionProps) {
   return (
     <section className={cn("px-4 py-7 md:px-8 lg:px-16", className)}>
-      <div className="mb-4 flex items-end justify-between gap-4">
-        {moreHref ? (
-          <Link
-            href={moreHref}
-            className="group inline-flex items-center gap-1 text-lg font-bold tracking-tight text-gray-950 transition-colors hover:text-primary-700 md:text-xl dark:text-gray-50 dark:hover:text-white"
-          >
-            {title}
-            <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        ) : (
-          <h2 className="text-lg font-bold tracking-tight text-gray-950 md:text-xl dark:text-gray-50">
-            {title}
-          </h2>
-        )}
+      <div className="mx-auto w-full max-w-7xl">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          {moreHref ? (
+            <Link
+              href={moreHref}
+              className="group inline-flex items-center gap-1 text-lg font-bold tracking-tight text-gray-950 transition-colors hover:text-primary-700 md:text-xl dark:text-gray-50 dark:hover:text-white"
+            >
+              {title}
+              <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          ) : (
+            <h2 className="text-lg font-bold tracking-tight text-gray-950 md:text-xl dark:text-gray-50">
+              {title}
+            </h2>
+          )}
+        </div>
+        {children}
       </div>
-      {children}
     </section>
   );
 }
