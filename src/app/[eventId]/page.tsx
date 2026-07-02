@@ -1,4 +1,5 @@
 import { MapPin, Star, Clock, Calendar } from "lucide-react";
+import { notFound } from "next/navigation";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -21,6 +22,9 @@ import DetailTabs from "./_components/DetailTabs";
 import VenueMap from "./_components/VenueMap";
 import ReviewComposer from "./_components/reviews/ReviewComposer";
 import ReviewSection from "./_components/reviews/ReviewSection";
+
+const EVENT_ID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // 최초 공연 날짜 (가장 이른 회차)
 function formatFirstDate(slots: Slot[]) {
@@ -55,15 +59,26 @@ export default async function EventDetailPage({
   ]);
   const loggedIn = !!user;
 
-  // 상세/회차/등급/리뷰를 서버에서 병렬 조회 (존재하지 않는 공연이면 event 가 null)
-  const [event, slots, grades, seatLayout, reviewData, writableSlots] = await Promise.all([
-    getEventDetail(eventId),
-    getSlots(eventId),
-    getGrades(eventId),
-    getSeatLayout(eventId),
-    getReviews(eventId),
-    getWritableReviewSlots(eventId),
-  ]);
+  // 상세 페이지 500 방지: UUID 형식이 아니면 나머지 조회 전에 404로 처리
+  if (!EVENT_ID_RE.test(eventId)) notFound();
+
+  const event = await getEventDetail(eventId);
+
+  const [slots, grades, seatLayout, reviewData, writableSlots] = event
+    ? await Promise.all([
+        getSlots(eventId),
+        getGrades(eventId),
+        getSeatLayout(eventId),
+        getReviews(eventId),
+        getWritableReviewSlots(eventId),
+      ])
+    : [
+        [],
+        [],
+        null,
+        { averageRating: 0, totalCount: 0, reviews: [], page: 1, limit: 0 },
+        [],
+      ];
 
   const firstShowDate = formatFirstDate(slots);
   const { averageRating, totalCount: reviewCount, reviews } = reviewData;
