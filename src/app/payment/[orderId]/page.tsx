@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { ORDER_STATUS } from "@/lib/constants/order-status";
 import { createClient } from "@/lib/supabase/server";
@@ -9,6 +10,41 @@ const SERVICE_FEE_RATE = 0.05;
 // 잘못된 id 가 uuid 컬럼 캐스팅 에러를 일으키기 전에 형식 검증
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function PaymentStatusNotice({
+  title,
+  description,
+  eventId,
+}: {
+  title: string;
+  description: string;
+  eventId: string;
+}) {
+  return (
+    <main className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
+      <div className="space-y-2">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">
+          {title}
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-300">{description}</p>
+      </div>
+      <div className="flex gap-3">
+        <Link
+          href={`/${eventId}`}
+          className="inline-flex h-11 items-center justify-center rounded-lg border border-gray-300 px-5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-[#3c4043] dark:text-gray-200 dark:hover:bg-[#303134]"
+        >
+          다시 예매하기
+        </Link>
+        <Link
+          href="/mypage/reservations"
+          className="inline-flex h-11 items-center justify-center rounded-lg bg-primary-700 px-5 text-sm font-medium text-white hover:bg-primary-800"
+        >
+          예매내역 보기
+        </Link>
+      </div>
+    </main>
+  );
+}
 
 export default async function PaymentPage({
   params,
@@ -33,8 +69,8 @@ export default async function PaymentPage({
 
   if (!order) notFound();
 
-  // 이미 결제 완료/실패 처리된 주문이면 결제창을 다시 띄울 필요가 없음
-  if (order.status !== ORDER_STATUS.ORDERED) notFound();
+  // 이미 결제 완료된 주문은 결제창을 다시 띄울 필요가 없음
+  if (order.status === ORDER_STATUS.PAID) notFound();
 
   const [{ data: event }, { data: slot }, { data: grade }, { data: profile }, { data: orderSeats }] =
     await Promise.all([
@@ -65,6 +101,31 @@ export default async function PaymentPage({
     ]);
 
   if (!event || !slot || !grade) notFound();
+
+  if (
+    order.status === ORDER_STATUS.CANCELLED ||
+    order.status === ORDER_STATUS.FAILED
+  ) {
+    const isCancelled = order.status === ORDER_STATUS.CANCELLED;
+
+    return (
+      <PaymentStatusNotice
+        title={
+          isCancelled
+            ? "결제가 취소되었습니다"
+            : "결제를 완료하지 못했습니다"
+        }
+        description={
+          isCancelled
+            ? "결제창에서 결제를 완료하지 않아 예매가 취소되었습니다. 필요하면 다시 예매를 진행해주세요."
+            : "결제가 정상적으로 완료되지 않았습니다. 같은 공연을 다시 예매할 수 있습니다."
+        }
+        eventId={order.event_id}
+      />
+    );
+  }
+
+  if (order.status !== ORDER_STATUS.ORDERED) notFound();
 
   const subtotal = grade.price * order.quantity;
   const fee = Math.round(subtotal * SERVICE_FEE_RATE);

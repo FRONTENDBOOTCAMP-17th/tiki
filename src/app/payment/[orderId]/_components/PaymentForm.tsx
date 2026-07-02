@@ -99,8 +99,6 @@ export default function PaymentForm({
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!redirectedPaymentId) return;
-
     if (redirectErrorCode) {
       // 결제창에서 취소/실패하고 돌아온 경우, 주문을 ordered 상태로 방치하지 않고
       // 즉시 취소 처리해 예매목록/재고에 남지 않게 한다.
@@ -112,9 +110,12 @@ export default function PaymentForm({
           console.error("[PAY] cancelReservation after redirect failed:", e);
         }
         toast.error(searchParams.get("message") || "결제가 취소되었습니다.");
+        router.replace(`/payment/${orderId}?result=cancelled`);
       })();
       return;
     }
+
+    if (!redirectedPaymentId) return;
 
     confirmPayment(orderId)
       .then(() => {
@@ -164,7 +165,7 @@ export default function PaymentForm({
         // 결제 취소/실패 시 ordered 상태로 방치하지 않고 즉시 취소 처리한다.
         await cancelReservation(orderId);
         toast.error(response.message || "결제에 실패했습니다.");
-        setSubmitting(false);
+        router.replace(`/payment/${orderId}?result=cancelled`);
         return;
       }
 
