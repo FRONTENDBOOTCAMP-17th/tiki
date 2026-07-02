@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Bell, UserPlus, Ticket, Megaphone, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -89,6 +90,7 @@ export default function NotificationBell({
   size?: number;
   strokeWidth?: number;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[]>([]);
   const { success, error } = useToast();
@@ -126,6 +128,7 @@ export default function NotificationBell({
     setItems((prev) =>
       prev.filter((n) => n.notification_id !== item.notification_id),
     );
+    router.refresh(); // 친구 수락 → 친구 목록 등 서버 컴포넌트 갱신
   }
 
   async function handleReject(item: NotificationItem) {
@@ -138,6 +141,7 @@ export default function NotificationBell({
     setItems((prev) =>
       prev.filter((n) => n.notification_id !== item.notification_id),
     );
+    router.refresh();
   }
 
   async function handleAcceptShare(item: NotificationItem) {
@@ -151,6 +155,7 @@ export default function NotificationBell({
       prev.filter((n) => n.notification_id !== item.notification_id),
     );
     success("티켓을 받았습니다");
+    router.refresh(); // 티켓 수락 → 받은 티켓 탭 등 서버 컴포넌트 갱신
   }
 
   async function handleRejectShare(item: NotificationItem) {
@@ -163,6 +168,7 @@ export default function NotificationBell({
     setItems((prev) =>
       prev.filter((n) => n.notification_id !== item.notification_id),
     );
+    router.refresh();
   }
 
   async function handleDelete(item: NotificationItem) {
