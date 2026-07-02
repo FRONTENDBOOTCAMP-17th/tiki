@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { QrCode, Share2, Star } from "lucide-react";
 import useToast from "@/hooks/useToast";
@@ -15,6 +16,7 @@ export default function ReservationActions({
 }: {
   reservation: Reservation;
 }) {
+  const router = useRouter();
   const { success, error } = useToast();
   const [modal, setModal] = useState<
     "none" | "qr" | "share" | "detail" | "cancel"
@@ -31,6 +33,7 @@ export default function ReservationActions({
       return;
     }
     success("예매가 취소되었습니다");
+    router.refresh(); // 서버 컴포넌트 재검증 → 카드 상태 즉시 갱신
   };
 
   // ① 예매 취소 → 상세보기 + 재예매
