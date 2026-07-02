@@ -63,7 +63,7 @@ export default function SignupFormDesktopRenderer() {
   };
 
   return (
-    <div className='flex flex-col items-center w-full pb-16'>
+    <div className='flex w-full flex-col items-center'>
       <form
         className='w-full max-w-xl space-y-6'
         onSubmit={(e) => { e.preventDefault(); submitForm(); }}
@@ -110,9 +110,9 @@ export default function SignupFormDesktopRenderer() {
             이미 계정이 있으신가요?{' '}
             <Link
               href='/login'
-              className='text-primary-700 font-medium underline dark:text-primary-400'
+              className='font-medium text-primary-700 underline underline-offset-2 transition-colors hover:text-primary-800 dark:text-gray-100 dark:hover:text-white'
             >
-              로그인하기
+              로그인
             </Link>
           </p>
         </div>
