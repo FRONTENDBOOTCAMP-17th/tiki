@@ -4,7 +4,7 @@ import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
 import type { Reservation } from "./ReservationCard";
 
-export default function CancelledDetailModal({
+export default function ReservationDetailModal({
   open,
   onClose,
   reservation: r,

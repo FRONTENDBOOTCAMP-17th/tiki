@@ -7,7 +7,7 @@ import useToast from "@/hooks/useToast";
 import type { Reservation } from "./ReservationCard";
 import QrTicketModal from "./QrTicketModal";
 import ShareTicketModal from "./ShareTicketModal";
-import CancelledDetailModal from "./CancelledDetailModal";
+import ReservationDetailModal from "./ReservationDetailModal";
 import Dialog from "@/components/modal/Dialog";
 import { cancelReservation } from "@/app/action";
 
@@ -56,7 +56,7 @@ export default function ReservationActions({
           </Link>
         </div>
 
-        <CancelledDetailModal
+        <ReservationDetailModal
           open={modal === "detail"}
           onClose={() => setModal("none")}
           reservation={reservation}
@@ -86,7 +86,7 @@ export default function ReservationActions({
           </Link>
         </div>
 
-        <CancelledDetailModal
+        <ReservationDetailModal
           open={modal === "detail"}
           onClose={() => setModal("none")}
           reservation={reservation}
