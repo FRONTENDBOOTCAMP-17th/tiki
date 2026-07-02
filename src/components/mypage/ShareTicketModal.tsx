@@ -15,8 +15,6 @@ interface Friend {
   email: string | null;
 }
 
-const AVATAR_COLORS = ["bg-primary-400", "bg-secondary-400", "bg-accent-400"];
-
 export default function ShareTicketModal({
   open,
   onClose,
@@ -150,7 +148,7 @@ export default function ShareTicketModal({
                 </p>
               ) : (
                 <div className="flex flex-col gap-2">
-                  {friends.map((f, i) => (
+                  {friends.map((f) => (
                     <button
                       key={f.user_id}
                       type="button"
@@ -162,7 +160,7 @@ export default function ShareTicketModal({
                       }`}
                     >
                       <div
-                        className={`flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}
+                        className={`flex size-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-400 via-accent-400 to-secondary-400 text-sm font-semibold text-primary-900`}
                       >
                         {f.name?.charAt(0) ?? "?"}
                       </div>
