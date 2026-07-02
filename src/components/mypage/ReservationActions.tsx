@@ -50,7 +50,7 @@ export default function ReservationActions({
           </button>
           <Link
             href={`/${reservation.eventId}`}
-            className="flex flex-1 items-center justify-center rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 lg:flex-none"
+            className="flex flex-1 items-center justify-center rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-medium text-primary-900 transition hover:opacity-90 lg:flex-none"
           >
             재예매
           </Link>
@@ -79,7 +79,7 @@ export default function ReservationActions({
           </button>
           <Link
             href={`/${reservation.eventId}#reviews`}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 lg:flex-none"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-medium text-primary-900 transition hover:opacity-90 lg:flex-none"
           >
             <Star size={16} />
             리뷰 쓰기

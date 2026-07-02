@@ -21,7 +21,9 @@ export default function ReservationDetailModal({
       <Modal.Body>
         <div
           className={`flex flex-col gap-1.5 rounded-xl p-4 ${
-            isCancelled ? "bg-danger-100" : "bg-primary-100"
+            isCancelled
+              ? "bg-danger-100 dark:bg-danger-900/30"
+              : "bg-primary-100 dark:bg-primary-900/30"
           }`}
         >
           <div className="flex items-center gap-2">

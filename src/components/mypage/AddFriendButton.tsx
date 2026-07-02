@@ -41,7 +41,7 @@ export default function AddFriendButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-medium text-primary-900 transition hover:opacity-90"
       >
         <UserPlus size={16} />
         친구 추가

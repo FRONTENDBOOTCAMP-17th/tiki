@@ -283,7 +283,7 @@ export default function NotificationBell({
                                   ? handleAccept(item)
                                   : handleAcceptShare(item)
                               }
-                              className="flex-1 rounded-lg bg-linear-to-r from-primary-400 to-secondary-400 px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+                              className="flex-1 rounded-lg bg-linear-to-r from-primary-400 to-secondary-400 px-3 py-1.5 text-xs font-semibold text-primary-900 transition hover:opacity-90"
                             >
                               수락
                             </button>

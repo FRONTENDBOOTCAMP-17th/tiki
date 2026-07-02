@@ -197,7 +197,7 @@ export default function ShareTicketModal({
             type="button"
             disabled={!selected || sharing || loading}
             onClick={handleShare}
-            className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2.5 text-sm font-semibold text-primary-900 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {sharing ? "공유 중..." : "공유하기"}
           </button>
