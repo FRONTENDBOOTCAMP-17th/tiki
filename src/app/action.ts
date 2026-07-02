@@ -217,3 +217,14 @@ export async function rejectTicketShare(shareId: string) {
   if (error) return { error: error.message };
   return data as { success?: boolean; error?: string };
 }
+
+export async function revokeTicketShare(shareId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("revoke_ticket_share", {
+    p_share_id: shareId,
+  });
+  if (error) return { error: error.message };
+
+  revalidatePath("/mypage/reservations");
+  return data as { success?: boolean; error?: string };
+}

@@ -87,7 +87,7 @@ export default function ReceivedTicketCard({
           {t.is_ended ? (
             <Link
               href={`/${t.event_id}#reviews`}
-              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-semibold text-primary-900 transition hover:opacity-90"
             >
               <Star size={15} />
               리뷰 쓰기
@@ -96,7 +96,7 @@ export default function ReceivedTicketCard({
             <button
               type="button"
               onClick={() => setQrOpen(true)}
-              className="rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+              className="rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-semibold text-primary-900 transition hover:opacity-90"
             >
               입장하기
             </button>

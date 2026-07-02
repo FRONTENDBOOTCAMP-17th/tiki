@@ -42,7 +42,7 @@ export default function AdminSidebar() {
 
       <div className="border-t border-gray-100 pt-3 dark:border-[#3c4043]">
         <div className="flex items-center gap-3 px-1 py-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 text-sm font-bold text-white dark:from-gray-700 dark:to-gray-500">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 text-sm font-bold text-primary-900 dark:text-white dark:from-gray-700 dark:to-gray-500">
             A
           </div>
           <div className="min-w-0">

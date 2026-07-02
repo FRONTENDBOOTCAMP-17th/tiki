@@ -33,7 +33,7 @@ export default function QrTicketModal({
     <Modal open={open} onClose={onClose}>
       <Modal.Header>QR 티켓</Modal.Header>
       <Modal.Body>
-        <div className="flex flex-col gap-1.5 rounded-xl bg-primary-100 p-4">
+        <div className="flex flex-col gap-1.5 rounded-xl bg-primary-100 p-4 dark:bg-primary-900/30">
           <p className="font-bold text-gray-900">{r.title}</p>
           <span className="flex items-center gap-1.5 text-sm text-gray-600">
             <Calendar size={14} className="shrink-0 text-gray-400" />
@@ -61,7 +61,7 @@ export default function QrTicketModal({
           <p className="text-xs text-gray-400">{r.orderNo}</p>
         </div>
 
-        <div className="rounded-lg bg-secondary-100 px-4 py-3 text-center text-sm text-secondary-700">
+        <div className="rounded-lg bg-secondary-100 px-4 py-3 text-center text-sm text-secondary-700 dark:bg-secondary-900/30">
           현장에서 이 QR 코드를 스캔하여 입장하세요
         </div>
 
@@ -83,7 +83,7 @@ export default function QrTicketModal({
         <button
           type="button"
           onClick={handleSave}
-          className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+          className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2.5 text-sm font-semibold text-primary-900 transition hover:opacity-90"
         >
           저장하기
         </button>
