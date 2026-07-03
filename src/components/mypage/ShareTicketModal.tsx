@@ -1,20 +1,19 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { Minus, Plus } from "lucide-react";
+import { toast } from "sonner";
 import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
 import { createClient } from "@/lib/supabase/client";
 import { shareTicket } from "@/app/action";
 import type { Reservation } from "./ReservationCard";
-import useToast from "@/hooks/useToast";
 
 interface Friend {
   user_id: string;
   name: string | null;
   email: string | null;
 }
-
-const AVATAR_COLORS = ["bg-primary-400", "bg-secondary-400", "bg-accent-400"];
 
 export default function ShareTicketModal({
   open,
@@ -25,114 +24,167 @@ export default function ShareTicketModal({
   onClose: () => void;
   reservation: Reservation;
 }) {
-  const { success, error } = useToast();
-  const max = Math.max(1, r.count - 1);
   const [qty, setQty] = useState(1);
   const [selected, setSelected] = useState<string | null>(null);
   const [friends, setFriends] = useState<Friend[]>([]);
+  const [alreadyShared, setAlreadyShared] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [sharing, setSharing] = useState(false);
 
-  // 모달 열릴 때 내 친구 목록 로드
+  // 본인 1매는 남김 → 공유 가능 총량 = count - 1
+  // 남은 = 총량 - 이미 공유한 양(rejected 제외, RPC가 처리)
+  const shareableTotal = Math.max(0, r.count - 1);
+  const remaining = Math.max(0, shareableTotal - alreadyShared);
+  const soldOut = remaining === 0;
+  // remaining이 나중에 로드되어 줄어들 수 있으므로 렌더 중 clamp (별도 effect 불필요)
+  const safeQty = Math.min(qty, Math.max(1, remaining));
+
+  // 모달 열릴 때 친구 목록 + 이미 공유한 수량 로드
   useEffect(() => {
     if (!open) return;
-    const supabase = createClient();
-    supabase.rpc("get_my_friends").then(({ data }) => {
-      setFriends((data as Friend[] | null) ?? []);
-    });
-  }, [open]);
+
+    let ignore = false;
+    const load = async () => {
+      setLoading(true);
+      setSelected(null);
+      setQty(1);
+      try {
+        const supabase = createClient();
+        const [friendRes, sharedRes] = await Promise.all([
+          supabase.rpc("get_my_friends"),
+          supabase.rpc("get_shared_quantity", { p_order_id: r.id }),
+        ]);
+        if (ignore) return;
+        setFriends((friendRes.data as Friend[] | null) ?? []);
+        setAlreadyShared((sharedRes.data as number | null) ?? 0);
+      } catch {
+        if (!ignore) toast.error("정보를 불러오지 못했습니다");
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    };
+    load();
+
+    return () => {
+      ignore = true;
+    };
+  }, [open, r.id]);
 
   const handleShare = async () => {
     if (!selected) return;
     setSharing(true);
-    const result = await shareTicket(r.id, selected, qty);
-    setSharing(false);
-    if (result?.error) {
-      error(result.error);
-      return;
+    try {
+      const result = await shareTicket(r.id, selected, safeQty);
+      if (result?.error) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("티켓을 공유했습니다");
+      onClose();
+    } catch {
+      toast.error("공유에 실패했습니다");
+    } finally {
+      setSharing(false);
     }
-    success("티켓을 공유했습니다");
-    onClose();
   };
 
   return (
     <Modal open={open} onClose={onClose}>
       <Modal.Header>티켓 공유하기</Modal.Header>
       <Modal.Body>
-        <div className="rounded-xl bg-gray-50 p-4">
-          <p className="text-xs text-gray-400">예매 이벤트</p>
-          <p className="font-semibold text-gray-900">{r.title}</p>
-          <div className="mt-2 flex justify-between text-sm">
-            <span className="text-gray-500">총 티켓 수</span>
-            <span className="font-medium text-gray-900">{r.count}매</span>
-          </div>
-        </div>
-
-        <div>
-          <p className="mb-2 text-sm font-medium text-gray-700">
-            공유할 티켓 수
+        {loading ? (
+          <p className="py-8 text-center text-sm text-gray-400">
+            불러오는 중...
           </p>
-          <div className="flex items-center justify-center gap-6">
-            <button
-              type="button"
-              onClick={() => setQty((q) => Math.max(1, q - 1))}
-              className="flex size-8 items-center justify-center rounded-full border border-gray-300 text-gray-600"
-            >
-              <Minus size={16} />
-            </button>
-            <span className="text-2xl font-bold text-primary-600">
-              {qty}
-              <span className="ml-0.5 text-sm font-normal text-gray-400">
-                매
-              </span>
-            </span>
-            <button
-              type="button"
-              onClick={() => setQty((q) => Math.min(max, q + 1))}
-              className="flex size-8 items-center justify-center rounded-full border border-gray-300 text-gray-600"
-            >
-              <Plus size={16} />
-            </button>
-          </div>
-          <p className="mt-2 text-center text-xs text-gray-400">
-            최소 1장은 본인이 보유해야 합니다
-          </p>
-        </div>
-
-        <div>
-          <p className="mb-2 text-sm font-medium text-gray-700">
-            티켓을 공유할 친구 선택
-          </p>
-          {friends.length === 0 ? (
-            <p className="rounded-xl border border-gray-100 p-4 text-center text-sm text-gray-400">
-              공유할 친구가 없습니다
+        ) : soldOut ? (
+          // 남은 수량 0 → 공유 불가
+          <div className="rounded-xl border border-gray-100 bg-gray-50 p-6 text-center">
+            <p className="font-semibold text-gray-700">
+              이미 모두 공유했습니다
             </p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {friends.map((f, i) => (
-                <button
-                  key={f.user_id}
-                  type="button"
-                  onClick={() => setSelected(f.user_id)}
-                  className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
-                    selected === f.user_id
-                      ? "border-primary-400 bg-primary-100"
-                      : "border-gray-100 hover:bg-gray-50"
-                  }`}
-                >
-                  <div
-                    className={`flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}
-                  >
-                    {f.name?.charAt(0) ?? "?"}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-medium text-gray-900">{f.name}</p>
-                    <p className="truncate text-xs text-gray-400">{f.email}</p>
-                  </div>
-                </button>
-              ))}
+            <p className="mt-1 text-sm text-gray-400">
+              공유 가능한 {shareableTotal}매를 모두 공유했어요. (본인 1매 보유)
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* 남은 수량 안내 */}
+            <div className="mb-4 rounded-xl bg-primary-100 p-3 text-sm text-primary-700">
+              공유 가능 <b>{remaining}</b>매
+              {alreadyShared > 0 && (
+                <span className="text-primary-500">
+                  {" "}
+                  ({alreadyShared}매 공유됨)
+                </span>
+              )}
             </div>
-          )}
-        </div>
+
+            {/* 수량 조절 */}
+            <div className="mb-4 flex items-center justify-between rounded-xl border border-gray-100 p-3">
+              <span className="text-sm font-medium text-gray-700">
+                공유 수량
+              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setQty(Math.max(1, safeQty - 1))}
+                  disabled={safeQty <= 1}
+                  className="flex size-8 items-center justify-center rounded-lg border border-gray-200 disabled:opacity-40"
+                >
+                  <Minus size={16} />
+                </button>
+                <span className="w-6 text-center font-semibold">{safeQty}</span>
+                <button
+                  type="button"
+                  onClick={() => setQty(Math.min(remaining, safeQty + 1))}
+                  disabled={safeQty >= remaining}
+                  className="flex size-8 items-center justify-center rounded-lg border border-gray-200 disabled:opacity-40"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* 친구 선택 */}
+            <div className="mb-4">
+              <p className="mb-2 text-sm font-medium text-gray-700">
+                공유할 친구
+              </p>
+              {friends.length === 0 ? (
+                <p className="rounded-xl border border-gray-100 p-4 text-center text-sm text-gray-400">
+                  공유할 친구가 없습니다
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {friends.map((f) => (
+                    <button
+                      key={f.user_id}
+                      type="button"
+                      onClick={() => setSelected(f.user_id)}
+                      className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
+                        selected === f.user_id
+                          ? "border-primary-400 bg-primary-100"
+                          : "border-gray-100 hover:bg-gray-50"
+                      }`}
+                    >
+                      <div
+                        className={`flex size-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-400 via-accent-400 to-secondary-400 text-sm font-semibold text-primary-900`}
+                      >
+                        {f.name?.charAt(0) ?? "?"}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-900">{f.name}</p>
+                        <p className="truncate text-xs text-gray-400">
+                          {f.email}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
 
         <div className="rounded-xl bg-secondary-100 p-4 text-sm text-secondary-700">
           <p className="font-semibold">티켓 공유란?</p>
@@ -144,16 +196,18 @@ export default function ShareTicketModal({
       </Modal.Body>
       <Modal.Footer>
         <Button variant="outline" className="flex-1" onClick={onClose}>
-          취소
+          {soldOut ? "닫기" : "취소"}
         </Button>
-        <button
-          type="button"
-          disabled={!selected || sharing}
-          onClick={handleShare}
-          className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {sharing ? "공유 중..." : "공유하기"}
-        </button>
+        {!soldOut && (
+          <button
+            type="button"
+            disabled={!selected || sharing || loading}
+            onClick={handleShare}
+            className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2.5 text-sm font-semibold text-primary-900 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {sharing ? "공유 중..." : "공유하기"}
+          </button>
+        )}
       </Modal.Footer>
     </Modal>
   );

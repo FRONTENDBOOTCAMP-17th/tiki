@@ -80,15 +80,6 @@ export async function POST(req: NextRequest) {
   if ("error" in ctx) return ctx.error;
   const { user, supabase } = ctx;
 
-  const { count } = await supabase
-    .from("event")
-    .select("event_id", { count: "exact", head: true })
-    .eq("seller_id", user.id);
-
-  if ((count ?? 0) >= SELLER_EVENT_LIMITS.maxEventsPerSeller) {
-    return fail("event_limit_exceeded");
-  }
-
   const title = text(body.title);
   const categoryId = text(body.categoryId);
   const description = text(body.description);

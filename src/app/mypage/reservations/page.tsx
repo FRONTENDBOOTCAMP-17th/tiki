@@ -22,7 +22,7 @@ const FILTERS = [
 
 function FilterTabs({ filter }: { filter: string }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex w-fit flex-wrap gap-1 rounded-2xl bg-gray-100 p-1">
       {FILTERS.map((f) => {
         const active = filter === f.value;
         const href =
@@ -35,8 +35,8 @@ function FilterTabs({ filter }: { filter: string }) {
             href={href}
             className={
               active
-                ? "rounded-full bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-1.5 text-sm font-semibold text-white"
-                : "rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+                ? "rounded-full bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-1.5 text-sm font-semibold text-primary-900 shadow-sm"
+                : "rounded-full px-4 py-1.5 text-sm text-gray-500 transition-colors hover:text-gray-900"
             }
           >
             {f.label}

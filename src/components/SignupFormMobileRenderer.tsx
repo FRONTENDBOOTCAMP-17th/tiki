@@ -67,7 +67,7 @@ export default function SignupFormMobileRenderer() {
   };
 
   return (
-    <div className='flex flex-col items-center py-8 gap-6'>
+    <div className='flex flex-col items-center gap-6'>
       {step === 1 && (
         <form
           className='w-full flex flex-col gap-6'

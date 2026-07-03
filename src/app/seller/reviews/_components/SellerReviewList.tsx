@@ -156,10 +156,10 @@ export default function SellerReviewList({ reviews, events }: Props) {
         description="내 공연 후기를 확인하고, 부적절한 후기는 관리자에게 삭제 요청할 수 있습니다."
       />
 
-      <div className="grid grid-cols-[220px_minmax(0,1fr)] items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5">
+      <div className="grid grid-cols-[220px_minmax(0,1fr)] items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
         <div>
           <div className="flex items-end gap-2">
-            <span className="text-4xl font-bold leading-none text-gray-950">
+            <span className="text-4xl font-bold leading-none text-gray-950 dark:text-gray-50">
               {summary.average.toFixed(1)}
             </span>
             <span className="pb-1 text-sm font-medium text-gray-400">/ 5</span>
@@ -179,8 +179,8 @@ export default function SellerReviewList({ reviews, events }: Props) {
               key={item.score}
               className="grid grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] items-center gap-3 text-sm"
             >
-              <span className="font-medium text-gray-600">{item.score}점</span>
-              <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+              <span className="font-medium text-gray-600 dark:text-gray-300">{item.score}점</span>
+              <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-[#3c4043]">
                 <div
                   className="h-full rounded-full bg-primary-700"
                   style={{ width: `${item.percent}%` }}
@@ -220,7 +220,7 @@ export default function SellerReviewList({ reviews, events }: Props) {
           {sorted.map((r) => (
             <li
               key={r.reviewId}
-              className="rounded-2xl border border-gray-200 bg-white p-5"
+              className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2.5">
@@ -233,10 +233,10 @@ export default function SellerReviewList({ reviews, events }: Props) {
                       className="size-10 shrink-0 rounded-lg object-cover"
                     />
                   ) : (
-                    <div className="size-10 shrink-0 rounded-lg bg-gray-100" />
+                    <div className="size-10 shrink-0 rounded-lg bg-gray-100 dark:bg-[#303134]" />
                   )}
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-gray-900">
+                    <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-50">
                       {r.eventTitle}
                     </p>
                     <p className="text-xs text-gray-400">{r.author}</p>
@@ -274,7 +274,7 @@ export default function SellerReviewList({ reviews, events }: Props) {
                       onChange={(e) => setReasonText(e.target.value)}
                       rows={2}
                       placeholder="삭제 요청 사유를 입력하세요."
-                      className="resize-none rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none transition-colors focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100"
+                      className="resize-none rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none transition-colors focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100 dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:bg-[#303134] dark:focus:ring-[#3c4043]"
                     />
                   )}
                   <div className="flex items-center justify-end gap-2">
@@ -335,18 +335,18 @@ export default function SellerReviewList({ reviews, events }: Props) {
         <Modal.Body>
           {viewing?.deleteRequest && (
             <div className="flex flex-col gap-3">
-              <div className="rounded-lg bg-gray-50 p-3">
+              <div className="rounded-lg bg-gray-50 p-3 dark:bg-[#303134]">
                 <p className="text-xs text-gray-400">대상 후기</p>
-                <p className="mt-0.5 text-sm font-medium text-gray-900">
+                <p className="mt-0.5 text-sm font-medium text-gray-900 dark:text-gray-50">
                   {viewing.eventTitle} · {viewing.author}
                 </p>
-                <ReviewBody className="mt-1 line-clamp-3 text-gray-600">
+                <ReviewBody className="mt-1 line-clamp-3 text-gray-600 dark:text-gray-300">
                   {viewing.memo}
                 </ReviewBody>
               </div>
               <div>
                 <p className="text-xs text-gray-400">요청 사유</p>
-                <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-gray-800">
+                <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-gray-800 dark:text-gray-200">
                   {viewing.deleteRequest.reason}
                 </p>
               </div>

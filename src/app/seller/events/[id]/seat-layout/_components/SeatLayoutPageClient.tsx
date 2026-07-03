@@ -66,7 +66,7 @@ export default function SeatLayoutPageClient({
 
   if (locked) {
     return (
-      <p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-600">
+      <p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-600 dark:bg-[#303134] dark:text-gray-300">
         이미 판매되었거나 홀드 중인 좌석이 있어 배치도를 수정할 수 없습니다.
       </p>
     );

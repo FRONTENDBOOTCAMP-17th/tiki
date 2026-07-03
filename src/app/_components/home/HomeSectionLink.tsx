@@ -11,7 +11,7 @@ export default function HomeSectionLink({
 
   return (
     <section className="px-4 pb-8 md:px-8 lg:px-16">
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+      <div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
         {categories.map((category) => {
           const Icon = getCategoryIcon(category.slug);
 

@@ -13,8 +13,6 @@ interface FriendRow {
   meet_count: number;
 }
 
-const AVATAR_COLORS = ["bg-primary-400", "bg-secondary-400", "bg-accent-400"];
-
 const GUIDE = [
   "친구를 추가하면 함께 예매한 공연 내역을 확인할 수 있습니다",
   "예매 내역에서 티켓을 친구와 공유할 수 있습니다",
@@ -57,14 +55,12 @@ export default async function FriendsPage() {
           </p>
         ) : (
           <div className="mt-4 flex flex-col gap-3">
-            {friends.map((friend, i) => (
+            {friends.map((friend) => (
               <div
                 key={friend.friend_id}
                 className="flex items-center gap-3 rounded-xl border border-gray-100 p-4 dark:border-[#3c4043]"
               >
-                <div
-                  className={`flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}
-                >
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-400 via-accent-400 to-secondary-400 text-sm font-semibold text-primary-900">
                   {friend.name?.charAt(0) ?? "?"}
                 </div>
 

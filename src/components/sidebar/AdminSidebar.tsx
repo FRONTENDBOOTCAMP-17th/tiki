@@ -7,6 +7,8 @@ import {
   Folder,
   Bell,
   MessageCircle,
+  Wallet,
+  Star,
   LogOut,
 } from "lucide-react";
 import SidebarMenuItem from "./SidebarMenuItem";
@@ -18,6 +20,8 @@ const ADMIN_MENU: SidebarItem[] = [
   { label: "게시물 관리", href: "/admin/events", icon: Plus },
   { label: "회원 관리", href: "/admin/members", icon: BarChart2 },
   { label: "카테고리 관리", href: "/admin/categories", icon: Folder },
+  { label: "정산 관리", href: "/admin/settlement", icon: Wallet },
+  { label: "리뷰 관리", href: "/admin/reviews", icon: Star },
   { label: "알림 관리", href: "/admin/notifications", icon: Bell },
   { label: "문의 관리", href: "/admin/inquiries", icon: MessageCircle },
 ];
@@ -38,7 +42,7 @@ export default function AdminSidebar() {
 
       <div className="border-t border-gray-100 pt-3 dark:border-[#3c4043]">
         <div className="flex items-center gap-3 px-1 py-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 text-sm font-bold text-white dark:from-gray-700 dark:to-gray-500">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 text-sm font-bold text-primary-900 dark:text-white dark:from-gray-700 dark:to-gray-500">
             A
           </div>
           <div className="min-w-0">

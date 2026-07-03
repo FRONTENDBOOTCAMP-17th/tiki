@@ -305,14 +305,11 @@ export default async function Home() {
       <main className="flex-1 bg-white pb-4 transition-colors dark:bg-[#202124] min-[744px]:pb-0">
         <div className="bg-linear-to-b from-primary-100 via-secondary-100 to-white transition-colors dark:from-[#242528] dark:via-[#242528] dark:to-[#202124]">
           <HeroSlider slides={heroSlides} />
-          <div
-            id="home-content-start"
-            className="mx-auto w-full max-w-7xl scroll-mt-20"
-          >
+          <div id="home-content-start" className="scroll-mt-20">
             <HomeSectionLink categories={topCategories} />
           </div>
         </div>
-        <div className="mx-auto w-full max-w-7xl">
+        <div>
           <TicketOpenSection
             todayEvents={todayOpened}
             fallbackEvents={recentlyOpened}

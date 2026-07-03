@@ -28,7 +28,7 @@ export default function RoleHeader({
       )}
       {...props}
     >
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 lg:px-8 lg:py-4">
+      <div className="mx-auto flex max-w-360 items-center gap-3 px-6 py-3 lg:px-8 lg:py-4">
         {/* 로고: 해당 영역 루트(/seller, /admin)로 이동 */}
         <Logo
           href={`/${role}`}

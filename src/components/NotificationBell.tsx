@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Bell, UserPlus, Ticket, Megaphone, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -89,30 +90,53 @@ export default function NotificationBell({
   size?: number;
   strokeWidth?: number;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const { success, error } = useToast();
 
   useEffect(() => {
     const supabase = createClient();
-    supabase
-      .from("notification")
-      .select("notification_id, type, title, link, is_read, created_at, ref_id")
-      .order("created_at", { ascending: false })
-      .limit(20)
-      .then(({ data }) => setItems((data as NotificationItem[] | null) ?? []));
+    let active = true;
+
+    (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user || !active) return;
+      setUserId(user.id);
+
+      // 관리자 계정은 RLS(admin_all)상 모든 알림에 접근 가능하므로,
+      // 반드시 본인 user_id로 필터링해야 남의 알림까지 뜨지 않는다.
+      const { data } = await supabase
+        .from("notification")
+        .select(
+          "notification_id, type, title, link, is_read, created_at, ref_id",
+        )
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (active) setItems((data as NotificationItem[] | null) ?? []);
+    })();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const unreadCount = items.filter((item) => !item.is_read).length;
 
   async function openPanel() {
     setOpen(true);
-    if (unreadCount === 0) return;
+    if (unreadCount === 0 || !userId) return;
     setItems((prev) => prev.map((item) => ({ ...item, is_read: true })));
     const supabase = createClient();
+    // user_id 필터가 없으면 관리자는 전체 유저의 알림을 읽음 처리해버린다.
     await supabase
       .from("notification")
       .update({ is_read: true })
+      .eq("user_id", userId)
       .eq("is_read", false);
   }
 
@@ -126,6 +150,7 @@ export default function NotificationBell({
     setItems((prev) =>
       prev.filter((n) => n.notification_id !== item.notification_id),
     );
+    router.refresh(); // 친구 수락 → 친구 목록 등 서버 컴포넌트 갱신
   }
 
   async function handleReject(item: NotificationItem) {
@@ -138,6 +163,7 @@ export default function NotificationBell({
     setItems((prev) =>
       prev.filter((n) => n.notification_id !== item.notification_id),
     );
+    router.refresh();
   }
 
   async function handleAcceptShare(item: NotificationItem) {
@@ -151,6 +177,7 @@ export default function NotificationBell({
       prev.filter((n) => n.notification_id !== item.notification_id),
     );
     success("티켓을 받았습니다");
+    router.refresh(); // 티켓 수락 → 받은 티켓 탭 등 서버 컴포넌트 갱신
   }
 
   async function handleRejectShare(item: NotificationItem) {
@@ -163,6 +190,7 @@ export default function NotificationBell({
     setItems((prev) =>
       prev.filter((n) => n.notification_id !== item.notification_id),
     );
+    router.refresh();
   }
 
   async function handleDelete(item: NotificationItem) {
@@ -200,8 +228,8 @@ export default function NotificationBell({
 
       {open && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-3 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white text-left shadow-xl dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+          <div className="fixed inset-0 z-[60]" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 z-[70] mt-3 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white text-left shadow-xl dark:border-[#3c4043] dark:bg-[#2a2b2f]">
             <div className="border-b border-gray-100 px-4 py-3 dark:border-[#3c4043]">
               <p className="font-bold text-gray-900 dark:text-gray-50">알림</p>
             </div>
@@ -277,7 +305,7 @@ export default function NotificationBell({
                                   ? handleAccept(item)
                                   : handleAcceptShare(item)
                               }
-                              className="flex-1 rounded-lg bg-linear-to-r from-primary-400 to-secondary-400 px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+                              className="flex-1 rounded-lg bg-linear-to-r from-primary-400 to-secondary-400 px-3 py-1.5 text-xs font-semibold text-primary-900 transition hover:opacity-90"
                             >
                               수락
                             </button>
