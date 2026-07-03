@@ -144,6 +144,135 @@ export type Database = {
           },
         ]
       }
+      friend: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          friend_id: string
+          requester_id: string
+          status: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          friend_id?: string
+          requester_id: string
+          status?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          friend_id?: string
+          requester_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friend_addressee_id_fkey"
+            columns: ["addressee_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friend_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inquiry: {
+        Row: {
+          answer: string | null
+          answered_at: string | null
+          answered_by: string | null
+          category: string
+          content: string
+          created_at: string
+          inquiry_id: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          category?: string
+          content: string
+          created_at?: string
+          inquiry_id?: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          category?: string
+          content?: string
+          created_at?: string
+          inquiry_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiry_answered_by_fkey"
+            columns: ["answered_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inquiry_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification: {
+        Row: {
+          created_at: string
+          is_read: boolean
+          link: string | null
+          notification_id: string
+          ref_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          is_read?: boolean
+          link?: string | null
+          notification_id?: string
+          ref_id?: string | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          is_read?: boolean
+          link?: string | null
+          notification_id?: string
+          ref_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_seat: {
         Row: {
           held_until: string | null
@@ -225,6 +354,129 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      review: {
+        Row: {
+          created_at: string
+          event_id: string
+          memo: string
+          order_id: string
+          rating: number
+          review_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          memo: string
+          order_id: string
+          rating: number
+          review_id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          memo?: string
+          order_id?: string
+          rating?: number
+          review_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "review_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["order_id"]
+          },
+          {
+            foreignKeyName: "review_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_delete_request: {
+        Row: {
+          created_at: string
+          reason: string
+          request_id: string
+          review_id: string
+          seller_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          reason: string
+          request_id?: string
+          review_id: string
+          seller_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          reason?: string
+          request_id?: string
+          review_id?: string
+          seller_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_delete_request_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "review"
+            referencedColumns: ["review_id"]
+          },
+        ]
+      }
+      review_like: {
+        Row: {
+          created_at: string
+          review_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          review_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          review_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_like_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "review"
+            referencedColumns: ["review_id"]
+          },
+          {
+            foreignKeyName: "review_like_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       seat: {
         Row: {
@@ -394,6 +646,53 @@ export type Database = {
           },
         ]
       }
+      settlement_request: {
+        Row: {
+          approved_at: string | null
+          fee: number
+          gross: number
+          net: number
+          period_end: string
+          period_start: string
+          requested_at: string
+          seller_id: string
+          settlement_id: string
+          status: string
+        }
+        Insert: {
+          approved_at?: string | null
+          fee?: number
+          gross?: number
+          net?: number
+          period_end: string
+          period_start: string
+          requested_at?: string
+          seller_id: string
+          settlement_id?: string
+          status?: string
+        }
+        Update: {
+          approved_at?: string | null
+          fee?: number
+          gross?: number
+          net?: number
+          period_end?: string
+          period_start?: string
+          requested_at?: string
+          seller_id?: string
+          settlement_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settlement_request_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       slot: {
         Row: {
           created_at: string
@@ -432,6 +731,48 @@ export type Database = {
           },
         ]
       }
+      ticket_checkin: {
+        Row: {
+          checked_in_at: string
+          checked_in_by: string
+          checkin_id: string
+          order_id: string
+          subject_id: string
+          subject_type: string
+        }
+        Insert: {
+          checked_in_at?: string
+          checked_in_by: string
+          checkin_id?: string
+          order_id: string
+          subject_id: string
+          subject_type: string
+        }
+        Update: {
+          checked_in_at?: string
+          checked_in_by?: string
+          checkin_id?: string
+          order_id?: string
+          subject_id?: string
+          subject_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_checkin_checked_in_by_fkey"
+            columns: ["checked_in_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_checkin_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["order_id"]
+          },
+        ]
+      }
       ticket_grade: {
         Row: {
           created_at: string
@@ -467,8 +808,61 @@ export type Database = {
           },
         ]
       }
+      ticket_share: {
+        Row: {
+          created_at: string
+          order_id: string
+          quantity: number
+          share_id: string
+          shared_with: string
+          sharer_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          order_id: string
+          quantity: number
+          share_id?: string
+          shared_with: string
+          sharer_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          order_id?: string
+          quantity?: number
+          share_id?: string
+          shared_with?: string
+          sharer_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_share_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["order_id"]
+          },
+          {
+            foreignKeyName: "ticket_share_shared_with_fkey"
+            columns: ["shared_with"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_share_sharer_id_fkey"
+            columns: ["sharer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
+          avatar_url: string | null
           created_at: string
           email: string
           id: string
@@ -477,6 +871,7 @@ export type Database = {
           role: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           email: string
           id?: string
@@ -485,6 +880,7 @@ export type Database = {
           role: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           email?: string
           id?: string
@@ -499,7 +895,134 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      accept_friend_request: { Args: { p_friend_id: string }; Returns: Json }
+      accept_ticket_share: { Args: { p_share_id: string }; Returns: Json }
+      can_write_review: {
+        Args: { p_event_id: string; p_order_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      cancel_order: { Args: { p_order_id: string }; Returns: boolean }
+      cancel_stale_orders: { Args: { p_ttl_minutes?: number }; Returns: number }
+      checkin_ticket: {
+        Args: { p_subject_id: string; p_subject_type: string }
+        Returns: Json
+      }
+      event_booking_counts: {
+        Args: never
+        Returns: {
+          event_id: string
+          total_quantity: number
+        }[]
+      }
+      find_user_by_email: {
+        Args: { p_email: string }
+        Returns: {
+          id: string
+          name: string
+        }[]
+      }
+      get_event_reviews: {
+        Args: { p_event_id: string }
+        Returns: {
+          author_name: string
+          created_at: string
+          like_count: number
+          liked_by_me: boolean
+          memo: string
+          rating: number
+          review_id: string
+          user_id: string
+        }[]
+      }
+      get_my_friends: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          email: string
+          friend_id: string
+          meet_count: number
+          name: string
+          user_id: string
+        }[]
+      }
+      get_my_received_tickets: {
+        Args: never
+        Returns: {
+          created_at: string
+          event_id: string
+          event_title: string
+          grade_name: string
+          is_ended: boolean
+          order_id: string
+          quantity: number
+          share_id: string
+          sharer_name: string
+          slot_date: string
+          slot_time: string
+          venue_address: string
+          venue_name: string
+        }[]
+      }
+      get_my_shared_tickets: {
+        Args: never
+        Returns: {
+          created_at: string
+          event_title: string
+          quantity: number
+          share_id: string
+          shared_with_name: string
+          slot_date: string
+          slot_time: string
+          status: string
+        }[]
+      }
+      get_shared_quantity: { Args: { p_order_id: string }; Returns: number }
+      get_writable_review_slots: {
+        Args: { p_event_id: string }
+        Returns: {
+          order_id: string
+          slot_date: string
+          slot_start_time: string
+        }[]
+      }
+      is_admin: { Args: never; Returns: boolean }
+      notify_inquiry_answered: {
+        Args: { p_inquiry_id: string }
+        Returns: undefined
+      }
+      place_order: {
+        Args: {
+          p_event_id: string
+          p_grade_id: string
+          p_quantity: number
+          p_slot_id: string
+          p_status?: string
+          p_total_price: number
+        }
+        Returns: string
+      }
+      place_seat_order: {
+        Args: {
+          p_event_id: string
+          p_grade_id: string
+          p_seat_ids: string[]
+          p_slot_id: string
+          p_total_price: number
+        }
+        Returns: string
+      }
+      reject_friend_request: { Args: { p_friend_id: string }; Returns: Json }
+      reject_ticket_share: { Args: { p_share_id: string }; Returns: Json }
+      request_review_deletion: {
+        Args: { p_reason: string; p_review_id: string }
+        Returns: boolean
+      }
+      revoke_ticket_share: { Args: { p_share_id: string }; Returns: Json }
+      send_friend_request: { Args: { p_email: string }; Returns: Json }
+      share_ticket: {
+        Args: { p_order_id: string; p_quantity: number; p_shared_with: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
