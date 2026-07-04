@@ -53,14 +53,15 @@ export default async function EventDetailPage({
 }) {
   const { eventId } = await params;
   const { reviewSort, reviewDirection } = await searchParams;
+
+  // 상세 페이지 500 방지: UUID 형식이 아니면 나머지 조회 전에 404로 처리
+  if (!EVENT_ID_RE.test(eventId)) notFound();
+
   const [user, profile] = await Promise.all([
     getCurrentUser(),
     getHeaderProfile(),
   ]);
   const loggedIn = !!user;
-
-  // 상세 페이지 500 방지: UUID 형식이 아니면 나머지 조회 전에 404로 처리
-  if (!EVENT_ID_RE.test(eventId)) notFound();
 
   const event = await getEventDetail(eventId);
 
