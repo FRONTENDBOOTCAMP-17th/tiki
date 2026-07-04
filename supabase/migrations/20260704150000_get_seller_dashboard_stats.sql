@@ -19,7 +19,7 @@ begin
   with seller_events as (
     select event_id, title, status, thumbnail, start_date, end_date, venue_name, created_at
     from public.event
-    where seller_id = p_seller_id
+    where seller_id = p_seller_id::text
   ),
   order_stats as (
     select o.event_id,
