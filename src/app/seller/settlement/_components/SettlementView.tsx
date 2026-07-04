@@ -200,7 +200,7 @@ export default function SettlementView({ orders, bank, requests }: Props) {
           {monthlyHistory.length === 0 ? (
             <EmptyHint />
           ) : (
-            <div className="rounded-xl border border-gray-100 dark:border-surface-3">
+            <div className="rounded-2xl border border-gray-100 dark:border-surface-3">
               <table className="w-full table-fixed text-sm">
                 <thead>
                   <tr className="bg-gray-50 text-left text-xs text-gray-500 dark:bg-surface-2 dark:text-gray-400">
@@ -270,7 +270,7 @@ export default function SettlementView({ orders, bank, requests }: Props) {
               </Link>
             </div>
             {bank?.bank_account_number ? (
-              <div className="rounded-xl bg-gray-50 p-4 dark:bg-surface-2">
+              <div className="rounded-2xl bg-gray-50 p-4 dark:bg-surface-2">
                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">
                   {bank.bank_name} {bank.bank_account_number}
                 </p>
@@ -279,7 +279,7 @@ export default function SettlementView({ orders, bank, requests }: Props) {
                 </p>
               </div>
             ) : (
-              <p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-400 dark:bg-surface-2 dark:text-gray-500">
+              <p className="rounded-2xl bg-gray-50 p-4 text-sm text-gray-400 dark:bg-surface-2 dark:text-gray-500">
                 등록된 정산 계좌가 없습니다
               </p>
             )}

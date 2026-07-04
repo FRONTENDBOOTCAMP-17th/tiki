@@ -138,7 +138,7 @@ export default function VenueMapClient({
         : "지도를 불러오는 중입니다.";
 
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
       <div className="relative h-64 w-full">
         <div
           ref={mapRef}

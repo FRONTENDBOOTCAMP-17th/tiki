@@ -14,7 +14,7 @@ function VenueMapShell({
   message: string;
 }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-surface-3 dark:bg-surface-1">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 dark:border-surface-3 dark:bg-surface-1">
       <div className="flex h-64 w-full flex-col items-center justify-center gap-2 px-4 text-center text-sm font-medium text-gray-400 dark:text-gray-500">
         <MapPin className="h-6 w-6 text-gray-300" aria-hidden="true" />
         <span>{message}</span>

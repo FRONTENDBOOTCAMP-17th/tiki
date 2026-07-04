@@ -8,7 +8,7 @@ interface Props {
 
 export default function ReviewComposer({ eventId, slots }: Props) {
   return (
-    <section className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-surface-3 dark:bg-surface-1">
+    <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-surface-3 dark:bg-surface-1">
       <div className="flex flex-col gap-2 border-b border-gray-100 px-5 py-4 dark:border-surface-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-base font-bold text-gray-900 dark:text-gray-50">
           후기 작성
