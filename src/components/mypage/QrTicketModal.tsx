@@ -1,10 +1,14 @@
 "use client";
-import { useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { Calendar, MapPin, Ticket } from "lucide-react";
+import { Calendar, MapPin, RefreshCw, Ticket } from "lucide-react";
 import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
+import { issueOrderQrToken } from "@/lib/tickets/actions";
 import type { Reservation } from "./ReservationCard";
+
+// TTL 5분 — 만료 1분 전에 자동 갱신
+const REFRESH_INTERVAL_MS = 4 * 60 * 1000;
 
 export default function QrTicketModal({
   open,
@@ -15,19 +19,44 @@ export default function QrTicketModal({
   onClose: () => void;
   reservation: Reservation;
 }) {
-  const qrRef = useRef<HTMLDivElement>(null);
-  // QR에 담을 값 (입장 식별용)
-  const qrValue = `TIKI-ORDER-${r.id}`;
+  const [token, setToken] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  // 수동 "다시 시도" 트리거 — 값이 바뀌면 effect가 재실행됨
+  const [retryKey, setRetryKey] = useState(0);
 
-  const handleSave = () => {
-    const canvas = qrRef.current?.querySelector("canvas");
-    if (!canvas) return;
-    const url = canvas.toDataURL("image/png");
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `tiki-ticket-${r.orderNo}.png`;
-    a.click();
-  };
+  const retry = useCallback(() => setRetryKey((k) => k + 1), []);
+
+  useEffect(() => {
+    if (!open) return;
+
+    let active = true;
+
+    const fetchToken = async () => {
+      setError(null);
+      try {
+        const res = await issueOrderQrToken(r.id);
+        if (!active) return;
+        if ("error" in res) {
+          setError(res.error);
+          setToken(null);
+        } else {
+          setToken(res.token);
+        }
+      } catch {
+        if (!active) return;
+        setError("QR 발급 중 오류가 발생했습니다.");
+        setToken(null);
+      }
+    };
+
+    fetchToken();
+    const timer = setInterval(fetchToken, REFRESH_INTERVAL_MS);
+
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, [open, r.id, retryKey]);
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -49,20 +78,41 @@ export default function QrTicketModal({
           </span>
         </div>
 
-        {/* 실제 QR 코드 */}
-        <div
-          ref={qrRef}
-          className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 p-6"
-        >
-          <div className="rounded-lg bg-white p-3">
-            <QRCodeCanvas value={qrValue} size={160} level="M" />
-          </div>
+        {/* 서명 토큰 QR */}
+        <div className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 p-6">
+          {token ? (
+            <div className="rounded-lg bg-white p-3">
+              <QRCodeCanvas value={token} size={160} level="M" />
+            </div>
+          ) : (
+            <div className="flex h-[184px] w-[184px] flex-col items-center justify-center gap-3 rounded-lg bg-gray-50">
+              {error ? (
+                <>
+                  <p className="px-4 text-center text-sm text-gray-500">
+                    {error}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={retry}
+                    className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:underline"
+                  >
+                    <RefreshCw size={14} />
+                    다시 시도
+                  </button>
+                </>
+              ) : (
+                <p className="text-sm text-gray-400">QR 생성 중...</p>
+              )}
+            </div>
+          )}
           <p className="text-sm text-gray-500">QR 코드</p>
           <p className="text-xs text-gray-400">{r.orderNo}</p>
         </div>
 
         <div className="rounded-lg bg-secondary-100 px-4 py-3 text-center text-sm text-secondary-700 dark:bg-secondary-900/30">
-          현장에서 이 QR 코드를 스캔하여 입장하세요
+          현장에서 이 QR 코드를 스캔하여 입장하세요.
+          <br />
+          보안을 위해 QR은 주기적으로 자동 갱신됩니다
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -80,13 +130,6 @@ export default function QrTicketModal({
         <Button variant="outline" className="flex-1" onClick={onClose}>
           닫기
         </Button>
-        <button
-          type="button"
-          onClick={handleSave}
-          className="flex-1 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2.5 text-sm font-semibold text-primary-900 transition hover:opacity-90"
-        >
-          저장하기
-        </button>
       </Modal.Footer>
     </Modal>
   );
