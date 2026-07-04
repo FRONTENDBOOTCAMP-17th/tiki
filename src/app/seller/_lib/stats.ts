@@ -1,8 +1,44 @@
+import type { createClient } from "@/lib/supabase/server";
+
 export const SERVICE_FEE_RATE = 0.05;
 
 export interface OrderStat {
   totalOrders: number;
   totalRevenue: number;
+}
+
+export interface SellerDashboardEvent {
+  event_id: string;
+  title: string;
+  status: string;
+  thumbnail: string | null;
+  start_date: string;
+  end_date: string;
+  venue_name: string | null;
+  orders: number;
+  revenue: number;
+}
+
+export interface SellerDashboardStats {
+  total_revenue: number;
+  total_orders: number;
+  public_count: number;
+  remaining_seats: number;
+  events: SellerDashboardEvent[];
+}
+
+// 대시보드 통계는 get_seller_dashboard_stats RPC로 한 번에 집계한다.
+export async function getSellerDashboardStats(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  sellerId: string,
+): Promise<SellerDashboardStats> {
+  const { data, error } = await supabase.rpc("get_seller_dashboard_stats", {
+    p_seller_id: sellerId,
+  });
+  if (error || !data) {
+    throw error ?? new Error("대시보드 통계를 불러오지 못했습니다.");
+  }
+  return data as unknown as SellerDashboardStats;
 }
 
 interface OrderRow {

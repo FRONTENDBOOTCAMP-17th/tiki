@@ -12,62 +12,22 @@ import { createClient } from "@/lib/supabase/server";
 import Button from "@/components/Button";
 import StatCard from "@/components/StatCard";
 import PageHeader from "../_components/PageHeader";
-import {
-  sumCapacityByEvent,
-  sumOrdersByEvent,
-  isBooked,
-} from "../_lib/stats";
-import type { EventRow } from "./types";
+import { getSellerDashboardStats } from "../_lib/stats";
 
 export default async function SellerDashboardPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const { data: eventRows } = await supabase
-    .from("event")
-    .select(
-      "event_id, title, status, thumbnail, start_date, end_date, venue_name",
-    )
-    .eq("seller_id", user.id)
-    .order("created_at", { ascending: false });
+  const stats = await getSellerDashboardStats(supabase, user.id);
+  const events = stats.events;
 
-  const events = (eventRows ?? []) as EventRow[];
-  const eventIds = events.map((event) => event.event_id);
-
-  const [{ data: orderRows }, { data: gradeRows }] = await Promise.all([
-    eventIds.length
-      ? supabase
-          .from("orders")
-          .select("event_id, quantity, total_price, status")
-          .in("event_id", eventIds)
-      : Promise.resolve({ data: [] }),
-    eventIds.length
-      ? supabase
-          .from("ticket_grade")
-          .select("event_id, quantity")
-          .in("event_id", eventIds)
-      : Promise.resolve({ data: [] }),
-  ]);
-
-  const orders = (orderRows ?? []).filter((order) => isBooked(order.status));
-  const orderStats = sumOrdersByEvent(orders);
-  const capacityMap = sumCapacityByEvent(gradeRows ?? []);
-
-  const totalRevenue = orders.reduce((sum, o) => sum + o.total_price, 0);
-  const totalOrders = orders.reduce((sum, o) => sum + o.quantity, 0);
-  const totalCapacity = [...capacityMap.values()].reduce((a, b) => a + b, 0);
-  const remainingSeats = Math.max(0, totalCapacity - totalOrders);
+  const totalRevenue = stats.total_revenue;
+  const totalOrders = stats.total_orders;
+  const remainingSeats = stats.remaining_seats;
   const publicEvents = events.filter((e) => e.status === "공개");
-  const publicCount = publicEvents.length;
+  const publicCount = stats.public_count;
 
-  const performance = events
-    .map((event) => ({
-      ...event,
-      revenue: orderStats.get(event.event_id)?.totalRevenue ?? 0,
-      orders: orderStats.get(event.event_id)?.totalOrders ?? 0,
-    }))
-    .sort((a, b) => b.revenue - a.revenue);
-
+  const performance = [...events].sort((a, b) => b.revenue - a.revenue);
   const topRevenue = performance[0]?.revenue ?? 0;
 
   return (
