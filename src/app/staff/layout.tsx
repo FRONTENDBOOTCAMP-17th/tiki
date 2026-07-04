@@ -1,4 +1,3 @@
-// 스태프 가드, 모바일 퍼스트
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -8,16 +7,14 @@ export default async function StaffLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await requireUser("/staff");
+  await requireUser("/staff");
   const supabase = await createClient();
 
-  const { data: account } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+  // staff/admin이거나, 받은 스태프 초대·배정이 하나라도 있으면 통과
+  const { data: staffEvents } = await supabase.rpc("get_my_staff_events");
+  const hasStaffAccess = (staffEvents ?? []).length > 0;
 
-  if (account?.role !== "staff" && account?.role !== "admin") {
+  if (!hasStaffAccess) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center p-8 text-center">
         <div className="flex flex-col items-center gap-2">
