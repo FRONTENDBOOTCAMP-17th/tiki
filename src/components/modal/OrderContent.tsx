@@ -64,7 +64,7 @@ export default function OrderContent({
                 type="button"
                 onClick={() => setDateId(d.id)}
                 className={cn(
-                  "flex flex-1 flex-col items-center gap-0.5 rounded-xl border py-2 text-sm",
+                  "flex flex-1 flex-col items-center gap-0.5 rounded-lg border py-2 text-sm",
                   dateId === d.id
                     ? "border-primary-500 bg-primary-100 text-primary-800"
                     : "border-gray-200 text-gray-600",
@@ -87,7 +87,7 @@ export default function OrderContent({
                 type="button"
                 onClick={() => setSeatId(s.id)}
                 className={cn(
-                  "flex items-center justify-between rounded-xl border px-4 py-3 text-left",
+                  "flex items-center justify-between rounded-lg border px-4 py-3 text-left",
                   seatId === s.id
                     ? "border-primary-500 bg-primary-100"
                     : "border-gray-200",
@@ -111,7 +111,7 @@ export default function OrderContent({
 
         <div className="flex flex-col gap-3">
           <p className="text-sm font-semibold text-gray-700">3. 수량</p>
-          <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3">
             <span className="text-sm text-gray-600">매수</span>
             <div className="flex items-center gap-4">
               <button

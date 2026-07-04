@@ -56,7 +56,7 @@ export default function ReviewSection({
 
   return (
     <section className="flex flex-col gap-5">
-      <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1">
         <div className="grid gap-6 md:grid-cols-[200px_minmax(0,1fr)] md:items-center">
           <div>
             <p className="text-sm font-semibold text-gray-500">관람 후기</p>
