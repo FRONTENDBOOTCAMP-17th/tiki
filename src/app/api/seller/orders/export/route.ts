@@ -56,7 +56,15 @@ export async function GET(req: NextRequest) {
     .in("event_id", scopedEventIds)
     .neq("status", "cart")
     .order("created_at", { ascending: false });
-  if (statusFilter !== "all") query = query.eq("status", statusFilter);
+
+  // 선택한 주문 id가 넘어오면 그 주문만 내보낸다. (event 스코핑은 그대로라 소유 주문만 통과)
+  const idsParam = params.get("ids");
+  if (idsParam) {
+    const ids = idsParam.split(",").map((id) => id.trim()).filter(Boolean);
+    query = query.in("order_id", ids);
+  } else if (statusFilter !== "all") {
+    query = query.eq("status", statusFilter);
+  }
 
   const { data: orderRows, error } = await query;
   if (error) return fail("export_failed", 500);

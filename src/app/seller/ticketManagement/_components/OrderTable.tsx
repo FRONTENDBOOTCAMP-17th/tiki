@@ -157,8 +157,17 @@ export default function OrderTable({
     () => new Set(),
   );
   const [cancelling, setCancelling] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const router = useRouter();
   const toast = useToast();
+
+  // 페이지 이동·필터 변경으로 목록이 바뀌면 선택을 초기화한다.
+  const orderIdsKey = orders.map((order) => order.order_id).join(",");
+  const [prevOrderIdsKey, setPrevOrderIdsKey] = useState(orderIdsKey);
+  if (prevOrderIdsKey !== orderIdsKey) {
+    setPrevOrderIdsKey(orderIdsKey);
+    setSelectedIds(new Set());
+  }
 
   const rows = useMemo(
     () =>
@@ -195,10 +204,15 @@ export default function OrderTable({
     return qs ? `/seller/ticketManagement?${qs}` : "/seller/ticketManagement";
   }
 
+  // 선택한 행이 있으면 그 주문만, 없으면 현재 필터 전체를 내보낸다.
   const exportHref = (() => {
     const params = new URLSearchParams();
-    if (filters.eventId !== "all") params.set("eventId", filters.eventId);
-    if (filters.status !== "all") params.set("status", filters.status);
+    if (selectedIds.size > 0) {
+      params.set("ids", [...selectedIds].join(","));
+    } else {
+      if (filters.eventId !== "all") params.set("eventId", filters.eventId);
+      if (filters.status !== "all") params.set("status", filters.status);
+    }
     const qs = params.toString();
     return qs
       ? `/api/seller/orders/export?${qs}`
@@ -260,6 +274,30 @@ export default function OrderTable({
 
   const { page, totalPages, totalCount } = pagination;
 
+  const allVisibleSelected =
+    sorted.length > 0 && sorted.every((order) => selectedIds.has(order.order_id));
+
+  function toggleOne(orderId: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(orderId)) next.delete(orderId);
+      else next.add(orderId);
+      return next;
+    });
+  }
+
+  function toggleAllVisible() {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        sorted.forEach((order) => next.delete(order.order_id));
+      } else {
+        sorted.forEach((order) => next.add(order.order_id));
+      }
+      return next;
+    });
+  }
+
   async function handleCancel() {
     if (!cancelTarget) return;
     setCancelling(true);
@@ -301,7 +339,9 @@ export default function OrderTable({
             className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-4 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-300 dark:hover:bg-surface-2"
           >
             <Download size={16} />
-            CSV 내보내기
+            {selectedIds.size > 0
+              ? `선택 ${selectedIds.size}건 내보내기`
+              : "CSV 내보내기"}
           </a>
         }
       />
@@ -365,6 +405,15 @@ export default function OrderTable({
         <table className="w-full table-fixed text-sm">
           <thead>
             <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs text-gray-500 dark:border-surface-3 dark:bg-surface-2">
+              <th className="w-10 px-4 py-3">
+                <input
+                  type="checkbox"
+                  aria-label="전체 선택"
+                  checked={allVisibleSelected}
+                  onChange={toggleAllVisible}
+                  className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary-600"
+                />
+              </th>
               {ORDER_SORT_COLUMNS.map((column) => (
                 <th key={column.sortKey} className={column.className}>
                   <SortHeader
@@ -383,7 +432,7 @@ export default function OrderTable({
           <tbody className="divide-y divide-gray-50 dark:divide-surface-3">
             {sorted.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-16 text-center text-gray-400">
+                <td colSpan={7} className="py-16 text-center text-gray-400">
                   조건에 맞는 예매 내역이 없습니다
                 </td>
               </tr>
@@ -394,6 +443,18 @@ export default function OrderTable({
                   onClick={() => setReceipt(order)}
                   className="cursor-pointer hover:bg-gray-50 dark:hover:bg-surface-2"
                 >
+                  <td
+                    className="px-4 py-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      aria-label="주문 선택"
+                      checked={selectedIds.has(order.order_id)}
+                      onChange={() => toggleOne(order.order_id)}
+                      className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary-600"
+                    />
+                  </td>
                   <td className="whitespace-nowrap px-4 py-3 text-gray-500 dark:text-gray-400">
                     {formatDate(order.created_at)}
                   </td>
