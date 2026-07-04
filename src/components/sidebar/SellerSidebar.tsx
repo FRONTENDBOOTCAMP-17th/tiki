@@ -10,7 +10,7 @@ import {
   CalendarDays,
   Star,
   ScanLine,
-  Users,
+  UserCog,
 } from "lucide-react";
 import SidebarMenuItem from "./SidebarMenuItem";
 import Avatar from "@/components/Avatar";
@@ -28,7 +28,7 @@ const SELLER_MENU: SidebarItem[] = [
   { label: "새 이벤트 등록", href: "/seller/registration", icon: Plus },
   { label: "예매 관리", href: "/seller/ticketManagement", icon: Ticket },
   { label: "입장 검증", href: "/seller/checkin", icon: ScanLine },
-  { label: "스태프 관리", href: "/seller/staff", icon: Users },
+  { label: "스태프 관리", href: "/seller/staff", icon: UserCog },
   { label: "리뷰 관리", href: "/seller/reviews", icon: Star },
 ];
 
