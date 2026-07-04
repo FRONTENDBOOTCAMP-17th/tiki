@@ -23,9 +23,8 @@ interface EventPoint {
   gross: number;
 }
 
-// 매출·정산 탭 카드가 라이트 전용(흰 배경)이라 차트 색상도 라이트 기준으로 고정한다.
-const AXIS = "#9ca3af"; // gray-400
-const GRID = "#e5e7eb"; // gray-200
+const AXIS = "var(--app-text-muted)";
+const GRID = "var(--app-border)";
 const LINE = "var(--color-primary-700)";
 const BAR = "var(--color-secondary-700)";
 
@@ -40,6 +39,8 @@ function compact(value: number): string {
 const tooltipStyle = {
   borderRadius: 12,
   border: `1px solid ${GRID}`,
+  backgroundColor: "var(--app-surface)",
+  color: "var(--app-text)",
   fontSize: 12,
   boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
 } as const;
