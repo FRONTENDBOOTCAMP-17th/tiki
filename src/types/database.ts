@@ -144,6 +144,55 @@ export type Database = {
           },
         ]
       }
+      event_staff: {
+        Row: {
+          created_at: string
+          event_id: string
+          invited_by: string
+          staff_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          invited_by: string
+          staff_id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          invited_by?: string
+          staff_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_staff_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_staff_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_staff_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friend: {
         Row: {
           addressee_id: string
@@ -896,6 +945,7 @@ export type Database = {
     }
     Functions: {
       accept_friend_request: { Args: { p_friend_id: string }; Returns: Json }
+      accept_staff_invite: { Args: { p_staff_id: string }; Returns: Json }
       accept_ticket_share: { Args: { p_share_id: string }; Returns: Json }
       can_write_review: {
         Args: { p_event_id: string; p_order_id: string; p_user_id: string }
@@ -932,6 +982,18 @@ export type Database = {
           rating: number
           review_id: string
           user_id: string
+        }[]
+      }
+      get_event_staff_overview: {
+        Args: never
+        Returns: {
+          created_at: string
+          event_id: string
+          event_title: string
+          staff_email: string
+          staff_id: string
+          staff_name: string
+          status: string
         }[]
       }
       get_my_friends: {
@@ -976,7 +1038,24 @@ export type Database = {
           status: string
         }[]
       }
-      get_seller_dashboard_stats: { Args: { p_seller_id: string }; Returns: Json }
+      get_my_staff_events: {
+        Args: never
+        Returns: {
+          end_date: string
+          event_id: string
+          seller_name: string
+          staff_id: string
+          start_date: string
+          status: string
+          thumbnail: string
+          title: string
+          venue_name: string
+        }[]
+      }
+      get_seller_dashboard_stats: {
+        Args: { p_seller_id: string }
+        Returns: Json
+      }
       get_shared_quantity: { Args: { p_order_id: string }; Returns: number }
       get_writable_review_slots: {
         Args: { p_event_id: string }
@@ -985,6 +1064,10 @@ export type Database = {
           slot_date: string
           slot_start_time: string
         }[]
+      }
+      invite_event_staff: {
+        Args: { p_email: string; p_event_id: string }
+        Returns: Json
       }
       is_admin: { Args: never; Returns: boolean }
       notify_inquiry_answered: {
@@ -1013,7 +1096,9 @@ export type Database = {
         Returns: string
       }
       reject_friend_request: { Args: { p_friend_id: string }; Returns: Json }
+      reject_staff_invite: { Args: { p_staff_id: string }; Returns: Json }
       reject_ticket_share: { Args: { p_share_id: string }; Returns: Json }
+      remove_event_staff: { Args: { p_staff_id: string }; Returns: Json }
       request_review_deletion: {
         Args: { p_reason: string; p_review_id: string }
         Returns: boolean

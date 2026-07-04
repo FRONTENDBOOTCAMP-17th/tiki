@@ -85,6 +85,8 @@ export const signInWithEmail = async (
         redirect('/admin');
       case 'seller':
         redirect('/seller');
+      case 'staff':
+        redirect('/staff');
       default:
         redirect(safeNext ?? '/');
     }
