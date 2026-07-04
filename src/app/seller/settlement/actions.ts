@@ -77,7 +77,13 @@ export async function requestSettlement() {
     net: gross - fee,
   });
 
-  if (error) return { error: error.message };
+  if (error) {
+    if (error.code === "23505") {
+      return { error: "이미 신청된 기간입니다" };
+    }
+
+    return { error: error.message };
+  }
 
   revalidatePath("/seller/settlement");
   return { success: true, count: uncovered.length };
