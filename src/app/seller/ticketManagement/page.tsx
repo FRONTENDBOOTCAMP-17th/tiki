@@ -46,25 +46,29 @@ export default async function TicketManagementPage({
   const scopedEventIds =
     sp.eventId && eventIds.includes(sp.eventId) ? [sp.eventId] : eventIds;
 
-  const baseQuery = () => {
-    let query = supabase
-      .from("orders")
-      .select(
-        "order_id, event_id, slot_id, ticket_grade_id, user_id, quantity, total_price, status, created_at",
-        { count: "exact" },
-      )
-      .in("event_id", scopedEventIds)
-      .neq("status", "cart");
-    if (statusFilter !== "all") query = query.eq("status", statusFilter);
-    return query;
-  };
+  // 목록(현재 페이지)과 통계용 집계를 각각 조회한다. 집계는 합계에 필요한 3개 컬럼만.
+  let pageQuery = supabase
+    .from("orders")
+    .select(
+      "order_id, event_id, slot_id, ticket_grade_id, user_id, quantity, total_price, status, created_at",
+      { count: "exact" },
+    )
+    .in("event_id", scopedEventIds)
+    .neq("status", "cart");
+  let aggQuery = supabase
+    .from("orders")
+    .select("quantity, total_price, status")
+    .in("event_id", scopedEventIds)
+    .neq("status", "cart");
+  if (statusFilter !== "all") {
+    pageQuery = pageQuery.eq("status", statusFilter);
+    aggQuery = aggQuery.eq("status", statusFilter);
+  }
 
   const from = (page - 1) * PAGE_SIZE;
   const [{ data: orderRows, count }, { data: aggRows }] = await Promise.all([
-    baseQuery()
-      .order("created_at", { ascending: false })
-      .range(from, from + PAGE_SIZE - 1),
-    baseQuery(),
+    pageQuery.order("created_at", { ascending: false }).range(from, from + PAGE_SIZE - 1),
+    aggQuery,
   ]);
 
   const orders = orderRows ?? [];
