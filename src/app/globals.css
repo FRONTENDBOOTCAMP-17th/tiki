@@ -23,6 +23,8 @@
 body {
   background: var(--app-bg);
   color: var(--app-text);
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .dark :where(.bg-white) {
