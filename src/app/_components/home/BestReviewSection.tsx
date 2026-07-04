@@ -14,7 +14,7 @@ export default function BestReviewSection({
   if (reviews.length === 0) return null;
 
   return (
-    <section className="bg-gray-50 px-4 py-8 transition-colors md:px-8 lg:px-16 dark:bg-[#202124]">
+    <section className="bg-gray-50 px-4 py-8 transition-colors md:px-8 lg:px-16 dark:bg-surface-0">
       <div className="mx-auto w-full max-w-7xl">
         <h2 className="mb-4 text-lg font-bold tracking-tight text-gray-950 md:text-xl dark:text-gray-50">
           베스트 리뷰
@@ -24,9 +24,9 @@ export default function BestReviewSection({
             <li key={review.reviewId}>
               <Link
                 href={`/${review.eventId}#reviews`}
-                className="group flex h-full gap-4 rounded-xl border border-gray-200 bg-white p-4 transition duration-200 hover:-translate-y-1 hover:scale-[1.01] hover:border-primary-300 hover:shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:border-gray-500"
+                className="group flex h-full gap-4 rounded-xl border border-gray-200 bg-white p-4 transition duration-200 hover:-translate-y-1 hover:scale-[1.01] hover:border-primary-300 hover:shadow-sm dark:border-surface-3 dark:bg-surface-1 dark:hover:border-gray-500"
               >
-                <div className="relative aspect-3/4 w-20 shrink-0 overflow-hidden rounded-lg bg-primary-100 shadow-sm dark:bg-[#34363a]">
+                <div className="relative aspect-3/4 w-20 shrink-0 overflow-hidden rounded-lg bg-primary-100 shadow-sm dark:bg-surface-4">
                   <ThumbnailImage
                     src={review.eventThumbnail}
                     alt={review.eventTitle}

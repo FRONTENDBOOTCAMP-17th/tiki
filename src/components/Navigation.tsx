@@ -181,7 +181,7 @@ export default function Navigation({
       <div className="h-16 min-[744px]:hidden" aria-hidden="true" />
       <nav
         className={cn(
-          "fixed right-0 bottom-0 left-0 z-50 w-full bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.08)] transition-colors min-[744px]:hidden dark:border-t dark:border-[#3c4043] dark:bg-[#242528] dark:shadow-[0_-2px_12px_rgba(0,0,0,0.25)]",
+          "fixed right-0 bottom-0 left-0 z-50 w-full bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.08)] transition-colors min-[744px]:hidden dark:border-t dark:border-surface-3 dark:bg-surface-header dark:shadow-[0_-2px_12px_rgba(0,0,0,0.25)]",
           className,
         )}
         {...props}

@@ -45,7 +45,7 @@ export default function MyPageSidebar({
   const roleLabel = ROLE_LABEL[role] ?? "구매자";
 
   return (
-    <aside className="flex h-full w-full flex-col rounded-l-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-[#3c4043] dark:bg-[#242528]">
+    <aside className="flex h-full w-full flex-col rounded-l-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-surface-3 dark:bg-surface-header">
       <div className="flex flex-col items-center gap-2 pb-4">
         <div className="relative size-16 overflow-hidden rounded-full bg-gradient-to-br from-primary-300 to-secondary-300">
           {avatarUrl && (
@@ -78,7 +78,7 @@ export default function MyPageSidebar({
 
       {(role === "seller" || role === "admin") && (
         <>
-          <div className="my-3 border-t border-gray-100 dark:border-[#3c4043]" />
+          <div className="my-3 border-t border-gray-100 dark:border-surface-3" />
           {role === "seller" && (
             <SidebarMenuItem
               label="판매자 페이지"
@@ -98,11 +98,11 @@ export default function MyPageSidebar({
 
       <form
         action={logout}
-        className="mt-auto border-t border-gray-100 pt-3 dark:border-[#3c4043]"
+        className="mt-auto border-t border-gray-100 pt-3 dark:border-surface-3"
       >
         <button
           type="submit"
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-danger-500 transition-colors hover:bg-gray-50 hover:text-danger-600 dark:hover:bg-[#303134]"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-danger-500 transition-colors hover:bg-gray-50 hover:text-danger-600 dark:hover:bg-surface-2"
         >
           <LogOut size={18} />
           로그아웃

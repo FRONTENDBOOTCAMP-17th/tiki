@@ -14,7 +14,7 @@ export default function OAuthContainer({
           type='submit'
           variant='outline'
           fullWidth
-          className='border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-200 dark:hover:bg-[#34363a]'
+          className='border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold dark:border-surface-3 dark:bg-surface-1 dark:text-gray-200 dark:hover:bg-surface-4'
         >
           <svg
             width='20'

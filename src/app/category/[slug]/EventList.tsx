@@ -34,7 +34,7 @@ export default function EventList({ events }: { events: CategoryEventItem[] }) {
           <li key={event.eventId}>
             <Link
               href={`/${event.eventId}`}
-              className="flex gap-4 rounded-xl p-2 transition-colors hover:bg-primary-100 dark:hover:bg-[#303134]"
+              className="flex gap-4 rounded-xl p-2 transition-colors hover:bg-primary-100 dark:hover:bg-surface-2"
             >
               <div className="relative aspect-3/4 w-36 shrink-0 overflow-hidden rounded-lg">
                 {event.thumbnail ? (

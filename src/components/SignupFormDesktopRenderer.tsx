@@ -69,14 +69,14 @@ export default function SignupFormDesktopRenderer() {
         onSubmit={(e) => { e.preventDefault(); submitForm(); }}
         noValidate
       >
-        <div className='flex w-full rounded-lg overflow-hidden border border-primary-300 dark:border-[#3c4043]'>
+        <div className='flex w-full rounded-lg overflow-hidden border border-primary-300 dark:border-surface-3'>
           <button
             type='button'
             className={cn(
               'flex-1 py-3 font-semibold text-base transition-colors',
               signupData.role === 'buyer'
                 ? 'bg-primary-700 text-white'
-                : 'text-primary-700 hover:bg-primary-100 dark:text-primary-300 dark:hover:bg-[#34363a]',
+                : 'text-primary-700 hover:bg-primary-100 dark:text-primary-300 dark:hover:bg-surface-4',
             )}
             onClick={() => setRole('buyer')}
           >
@@ -88,7 +88,7 @@ export default function SignupFormDesktopRenderer() {
               'flex-1 py-3 font-semibold text-base transition-colors',
               signupData.role === 'seller'
                 ? 'bg-primary-700 text-white'
-                : 'text-primary-700 hover:bg-primary-100 dark:text-primary-300 dark:hover:bg-[#34363a]',
+                : 'text-primary-700 hover:bg-primary-100 dark:text-primary-300 dark:hover:bg-surface-4',
             )}
             onClick={() => setRole('seller')}
           >

@@ -39,7 +39,7 @@ const SELLER_SETTINGS: SidebarItem[] = [
 
 export default function SellerSidebar({ name, email }: SellerSidebarProps) {
   return (
-    <aside className="flex h-full w-64 flex-col justify-between rounded-2xl bg-white p-4 transition-colors dark:bg-[#242528]">
+    <aside className="flex h-full w-64 flex-col justify-between rounded-2xl bg-white p-4 transition-colors dark:bg-surface-header">
       <div>
         <p className="px-3 pt-1 pb-1 text-xs font-semibold text-gray-400">
           판매자 메뉴
@@ -60,7 +60,7 @@ export default function SellerSidebar({ name, email }: SellerSidebarProps) {
         </nav>
       </div>
 
-      <div className="border-t border-gray-100 pt-3 dark:border-[#3c4043]">
+      <div className="border-t border-gray-100 pt-3 dark:border-surface-3">
         <div className="flex items-center gap-2.5 px-1 py-2">
           <Avatar seed={email || name} className="size-9 text-xs" />
           <div className="min-w-0">

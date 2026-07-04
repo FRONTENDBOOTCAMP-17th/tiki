@@ -36,7 +36,7 @@ export default async function ProfilePage() {
     : "-";
 
   return (
-    <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f] md:p-8">
+    <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-surface-3 dark:bg-surface-1 md:p-8">
       <h1 className="mb-6 text-xl font-bold text-gray-900 dark:text-gray-50">
         프로필 정보
       </h1>

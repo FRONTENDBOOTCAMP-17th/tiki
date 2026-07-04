@@ -56,7 +56,7 @@ function SortableRow({
     <tr
       ref={setNodeRef}
       style={style}
-      className={`border-b border-gray-100 bg-white dark:border-[#3c4043] dark:bg-[#2a2b2f] ${isDragging ? "shadow-lg" : "hover:bg-gray-50/50 dark:hover:bg-[#303134]"}`}
+      className={`border-b border-gray-100 bg-white dark:border-surface-3 dark:bg-surface-1 ${isDragging ? "shadow-lg" : "hover:bg-gray-50/50 dark:hover:bg-surface-2"}`}
     >
       <td className="w-10 px-4 py-4">
         <button
@@ -110,7 +110,7 @@ function EditRow({
   isPending: boolean;
 }) {
   return (
-    <tr className="border-b border-primary-100 bg-primary-50/30 dark:border-[#3c4043] dark:bg-[#303134]">
+    <tr className="border-b border-primary-100 bg-primary-50/30 dark:border-surface-3 dark:bg-surface-2">
       <td className="w-10 px-4 py-3" />
       <td className="w-16 px-4 py-3 text-gray-400">{category.display_order}</td>
       <td className="px-4 py-3" colSpan={2}>
@@ -128,7 +128,7 @@ function EditRow({
             defaultValue={category.category_name}
             autoFocus
             required
-            className="rounded-lg border border-primary-300 px-3 py-1.5 text-sm text-gray-900 outline-none focus:ring-1 focus:ring-primary-400 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-100"
+            className="rounded-lg border border-primary-300 px-3 py-1.5 text-sm text-gray-900 outline-none focus:ring-1 focus:ring-primary-400 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-100"
           />
           <button
             type="submit"
@@ -141,7 +141,7 @@ function EditRow({
           <button
             type="button"
             onClick={onCancel}
-            className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:border-[#3c4043] dark:text-gray-300 dark:hover:bg-[#34363a]"
+            className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:border-surface-3 dark:text-gray-300 dark:hover:bg-surface-4"
           >
             <X size={13} />
             취소
@@ -223,7 +223,7 @@ export default function CategoryManager({
         드래그하여 카테고리 순서를 변경할 수 있습니다.
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-surface-3 dark:bg-surface-1">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -235,7 +235,7 @@ export default function CategoryManager({
           >
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 text-left text-gray-500 dark:border-[#3c4043] dark:text-gray-400">
+                <tr className="border-b border-gray-100 text-left text-gray-500 dark:border-surface-3 dark:text-gray-400">
                   <th className="w-10 px-4 py-3.5" />
                   <th className="w-16 px-4 py-3.5 font-medium">순서</th>
                   <th className="px-4 py-3.5 font-medium">카테고리명</th>
@@ -269,7 +269,7 @@ export default function CategoryManager({
           </SortableContext>
         </DndContext>
 
-        <div className="border-t border-gray-100 px-4 py-3 text-xs text-gray-400 dark:border-[#3c4043]">
+        <div className="border-t border-gray-100 px-4 py-3 text-xs text-gray-400 dark:border-surface-3">
           총 {categories.length}개
         </div>
       </div>

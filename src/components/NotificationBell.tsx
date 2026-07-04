@@ -229,8 +229,8 @@ export default function NotificationBell({
       {open && (
         <>
           <div className="fixed inset-0 z-[60]" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-[70] mt-3 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white text-left shadow-xl dark:border-[#3c4043] dark:bg-[#2a2b2f]">
-            <div className="border-b border-gray-100 px-4 py-3 dark:border-[#3c4043]">
+          <div className="absolute right-0 z-[70] mt-3 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white text-left shadow-xl dark:border-surface-3 dark:bg-surface-1">
+            <div className="border-b border-gray-100 px-4 py-3 dark:border-surface-3">
               <p className="font-bold text-gray-900 dark:text-gray-50">알림</p>
             </div>
 
@@ -239,7 +239,7 @@ export default function NotificationBell({
                 새로운 알림이 없습니다
               </p>
             ) : (
-              <ul className="max-h-96 divide-y divide-gray-50 overflow-auto dark:divide-[#3c4043]">
+              <ul className="max-h-96 divide-y divide-gray-50 overflow-auto dark:divide-surface-3">
                 {items.map((item) => {
                   const Icon = iconFor(item.type);
                   const isActionable =
@@ -247,7 +247,7 @@ export default function NotificationBell({
                       item.type === "ticket_share") &&
                     item.ref_id;
                   const row = (
-                    <div className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-[#303134]">
+                    <div className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-surface-2">
                       <span
                         className={`flex size-9 shrink-0 items-center justify-center rounded-full ${styleFor(item.type)}`}
                       >
@@ -269,7 +269,7 @@ export default function NotificationBell({
                           handleDelete(item);
                         }}
                         aria-label="알림 삭제"
-                        className="shrink-0 rounded-md p-1 text-gray-300 transition hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-[#3c4043] dark:hover:text-gray-200"
+                        className="shrink-0 rounded-md p-1 text-gray-300 transition hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-surface-3 dark:hover:text-gray-200"
                       >
                         <X size={15} />
                       </button>
@@ -281,7 +281,7 @@ export default function NotificationBell({
                   return (
                     <li key={item.notification_id}>
                       {isActionable ? (
-                        <div className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-[#303134]">
+                        <div className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-surface-2">
                           <div className="flex items-start gap-3">
                             <span
                               className={`flex size-9 shrink-0 items-center justify-center rounded-full ${styleFor(item.type)}`}
@@ -316,7 +316,7 @@ export default function NotificationBell({
                                   ? handleReject(item)
                                   : handleRejectShare(item)
                               }
-                              className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 dark:border-[#3c4043] dark:text-gray-300 dark:hover:bg-[#303134]"
+                              className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 dark:border-surface-3 dark:text-gray-300 dark:hover:bg-surface-2"
                             >
                               거절
                             </button>

@@ -34,8 +34,8 @@ export default function SortFilter({
             className={cn(
               "flex cursor-pointer items-center gap-1 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
               active
-                ? "border-primary-500 bg-primary-100 text-primary-800 dark:border-gray-500 dark:bg-[#303134] dark:text-gray-100"
-                : "border-gray-200 bg-white text-gray-500 hover:border-gray-300 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-400 dark:hover:border-gray-500",
+                ? "border-primary-500 bg-primary-100 text-primary-800 dark:border-gray-500 dark:bg-surface-2 dark:text-gray-100"
+                : "border-gray-200 bg-white text-gray-500 hover:border-gray-300 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-400 dark:hover:border-gray-500",
             )}
           >
             <span>{label}</span>

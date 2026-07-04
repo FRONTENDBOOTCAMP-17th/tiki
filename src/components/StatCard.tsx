@@ -21,7 +21,7 @@ export default function StatCard({
   className,
 }: StatCardProps) {
   const cardClassName = cn(
-    "flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition-colors dark:border-[#3c4043] dark:bg-[#2a2b2f]",
+    "flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition-colors dark:border-surface-3 dark:bg-surface-1",
     href && "hover:border-primary-300 hover:shadow-sm dark:hover:border-gray-500",
     className,
   );

@@ -11,7 +11,7 @@ export default function EmptyState({
   return (
     <p
       className={cn(
-        "rounded-2xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-400 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-400",
+        "rounded-2xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-400 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-400",
         className,
       )}
     >

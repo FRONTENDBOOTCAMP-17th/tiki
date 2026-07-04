@@ -48,7 +48,7 @@ export default function RootLayout({
         <ThemeInitScript />
       </head>
       <body
-        className={`${pretendard.variable} ${pretendard.className} min-h-full flex flex-col bg-white dark:bg-[#202124]`}
+        className={`${pretendard.variable} ${pretendard.className} min-h-full flex flex-col bg-white dark:bg-surface-0`}
       >
         <ThemeProvider>
           <ToastProvider animation="slide" position="bottom-center">

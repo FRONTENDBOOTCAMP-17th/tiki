@@ -7,7 +7,7 @@ import TitleStepHeader from '@/components/TitleStepHeader';
 
 export default function JoinPage() {
   return (
-    <main className='flex min-h-screen flex-col items-center bg-linear-to-br from-primary-100 to-secondary-100 px-4 py-12 dark:bg-none dark:bg-[#202124]'>
+    <main className='flex min-h-screen flex-col items-center bg-linear-to-br from-primary-100 to-secondary-100 px-4 py-12 dark:bg-none dark:bg-surface-0'>
       <SignupProvider>
         <div className='w-full max-w-md md:max-w-2xl'>
           <Link
@@ -18,7 +18,7 @@ export default function JoinPage() {
             홈으로
           </Link>
 
-          <div className='w-full space-y-6 rounded-3xl bg-white px-8 py-10 shadow-xl shadow-primary-900/5 ring-1 ring-black/5 md:px-12 md:py-10 dark:bg-[#2a2b2f] dark:shadow-none dark:ring-white/10'>
+          <div className='w-full space-y-6 rounded-3xl bg-white px-8 py-10 shadow-xl shadow-primary-900/5 ring-1 ring-black/5 md:px-12 md:py-10 dark:bg-surface-1 dark:shadow-none dark:ring-white/10'>
             <TitleStepHeader subtitle='몇 가지만 입력하면 가입이 완료돼요' maxStep={3} />
 
             <div className='md:hidden'>

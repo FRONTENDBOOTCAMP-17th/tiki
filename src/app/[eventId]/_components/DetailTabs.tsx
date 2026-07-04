@@ -50,7 +50,7 @@ export default function DetailTabs({ tabs, children }: DetailTabsProps) {
 
   return (
     <div className="flex min-w-0 flex-col">
-      <div className="sticky top-0 z-20 border-y border-gray-100 bg-white/95 backdrop-blur dark:border-[#3c4043] dark:bg-[#242528]/95">
+      <div className="sticky top-0 z-20 border-y border-gray-100 bg-white/95 backdrop-blur dark:border-surface-3 dark:bg-surface-header/95">
         <div className="flex h-12 min-w-0 overflow-x-auto" role="tablist">
           {tabs.map((tab, index) => {
             const active = activeIndex === index;
