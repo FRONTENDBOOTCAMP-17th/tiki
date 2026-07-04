@@ -53,15 +53,14 @@ export async function generateMetadata({
     if (!event) return DEFAULT_METADATA;
 
     const description = getSummary(event.description);
-    const image = event.images[0];
 
+    // og:image는 opengraph-image.tsx가 담당하므로 여기선 images를 넣지 않는다.
     return {
       title: event.title,
       description,
       openGraph: {
         title: event.title,
         description,
-        images: image ? [{ url: image, alt: event.title }] : undefined,
       },
     };
   } catch {
