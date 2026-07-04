@@ -8,10 +8,22 @@ export const metadata = {
   title: "스태프 홈",
 };
 
+interface StaffEvent {
+  staff_id: string;
+  event_id: string;
+  title: string;
+  venue_name: string;
+  start_date: string;
+  end_date: string;
+  thumbnail: string;
+  status: string;
+  seller_name: string;
+}
+
 export default async function StaffHomePage() {
   const supabase = await createClient();
   const { data } = await supabase.rpc("get_my_staff_events");
-  const events = data ?? [];
+  const events = (data ?? []) as StaffEvent[];
 
   const pending = events.filter((e) => e.status === "pending");
   const accepted = events.filter((e) => e.status === "accepted");

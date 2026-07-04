@@ -8,6 +8,18 @@ export const metadata = {
   title: "입장 검증",
 };
 
+interface StaffEvent {
+  staff_id: string;
+  event_id: string;
+  title: string;
+  venue_name: string;
+  start_date: string;
+  end_date: string;
+  thumbnail: string;
+  status: string;
+  seller_name: string;
+}
+
 export default async function StaffCheckinPage({
   params,
 }: {
@@ -17,7 +29,7 @@ export default async function StaffCheckinPage({
   const supabase = await createClient();
 
   const { data } = await supabase.rpc("get_my_staff_events");
-  const assigned = (data ?? []).find(
+  const assigned = ((data ?? []) as StaffEvent[]).find(
     (e) => e.event_id === eventId && e.status === "accepted",
   );
 
