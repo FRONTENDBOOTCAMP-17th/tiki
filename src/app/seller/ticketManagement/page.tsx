@@ -1,6 +1,5 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { isBooked } from "../_lib/stats";
 import OrderTable from "./_components/OrderTable";
 import type { OrderRow } from "./types";
 
@@ -36,7 +35,6 @@ export default async function TicketManagementPage({
       events={eventOptions}
       filters={{ eventId: sp.eventId ?? "all", status: statusFilter }}
       pagination={{ page: 1, totalPages: 1, totalCount: 0 }}
-      stats={{ totalQuantity: 0, totalRevenue: 0, totalCount: 0 }}
     />
   );
 
@@ -46,7 +44,7 @@ export default async function TicketManagementPage({
   const scopedEventIds =
     sp.eventId && eventIds.includes(sp.eventId) ? [sp.eventId] : eventIds;
 
-  // 목록(현재 페이지)과 통계용 집계를 각각 조회한다. 집계는 합계에 필요한 3개 컬럼만.
+  // 현재 페이지만 조회한다. 총 건수는 count로 받아 페이지 수를 계산한다.
   let pageQuery = supabase
     .from("orders")
     .select(
@@ -55,31 +53,20 @@ export default async function TicketManagementPage({
     )
     .in("event_id", scopedEventIds)
     .neq("status", "cart");
-  let aggQuery = supabase
-    .from("orders")
-    .select("quantity, total_price, status")
-    .in("event_id", scopedEventIds)
-    .neq("status", "cart");
   if (statusFilter !== "all") {
     pageQuery = pageQuery.eq("status", statusFilter);
-    aggQuery = aggQuery.eq("status", statusFilter);
   }
 
   const from = (page - 1) * PAGE_SIZE;
-  const [{ data: orderRows, count }, { data: aggRows }] = await Promise.all([
-    pageQuery.order("created_at", { ascending: false }).range(from, from + PAGE_SIZE - 1),
-    aggQuery,
-  ]);
+  const { data: orderRows, count } = await pageQuery
+    .order("created_at", { ascending: false })
+    .range(from, from + PAGE_SIZE - 1);
 
   const orders = orderRows ?? [];
   const totalCount = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   // 통계 카드는 필터 전체(페이지 무관) 기준으로 집계한다.
-  const booked = (aggRows ?? []).filter((o) => isBooked(o.status));
-  const totalQuantity = booked.reduce((sum, o) => sum + o.quantity, 0);
-  const totalRevenue = booked.reduce((sum, o) => sum + o.total_price, 0);
-
   const buyerIds = [...new Set(orders.map((order) => order.user_id))];
   const slotIds = [
     ...new Set(orders.map((o) => o.slot_id).filter((id): id is string => !!id)),
@@ -147,7 +134,6 @@ export default async function TicketManagementPage({
       events={eventOptions}
       filters={{ eventId: sp.eventId ?? "all", status: statusFilter }}
       pagination={{ page, totalPages, totalCount }}
-      stats={{ totalQuantity, totalRevenue, totalCount }}
     />
   );
 }

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import {
   ArrowUpDown,
   Ticket,
-  Banknote,
   Search,
   MoreHorizontal,
   XCircle,
@@ -19,7 +18,6 @@ import {
   ChevronRight,
   Download,
 } from "lucide-react";
-import StatCard from "@/components/StatCard";
 import Dialog from "@/components/modal/Dialog";
 import Select from "@/components/Select";
 import InfoField from "@/components/InfoField";
@@ -35,7 +33,6 @@ interface Props {
   events: EventOption[];
   filters: { eventId: string; status: string };
   pagination: { page: number; totalPages: number; totalCount: number };
-  stats: { totalQuantity: number; totalRevenue: number; totalCount: number };
 }
 
 type SortKey = "created" | "event" | "buyer" | "price" | "status";
@@ -145,7 +142,6 @@ export default function OrderTable({
   events,
   filters,
   pagination,
-  stats,
 }: Props) {
   const [keyword, setKeyword] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("created");
@@ -345,27 +341,6 @@ export default function OrderTable({
           </a>
         }
       />
-
-      <div className="grid grid-cols-3 gap-4">
-        <StatCard
-          icon={Ticket}
-          label="예매 수량"
-          value={`${stats.totalQuantity.toLocaleString()}매`}
-          tone="secondary"
-        />
-        <StatCard
-          icon={Banknote}
-          label="결제액"
-          value={`${stats.totalRevenue.toLocaleString()}원`}
-          tone="accent"
-        />
-        <StatCard
-          icon={Ticket}
-          label="총 주문 건수"
-          value={`${totalCount.toLocaleString()}건`}
-          tone="primary"
-        />
-      </div>
 
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Select
