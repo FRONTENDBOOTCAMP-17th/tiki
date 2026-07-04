@@ -2,6 +2,7 @@ import { fail, success } from "@/lib/api/api-response";
 import { requireUserApi } from "@/lib/api/require-user";
 import { NextRequest } from "next/server";
 import { SELLER_EVENT_LIMITS } from "@/app/seller/_lib/limits";
+import { removeEventImages } from "@/lib/image/removeImages";
 
 interface EventUpdateBody {
   title?: unknown;
@@ -131,6 +132,11 @@ export async function PATCH(
       return fail("이미지 개수가 많습니다");
     }
 
+    const { data: existingImages } = await supabase
+      .from("event_image")
+      .select("url")
+      .eq("event_id", id);
+
     const { error: deleteError } = await supabase
       .from("event_image")
       .delete()
@@ -149,6 +155,21 @@ export async function PATCH(
         .from("event_image")
         .insert(rows);
       if (insertError) return fail("이미지 업데이트 실패(삽입)", 500);
+    }
+
+    // 교체로 빠진 미사용 이미지의 스토리지 객체 정리. 소유 이벤트일 때만 실제 remove를 호출한다.
+    const { data: owned } = await supabase
+      .from("event")
+      .select("event_id")
+      .eq("event_id", id)
+      .eq("seller_id", user.id)
+      .maybeSingle();
+    if (owned) {
+      const kept = new Set(images);
+      const removed = (existingImages ?? [])
+        .map((row) => row.url)
+        .filter((url) => !kept.has(url));
+      await removeEventImages(supabase, removed);
     }
   }
 

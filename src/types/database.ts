@@ -976,6 +976,7 @@ export type Database = {
           status: string
         }[]
       }
+      get_seller_dashboard_stats: { Args: { p_seller_id: string }; Returns: Json }
       get_shared_quantity: { Args: { p_order_id: string }; Returns: number }
       get_writable_review_slots: {
         Args: { p_event_id: string }
