@@ -17,7 +17,7 @@ export default async function LoginPage({
   const googleAction = signInWithOAuth.bind(null, 'google', safeNext);
   const kakaoAction = signInWithOAuth.bind(null, 'kakao', safeNext);
   return (
-    <main className='flex min-h-screen flex-col items-center justify-center bg-linear-to-br from-primary-100 to-secondary-100 px-4 py-12 dark:bg-none dark:bg-[#202124]'>
+    <main className='flex min-h-screen flex-col items-center justify-center bg-linear-to-br from-primary-100 to-secondary-100 px-4 py-12 dark:bg-none dark:bg-surface-0'>
       <div className='w-full max-w-md md:max-w-lg'>
         <Link
           href='/'
@@ -27,7 +27,7 @@ export default async function LoginPage({
           홈으로
         </Link>
 
-        <div className='w-full space-y-7 rounded-3xl bg-white px-8 py-8 shadow-xl shadow-primary-900/5 ring-1 ring-black/5 sm:px-12 sm:py-10 dark:bg-[#2a2b2f] dark:shadow-none dark:ring-white/10'>
+        <div className='w-full space-y-7 rounded-3xl bg-white px-8 py-8 shadow-xl shadow-primary-900/5 ring-1 ring-black/5 sm:px-12 sm:py-10 dark:bg-surface-1 dark:shadow-none dark:ring-white/10'>
           <div className='space-y-2 text-center'>
             <div className='text-primary-700 dark:text-gray-100'>
               <Logo color='currentColor' className='mx-auto h-9 w-auto' />
@@ -40,9 +40,9 @@ export default async function LoginPage({
           <OAuthContainer googleSignin={googleAction} kakaoSignin={kakaoAction} />
 
           <div className='flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500'>
-            <span className='h-px flex-1 bg-gray-200 dark:bg-[#3c4043]' />
+            <span className='h-px flex-1 bg-gray-200 dark:bg-surface-3' />
             또는
-            <span className='h-px flex-1 bg-gray-200 dark:bg-[#3c4043]' />
+            <span className='h-px flex-1 bg-gray-200 dark:bg-surface-3' />
           </div>
 
           <EmailAuthContainer emailSignin={signInWithEmail} next={safeNext} />

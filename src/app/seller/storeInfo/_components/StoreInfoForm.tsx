@@ -36,8 +36,8 @@ function Field({
             : "border border-transparent bg-gray-50"
         } ${
           editing
-            ? "dark:border-[#3c4043] dark:bg-[#303134] dark:focus:border-gray-500"
-            : "dark:bg-[#303134]"
+            ? "dark:border-surface-3 dark:bg-surface-2 dark:focus:border-gray-500"
+            : "dark:bg-surface-2"
         }`}
       />
     </div>
@@ -113,7 +113,7 @@ export default function StoreInfoForm({
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-        <div className="flex h-fit flex-col items-center rounded-2xl border border-gray-200 bg-white p-6 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+        <div className="flex h-fit flex-col items-center rounded-2xl border border-gray-200 bg-white p-6 dark:border-surface-3 dark:bg-surface-1">
           <Profile name={storeName} email={store?.email ?? undefined} />
           <div className="mt-4 text-center">
             <p className="text-xs text-gray-500">
@@ -127,7 +127,7 @@ export default function StoreInfoForm({
           action={onSave}
           className="flex flex-col gap-6"
         >
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+          <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-surface-3 dark:bg-surface-1">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-semibold text-gray-900 dark:text-gray-50">기본 정보</h2>
               {!editing && (
@@ -169,15 +169,15 @@ export default function StoreInfoForm({
                     : "border border-transparent bg-gray-50"
                 } ${
                   editing
-                    ? "dark:border-[#3c4043] dark:bg-[#303134] dark:focus:border-gray-500"
-                    : "dark:bg-[#303134]"
+                    ? "dark:border-surface-3 dark:bg-surface-2 dark:focus:border-gray-500"
+                    : "dark:bg-surface-2"
                 }`}
                 defaultValue={store?.description ?? ""}
               />
             </div>
           </section>
 
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+          <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-surface-3 dark:bg-surface-1">
             <h2 className="mb-5 font-semibold text-gray-900 dark:text-gray-50">연락처</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field
@@ -201,9 +201,9 @@ export default function StoreInfoForm({
             </div>
           </section>
 
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+          <section className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-surface-3 dark:bg-surface-1">
             <h2 className="mb-5 font-semibold text-gray-900 dark:text-gray-50">정산 계좌</h2>
-            <div className="flex items-center justify-between rounded-lg bg-gray-100 p-4 dark:bg-[#303134]">
+            <div className="flex items-center justify-between rounded-lg bg-gray-100 p-4 dark:bg-surface-2">
               <div>
                 {store?.bank_account_number ? (
                   <>
@@ -262,7 +262,7 @@ export default function StoreInfoForm({
             새로운 정산 계좌 정보를 입력해주세요.
           </p>
 
-          <div className="rounded-lg bg-gray-50 p-4 dark:bg-[#303134]">
+          <div className="rounded-lg bg-gray-50 p-4 dark:bg-surface-2">
             <p className="text-xs text-gray-500">현재 계좌</p>
 
             {store?.bank_account_number ? (
@@ -292,7 +292,7 @@ export default function StoreInfoForm({
                 value={bankName}
                 onChange={(e) => setBankName(e.target.value)}
                 placeholder="은행명을 입력하세요"
-                className={`${inputClass} w-full border border-gray-200 focus:border-primary-500 dark:border-[#3c4043] dark:bg-[#303134] dark:placeholder:text-gray-500 dark:focus:border-gray-500`}
+                className={`${inputClass} w-full border border-gray-200 focus:border-primary-500 dark:border-surface-3 dark:bg-surface-2 dark:placeholder:text-gray-500 dark:focus:border-gray-500`}
               />
             </div>
 
@@ -306,7 +306,7 @@ export default function StoreInfoForm({
                 value={bankAccount}
                 onChange={(e) => setBankAccount(e.target.value)}
                 placeholder="계좌번호를 입력하세요"
-                className={`${inputClass} w-full border border-gray-200 focus:border-primary-500 dark:border-[#3c4043] dark:bg-[#303134] dark:placeholder:text-gray-500 dark:focus:border-gray-500`}
+                className={`${inputClass} w-full border border-gray-200 focus:border-primary-500 dark:border-surface-3 dark:bg-surface-2 dark:placeholder:text-gray-500 dark:focus:border-gray-500`}
               />
             </div>
 
@@ -320,7 +320,7 @@ export default function StoreInfoForm({
                 value={bankHolder}
                 onChange={(e) => setBankHolder(e.target.value)}
                 placeholder="예금주명을 입력하세요"
-                className={`${inputClass} w-full border border-gray-200 focus:border-primary-500 dark:border-[#3c4043] dark:bg-[#303134] dark:placeholder:text-gray-500 dark:focus:border-gray-500`}
+                className={`${inputClass} w-full border border-gray-200 focus:border-primary-500 dark:border-surface-3 dark:bg-surface-2 dark:placeholder:text-gray-500 dark:focus:border-gray-500`}
               />
             </div>
           </div>

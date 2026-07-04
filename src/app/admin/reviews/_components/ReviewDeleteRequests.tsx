@@ -81,7 +81,7 @@ export default function ReviewDeleteRequests({
 
   if (requests.length === 0) {
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white py-16 text-center text-sm text-gray-400 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+      <div className="rounded-2xl border border-gray-200 bg-white py-16 text-center text-sm text-gray-400 dark:border-surface-3 dark:bg-surface-1">
         리뷰 삭제 요청이 없습니다
       </div>
     );
@@ -108,7 +108,7 @@ export default function ReviewDeleteRequests({
               className={
                 active
                   ? "rounded-full bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-1.5 text-sm font-semibold text-white"
-                  : "rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-50 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-300 dark:hover:bg-[#303134]"
+                  : "rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-50 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-300 dark:hover:bg-surface-2"
               }
             >
               {tab.label} {counts[tab.value]}
@@ -118,7 +118,7 @@ export default function ReviewDeleteRequests({
       </div>
 
       {visible.length === 0 ? (
-        <div className="rounded-2xl border border-gray-200 bg-white py-16 text-center text-sm text-gray-400 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+        <div className="rounded-2xl border border-gray-200 bg-white py-16 text-center text-sm text-gray-400 dark:border-surface-3 dark:bg-surface-1">
           {filter === "rejected"
             ? "거절된 요청이 없습니다"
             : filter === "pending"
@@ -132,7 +132,7 @@ export default function ReviewDeleteRequests({
           return (
             <li
               key={r.requestId}
-              className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]"
+              className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2.5">
@@ -145,7 +145,7 @@ export default function ReviewDeleteRequests({
                       className="size-10 shrink-0 rounded-lg object-cover"
                     />
                   ) : (
-                    <div className="size-10 shrink-0 rounded-lg bg-gray-100 dark:bg-[#303134]" />
+                    <div className="size-10 shrink-0 rounded-lg bg-gray-100 dark:bg-surface-2" />
                   )}
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-50">
@@ -164,7 +164,7 @@ export default function ReviewDeleteRequests({
               <ReviewRating rating={r.rating} className="mt-3" />
               <ReviewBody className="mt-2">{r.memo}</ReviewBody>
 
-              <div className="mt-3 rounded-lg bg-gray-50 p-3 dark:bg-[#303134]">
+              <div className="mt-3 rounded-lg bg-gray-50 p-3 dark:bg-surface-2">
                 <p className="text-xs text-gray-400">삭제 요청 사유</p>
                 <p className="mt-1 whitespace-pre-line text-sm text-gray-800 dark:text-gray-200">
                   {r.reason}
@@ -173,7 +173,7 @@ export default function ReviewDeleteRequests({
 
               <div className="mt-3 flex items-center justify-end gap-2">
                 {r.status === "rejected" ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500 dark:bg-[#303134] dark:text-gray-400">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500 dark:bg-surface-2 dark:text-gray-400">
                     <Ban size={13} />
                     거절됨
                   </span>

@@ -33,14 +33,14 @@ export function PopularSkeleton({ count = 5 }: { count?: number }) {
         {Array.from({ length: count }).map((_, i) => (
           <li
             key={i}
-            className="flex animate-pulse items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 dark:border-[#3c4043] dark:bg-[#2a2b2f]"
+            className="flex animate-pulse items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 dark:border-surface-3 dark:bg-surface-1"
           >
-            <span className="h-7 w-7 shrink-0 rounded-full bg-gray-100 dark:bg-[#3c4043]" />
-            <div className="aspect-3/4 w-14 shrink-0 rounded-xl bg-gray-100 dark:bg-[#3c4043]" />
+            <span className="h-7 w-7 shrink-0 rounded-full bg-gray-100 dark:bg-surface-3" />
+            <div className="aspect-3/4 w-14 shrink-0 rounded-xl bg-gray-100 dark:bg-surface-3" />
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-              <div className="h-3.5 w-3/4 rounded bg-gray-100 dark:bg-[#3c4043]" />
-              <div className="h-3 w-1/2 rounded bg-gray-100 dark:bg-[#3c4043]" />
-              <div className="h-3 w-2/3 rounded bg-gray-100 dark:bg-[#3c4043]" />
+              <div className="h-3.5 w-3/4 rounded bg-gray-100 dark:bg-surface-3" />
+              <div className="h-3 w-1/2 rounded bg-gray-100 dark:bg-surface-3" />
+              <div className="h-3 w-2/3 rounded bg-gray-100 dark:bg-surface-3" />
             </div>
           </li>
         ))}
@@ -64,7 +64,7 @@ export default function PopularList({ events }: { events: PopularEvent[] }) {
             <li key={event.id}>
               <Link
                 href={`/${event.id}`}
-                className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 transition-shadow hover:shadow-md dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:bg-[#303134]"
+                className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 transition-shadow hover:shadow-md dark:border-surface-3 dark:bg-surface-1 dark:hover:bg-surface-2"
               >
                 <span
                   className={cn(

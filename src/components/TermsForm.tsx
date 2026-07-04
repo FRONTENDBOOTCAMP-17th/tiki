@@ -28,7 +28,7 @@ export default function TermsForm() {
         </p>
       </div>
 
-      <div className='overflow-hidden rounded-2xl border border-gray-200 dark:border-[#3c4043]'>
+      <div className='overflow-hidden rounded-2xl border border-gray-200 dark:border-surface-3'>
         <Checkbox
           checked={allChecked}
           id='check-all'
@@ -36,7 +36,7 @@ export default function TermsForm() {
           text='전체 동의'
           onChange={checkAll}
         />
-        <div className='border-t border-gray-100 dark:border-[#3c4043]' />
+        <div className='border-t border-gray-100 dark:border-surface-3' />
         <div className='flex flex-col gap-3 px-4 py-3.5'>
           <Checkbox
             checked={terms.use}

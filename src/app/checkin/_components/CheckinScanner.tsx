@@ -170,9 +170,9 @@ export default function CheckinScanner() {
   return (
     <div className="flex flex-col gap-4">
       {/* 스캐너 */}
-      <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-gray-200 bg-black dark:border-[#3c4043]">
+      <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-gray-200 bg-black dark:border-surface-3">
         {cameraError ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 bg-gray-50 px-6 text-center dark:bg-[#242528]">
+          <div className="flex h-full flex-col items-center justify-center gap-2 bg-gray-50 px-6 text-center dark:bg-surface-header">
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
               카메라를 사용할 수 없습니다
             </p>
@@ -220,7 +220,7 @@ export default function CheckinScanner() {
                 <span className="font-semibold text-gray-900 dark:text-gray-50">
                   {result.event_title}
                 </span>
-                <span className="shrink-0 rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:bg-[#242528] dark:text-gray-300">
+                <span className="shrink-0 rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:bg-surface-header dark:text-gray-300">
                   {result.subject_type === "share" ? "공유 티켓" : "본인 예매"}
                 </span>
               </div>
@@ -240,7 +240,7 @@ export default function CheckinScanner() {
           <button
             type="button"
             onClick={reset}
-            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg bg-white py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition hover:bg-gray-50 dark:bg-[#242528] dark:text-gray-50 dark:hover:bg-[#2c2d30]"
+            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg bg-white py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition hover:bg-gray-50 dark:bg-surface-header dark:text-gray-50 dark:hover:bg-surface-elevated"
           >
             <RotateCcw size={15} />
             다음 스캔
@@ -249,7 +249,7 @@ export default function CheckinScanner() {
       )}
 
       {/* 직접 입력 (테스트/카메라 불가 시 폴백) */}
-      <div className="rounded-2xl border border-gray-200 p-4 dark:border-[#3c4043]">
+      <div className="rounded-2xl border border-gray-200 p-4 dark:border-surface-3">
         <button
           type="button"
           onClick={() => setManualOpen((v) => !v)}
@@ -265,7 +265,7 @@ export default function CheckinScanner() {
               value={manualValue}
               onChange={(e) => setManualValue(e.target.value)}
               placeholder="QR 토큰 값을 붙여넣으세요"
-              className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary-400 focus:outline-none dark:border-[#3c4043] dark:bg-[#242528] dark:text-gray-50"
+              className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary-400 focus:outline-none dark:border-surface-3 dark:bg-surface-header dark:text-gray-50"
             />
             <Button
               onClick={handleManualSubmit}

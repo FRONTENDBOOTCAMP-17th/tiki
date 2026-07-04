@@ -52,7 +52,7 @@ export default function RankingList({
             <li key={item.eventId}>
               <Link
                 href={`/${item.eventId}`}
-                className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 transition-shadow hover:shadow-md dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:bg-[#303134]"
+                className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 transition-shadow hover:shadow-md dark:border-surface-3 dark:bg-surface-1 dark:hover:bg-surface-2"
               >
                 {/* 순위 배지 */}
                 <span

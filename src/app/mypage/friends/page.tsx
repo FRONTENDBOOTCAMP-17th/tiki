@@ -43,14 +43,14 @@ export default async function FriendsPage() {
       </div>
 
       {/* 내 친구 */}
-      <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f] md:p-8">
+      <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-surface-3 dark:bg-surface-1 md:p-8">
         <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 dark:text-gray-50">
           <Users size={18} className="text-primary-500" />내 친구 (
           {friends.length}명)
         </h2>
 
         {friends.length === 0 ? (
-          <p className="mt-4 rounded-xl border border-gray-100 p-8 text-center text-sm text-gray-400 dark:border-[#3c4043]">
+          <p className="mt-4 rounded-xl border border-gray-100 p-8 text-center text-sm text-gray-400 dark:border-surface-3">
             아직 친구가 없습니다. 친구를 추가해보세요!
           </p>
         ) : (
@@ -58,7 +58,7 @@ export default async function FriendsPage() {
             {friends.map((friend) => (
               <div
                 key={friend.friend_id}
-                className="flex items-center gap-3 rounded-xl border border-gray-100 p-4 dark:border-[#3c4043]"
+                className="flex items-center gap-3 rounded-xl border border-gray-100 p-4 dark:border-surface-3"
               >
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-400 via-accent-400 to-secondary-400 text-sm font-semibold text-primary-900">
                   {friend.name?.charAt(0) ?? "?"}
@@ -91,7 +91,7 @@ export default async function FriendsPage() {
       </section>
 
       {/* 안내 */}
-      <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f] md:p-8">
+      <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-surface-3 dark:bg-surface-1 md:p-8">
         <h2 className="mb-3 font-semibold text-gray-900 dark:text-gray-50">
           친구 관리 안내
         </h2>

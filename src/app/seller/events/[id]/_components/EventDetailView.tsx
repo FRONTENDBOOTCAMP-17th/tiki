@@ -105,7 +105,7 @@ export default function EventDetailView({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-        <div className="relative h-60 overflow-hidden rounded-2xl bg-gray-100 dark:bg-[#303134]">
+        <div className="relative h-60 overflow-hidden rounded-2xl bg-gray-100 dark:bg-surface-2">
           {event.thumbnail ? (
             <Image
               src={event.thumbnail}
@@ -122,7 +122,7 @@ export default function EventDetailView({
         </div>
 
         <div className="space-y-4">
-          <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+          <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1">
             <div className="grid grid-cols-3 gap-3">
               <Stat
                 label="예매"
@@ -145,7 +145,7 @@ export default function EventDetailView({
                   {occupancy}% · {stats.totalOrders}/{capacity}석
                 </span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-[#3c4043]">
+              <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-surface-3">
                 <div
                   className="h-full rounded-full bg-primary-500"
                   style={{ width: `${occupancy}%` }}
@@ -154,7 +154,7 @@ export default function EventDetailView({
             </div>
           </section>
 
-          <section className="space-y-2 rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-600 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-300">
+          <section className="space-y-2 rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-600 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-300">
             <div className="flex items-center gap-2">
               <MapPin size={15} className="text-gray-400" />
               {event.venue_name} · {event.venue_address}
@@ -184,7 +184,7 @@ export default function EventDetailView({
       />
 
       {images.length > 0 && (
-        <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+        <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1">
           <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-50">이미지</h2>
           <div className="relative">
             <div
@@ -194,7 +194,7 @@ export default function EventDetailView({
               {images.map((img) => (
                 <div
                   key={img.image_id}
-                  className="relative h-40 w-64 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-[#303134]"
+                  className="relative h-40 w-64 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-surface-2"
                 >
                   <Image
                     src={img.url}
@@ -213,7 +213,7 @@ export default function EventDetailView({
                   type="button"
                   onClick={() => scrollByDir(-1)}
                   aria-label="이전 이미지"
-                  className="absolute left-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow ring-1 ring-gray-200 hover:bg-white dark:bg-[#2a2b2f]/90 dark:text-gray-100 dark:ring-[#3c4043] dark:hover:bg-[#34363a]"
+                  className="absolute left-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow ring-1 ring-gray-200 hover:bg-white dark:bg-surface-1/90 dark:text-gray-100 dark:ring-surface-3 dark:hover:bg-surface-4"
                 >
                   <ChevronLeft size={18} />
                 </button>
@@ -221,7 +221,7 @@ export default function EventDetailView({
                   type="button"
                   onClick={() => scrollByDir(1)}
                   aria-label="다음 이미지"
-                  className="absolute right-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow ring-1 ring-gray-200 hover:bg-white dark:bg-[#2a2b2f]/90 dark:text-gray-100 dark:ring-[#3c4043] dark:hover:bg-[#34363a]"
+                  className="absolute right-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow ring-1 ring-gray-200 hover:bg-white dark:bg-surface-1/90 dark:text-gray-100 dark:ring-surface-3 dark:hover:bg-surface-4"
                 >
                   <ChevronRight size={18} />
                 </button>
@@ -232,7 +232,7 @@ export default function EventDetailView({
       )}
 
       {event.description && (
-        <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+        <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1">
           <h2 className="mb-2 font-semibold text-gray-900 dark:text-gray-50">소개</h2>
           <p className="whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">
             {event.description}
@@ -240,12 +240,12 @@ export default function EventDetailView({
         </section>
       )}
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+      <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1">
         <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-50">회차</h2>
         {slots.length === 0 ? (
           <p className="text-sm text-gray-400">등록된 회차가 없습니다</p>
         ) : (
-          <div className="divide-y divide-gray-100 dark:divide-[#3c4043]">
+          <div className="divide-y divide-gray-100 dark:divide-surface-3">
             {slots.map((s) => (
               <div
                 key={s.slot_id}
@@ -261,12 +261,12 @@ export default function EventDetailView({
         )}
       </section>
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+      <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1">
         <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-50">티켓 등급</h2>
         {grades.length === 0 ? (
           <p className="text-sm text-gray-400">등록된 등급이 없습니다</p>
         ) : (
-          <div className="divide-y divide-gray-100 dark:divide-[#3c4043]">
+          <div className="divide-y divide-gray-100 dark:divide-surface-3">
             {grades.map((g) => (
               <div
                 key={g.grade_id}

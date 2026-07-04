@@ -70,9 +70,9 @@ export default function SellerGuidePage() {
         {GUIDE_ITEMS.map(({ Icon, title, desc }) => (
           <div
             key={title}
-            className="flex gap-4 rounded-xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]"
+            className="flex gap-4 rounded-xl border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-700 dark:bg-[#303134] dark:text-gray-100">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-700 dark:bg-surface-2 dark:text-gray-100">
               <Icon className="size-5" strokeWidth={1.6} aria-hidden="true" />
             </span>
             <div>
@@ -87,7 +87,7 @@ export default function SellerGuidePage() {
         ))}
       </div>
 
-      <section className="mt-8 rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-[#3c4043] dark:bg-[#303134]">
+      <section className="mt-8 rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-surface-3 dark:bg-surface-2">
         <h3 className="font-bold text-gray-950 dark:text-gray-50">
           운영할 때 참고해 주세요
         </h3>
@@ -107,7 +107,7 @@ export default function SellerGuidePage() {
         </Link>
         <Link
           href="/info/settlement"
-          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-[#3c4043] dark:text-gray-200 dark:hover:bg-[#303134]"
+          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-surface-3 dark:text-gray-200 dark:hover:bg-surface-2"
         >
           정산 안내 보기
         </Link>

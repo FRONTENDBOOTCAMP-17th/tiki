@@ -26,7 +26,7 @@ export default function EventCard({
   rank?: number;
 }) {
   const cardClass =
-    "flex items-center gap-3 rounded-2xl bg-search-background-pink px-4 py-3 dark:bg-[#2a2b2f]";
+    "flex items-center gap-3 rounded-2xl bg-search-background-pink px-4 py-3 dark:bg-surface-1";
 
   const content = (
     <>

@@ -15,13 +15,13 @@ export default function RecommendedSection({
   const [featured, ...rest] = events;
 
   return (
-    <HomeSection title="TIKI 추천 공연" className="bg-white dark:bg-[#202124]">
+    <HomeSection title="TIKI 추천 공연" className="bg-white dark:bg-surface-0">
       <div className="grid gap-4 lg:grid-cols-[minmax(17rem,0.95fr)_minmax(0,1.15fr)]">
         <Link
           href={`/${featured.eventId}`}
-          className="group grid grid-cols-[6rem_minmax(0,1fr)] items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 transition duration-200 hover:-translate-y-1 hover:border-primary-300 hover:shadow-sm sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-4 sm:p-4 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:border-gray-500"
+          className="group grid grid-cols-[6rem_minmax(0,1fr)] items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 transition duration-200 hover:-translate-y-1 hover:border-primary-300 hover:shadow-sm sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-4 sm:p-4 dark:border-surface-3 dark:bg-surface-1 dark:hover:border-gray-500"
         >
-          <div className="relative aspect-3/4 w-24 overflow-hidden rounded-lg bg-primary-100 sm:w-32 dark:bg-[#34363a]">
+          <div className="relative aspect-3/4 w-24 overflow-hidden rounded-lg bg-primary-100 sm:w-32 dark:bg-surface-4">
             <ThumbnailImage
               src={featured.thumbnail}
               alt={featured.title}
@@ -56,9 +56,9 @@ export default function RecommendedSection({
             <li key={event.eventId}>
               <Link
                 href={`/${event.eventId}`}
-                className="group flex h-full gap-3 rounded-xl border border-gray-200 bg-white p-3 transition-colors hover:border-primary-300 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:border-gray-500"
+                className="group flex h-full gap-3 rounded-xl border border-gray-200 bg-white p-3 transition-colors hover:border-primary-300 dark:border-surface-3 dark:bg-surface-1 dark:hover:border-gray-500"
               >
-                <div className="relative h-24 w-16 shrink-0 overflow-hidden rounded-lg bg-primary-100 dark:bg-[#34363a]">
+                <div className="relative h-24 w-16 shrink-0 overflow-hidden rounded-lg bg-primary-100 dark:bg-surface-4">
                   <ThumbnailImage
                     src={event.thumbnail}
                     alt={event.title}

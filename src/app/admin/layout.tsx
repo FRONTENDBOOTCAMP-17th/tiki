@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   if (account?.role !== "admin") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#fafafb] p-8 text-center dark:bg-[#202124]">
+      <div className="flex min-h-screen items-center justify-center bg-page-muted p-8 text-center dark:bg-surface-0">
         <div className="flex flex-col items-center gap-2">
           <p className="text-lg font-bold text-mirage dark:text-gray-50">관리자만 접근 가능한 페이지입니다</p>
         </div>
@@ -26,7 +26,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   return (
     <>
-      <div className="flex min-h-screen items-center justify-center bg-[#fafafb] p-8 text-center lg:hidden dark:bg-[#202124]">
+      <div className="flex min-h-screen items-center justify-center bg-page-muted p-8 text-center lg:hidden dark:bg-surface-0">
         <div className="flex flex-col items-center gap-2">
           <p className="text-lg font-bold text-mirage dark:text-gray-50">데스크탑에서 이용해주세요</p>
           <p className="text-sm text-gray-500">
@@ -35,7 +35,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         </div>
       </div>
 
-      <div className="hidden h-screen flex-col bg-[#fafafb] transition-colors lg:flex dark:bg-[#202124]">
+      <div className="hidden h-screen flex-col bg-page-muted transition-colors lg:flex dark:bg-surface-0">
         <RoleHeader role="admin" />
         <div className="flex min-h-0 flex-1">
           <AdminSidebar />

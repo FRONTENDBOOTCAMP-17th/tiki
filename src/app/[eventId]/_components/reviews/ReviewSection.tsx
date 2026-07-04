@@ -56,7 +56,7 @@ export default function ReviewSection({
 
   return (
     <section className="flex flex-col gap-5">
-      <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+      <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1">
         <div className="grid gap-6 md:grid-cols-[200px_minmax(0,1fr)] md:items-center">
           <div>
             <p className="text-sm font-semibold text-gray-500">관람 후기</p>
@@ -80,7 +80,7 @@ export default function ReviewSection({
                 className="grid grid-cols-[4.5rem_minmax(0,1fr)_2.5rem] items-center gap-5 text-sm"
               >
                 <span className="font-medium text-gray-600">{item.label}</span>
-                <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-[#3c4043]">
+                <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-surface-3">
                   <div
                     className="h-full rounded-full bg-primary-700"
                     style={{ width: `${item.percent}%` }}
@@ -106,7 +106,7 @@ export default function ReviewSection({
           <div className="flex justify-end">
             <ReviewSortFilter />
           </div>
-          <ul className="divide-y divide-gray-100 dark:divide-[#3c4043]">
+          <ul className="divide-y divide-gray-100 dark:divide-surface-3">
             {sortedReviews.map((review) => (
               <ReviewItem
                 key={review.reviewId}

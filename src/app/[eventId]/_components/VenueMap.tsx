@@ -14,7 +14,7 @@ function VenueMapShell({
   message: string;
 }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-surface-3 dark:bg-surface-1">
       <div className="flex h-64 w-full flex-col items-center justify-center gap-2 px-4 text-center text-sm font-medium text-gray-400 dark:text-gray-500">
         <MapPin className="h-6 w-6 text-gray-300" aria-hidden="true" />
         <span>{message}</span>
@@ -24,7 +24,7 @@ function VenueMapShell({
           href={`https://map.kakao.com/link/search/${encodeURIComponent(fullAddress)}`}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center justify-between gap-3 border-t border-gray-100 bg-white px-4 py-3 text-sm transition-colors hover:bg-gray-50 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:bg-[#303134]"
+          className="flex items-center justify-between gap-3 border-t border-gray-100 bg-white px-4 py-3 text-sm transition-colors hover:bg-gray-50 dark:border-surface-3 dark:bg-surface-1 dark:hover:bg-surface-2"
         >
           <span className="truncate text-gray-600 dark:text-gray-300">
             {fullAddress}

@@ -18,7 +18,7 @@ export default function ThemeToggleButton({
       title={isDark ? "라이트모드로 보기" : "다크모드로 보기"}
       onClick={toggleTheme}
       className={cn(
-        "flex size-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition-colors hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:border-[#3c4043] dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-[#34363a] dark:hover:text-white dark:focus:ring-offset-[#242528]",
+        "flex size-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition-colors hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:border-surface-3 dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-surface-4 dark:hover:text-white dark:focus:ring-offset-surface-header",
         className,
       )}
     >

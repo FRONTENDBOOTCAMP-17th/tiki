@@ -48,7 +48,7 @@ export default function SettlementInfoPage() {
         {SETTLEMENT_STEPS.map((step, index) => (
           <div
             key={step.title}
-            className="rounded-xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]"
+            className="rounded-xl border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1"
           >
             <div className="flex items-center gap-3">
               <span className="flex size-8 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white dark:bg-gray-100 dark:text-gray-950">
@@ -66,7 +66,7 @@ export default function SettlementInfoPage() {
       </div>
 
       <section className="mt-8 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl bg-gray-50 p-4 dark:bg-[#303134]">
+        <div className="rounded-xl bg-gray-50 p-4 dark:bg-surface-2">
           <Banknote className="size-5 text-gray-700 dark:text-gray-100" />
           <p className="mt-3 text-sm font-semibold text-gray-950 dark:text-gray-50">
             총 결제액
@@ -75,7 +75,7 @@ export default function SettlementInfoPage() {
             결제가 완료된 주문 금액
           </p>
         </div>
-        <div className="rounded-xl bg-gray-50 p-4 dark:bg-[#303134]">
+        <div className="rounded-xl bg-gray-50 p-4 dark:bg-surface-2">
           <Receipt className="size-5 text-gray-700 dark:text-gray-100" />
           <p className="mt-3 text-sm font-semibold text-gray-950 dark:text-gray-50">
             수수료
@@ -84,7 +84,7 @@ export default function SettlementInfoPage() {
             서비스 이용 수수료
           </p>
         </div>
-        <div className="rounded-xl bg-gray-50 p-4 dark:bg-[#303134]">
+        <div className="rounded-xl bg-gray-50 p-4 dark:bg-surface-2">
           <WalletCards className="size-5 text-gray-700 dark:text-gray-100" />
           <p className="mt-3 text-sm font-semibold text-gray-950 dark:text-gray-50">
             정산 예정액
@@ -95,7 +95,7 @@ export default function SettlementInfoPage() {
         </div>
       </section>
 
-      <section className="mt-8 rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-[#3c4043] dark:bg-[#303134]">
+      <section className="mt-8 rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-surface-3 dark:bg-surface-2">
         <div className="flex gap-3">
           <CalendarCheck
             className="mt-0.5 size-5 shrink-0 text-primary-700 dark:text-gray-100"
@@ -123,7 +123,7 @@ export default function SettlementInfoPage() {
         </Link>
         <Link
           href="/seller/storeInfo"
-          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-[#3c4043] dark:text-gray-200 dark:hover:bg-[#303134]"
+          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-surface-3 dark:text-gray-200 dark:hover:bg-surface-2"
         >
           정산 계좌 확인
         </Link>

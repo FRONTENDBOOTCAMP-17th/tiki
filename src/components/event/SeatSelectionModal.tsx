@@ -181,8 +181,8 @@ export default function SeatSelectionModal({
                 className={cn(
                   "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
                   active
-                    ? "border-primary-500 bg-primary-100 text-primary-900 dark:border-gray-500 dark:bg-[#303134] dark:text-gray-50"
-                    : "border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-[#3c4043] dark:text-gray-300 dark:hover:bg-[#303134]",
+                    ? "border-primary-500 bg-primary-100 text-primary-900 dark:border-gray-500 dark:bg-surface-2 dark:text-gray-50"
+                    : "border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-surface-3 dark:text-gray-300 dark:hover:bg-surface-2",
                   disabled && "cursor-not-allowed opacity-40",
                 )}
               >
@@ -192,7 +192,7 @@ export default function SeatSelectionModal({
           })}
         </div>
 
-        <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-[#3c4043] dark:bg-[#303134]">
+        <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-surface-3 dark:bg-surface-2">
           <div
             className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md bg-gray-700 text-xs font-medium text-white"
             style={{

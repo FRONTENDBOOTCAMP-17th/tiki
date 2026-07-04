@@ -39,24 +39,24 @@ function UnavailableBox({ label }: { label: string }) {
   return (
     <>
       <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-surface-3 dark:bg-surface-1">
           <h2 className="text-lg font-bold text-mirage dark:text-gray-50">
             예매하기
           </h2>
           <button
             type="button"
             disabled
-            className="mt-4 w-full cursor-not-allowed rounded-md bg-gray-100 py-3 text-sm font-medium text-gray-400 dark:bg-[#303134] dark:text-gray-500"
+            className="mt-4 w-full cursor-not-allowed rounded-md bg-gray-100 py-3 text-sm font-medium text-gray-400 dark:bg-surface-2 dark:text-gray-500"
           >
             {label}
           </button>
         </div>
       </aside>
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white p-4 dark:border-[#3c4043] dark:bg-[#242528] lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white p-4 dark:border-surface-3 dark:bg-surface-header lg:hidden">
         <button
           type="button"
           disabled
-          className="w-full cursor-not-allowed rounded-md bg-gray-200 py-3 text-sm font-medium text-gray-500 dark:bg-[#303134] dark:text-gray-500"
+          className="w-full cursor-not-allowed rounded-md bg-gray-200 py-3 text-sm font-medium text-gray-500 dark:bg-surface-2 dark:text-gray-500"
         >
           {label}
         </button>
@@ -141,13 +141,13 @@ export default function BookingWidget({
           max-h 에서 10rem 은 상단 헤더(로고/카테고리)+목록버튼 높이만큼 빼서
           스크롤 0 위치에서도 패널 바닥(합계+버튼)이 화면 안에 들어오게 함. */}
       <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
-        <div className="flex max-h-[calc(100vh-8rem)] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+        <div className="flex max-h-[calc(100vh-8rem)] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-surface-3 dark:bg-surface-1">
           <BookingPanel {...panelProps} onBookNow={handleBookNow} />
         </div>
       </aside>
 
       {/* 모바일/태블릿 : 하단에 살짝 보이는 트리거 바 */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white p-4 dark:border-[#3c4043] dark:bg-[#242528] lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white p-4 dark:border-surface-3 dark:bg-surface-header lg:hidden">
         <button
           type="button"
           onClick={() => (loggedIn ? setOpen(true) : redirectToLogin())}
