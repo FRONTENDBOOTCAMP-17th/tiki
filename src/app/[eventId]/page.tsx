@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { cache } from "react";
 import { MapPin, Star, Clock, Calendar } from "lucide-react";
 import { notFound } from "next/navigation";
 
@@ -25,6 +27,47 @@ import ReviewSection from "./_components/reviews/ReviewSection";
 
 const EVENT_ID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const getCachedEventDetail = cache(getEventDetail);
+const DEFAULT_METADATA: Metadata = {
+  title: "공연 상세",
+  description: "TiKi에서 다양한 공연과 이벤트를 확인해 보세요.",
+};
+
+function getSummary(description: string) {
+  const normalized = description.replace(/\s+/g, " ").trim();
+  if (!normalized) return DEFAULT_METADATA.description ?? "";
+  return normalized.length > 100 ? `${normalized.slice(0, 100)}...` : normalized;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ eventId: string }>;
+}): Promise<Metadata> {
+  const { eventId } = await params;
+  if (!EVENT_ID_RE.test(eventId)) return DEFAULT_METADATA;
+
+  try {
+    const event = await getCachedEventDetail(eventId);
+    if (!event) return DEFAULT_METADATA;
+
+    const description = getSummary(event.description);
+    const image = event.images[0];
+
+    return {
+      title: event.title,
+      description,
+      openGraph: {
+        title: event.title,
+        description,
+        images: image ? [{ url: image, alt: event.title }] : undefined,
+      },
+    };
+  } catch {
+    return DEFAULT_METADATA;
+  }
+}
 
 // 최초 공연 날짜 (가장 이른 회차)
 function formatFirstDate(slots: Slot[]) {
@@ -63,7 +106,7 @@ export default async function EventDetailPage({
   ]);
   const loggedIn = !!user;
 
-  const event = await getEventDetail(eventId);
+  const event = await getCachedEventDetail(eventId);
 
   const [slots, grades, seatLayout, reviewData, writableSlots] = event
     ? await Promise.all([

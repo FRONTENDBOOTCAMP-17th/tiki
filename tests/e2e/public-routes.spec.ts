@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("public routes", () => {
+  const eventPathPattern =
+    /^\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
   test("홈이 열리고 주요 섹션이 렌더된다", async ({ page }) => {
     const response = await page.goto("/");
 
@@ -37,5 +40,32 @@ test.describe("public routes", () => {
     await page.goto("/seller");
 
     await expect(page).toHaveURL(/\/login/);
+  });
+
+  test("이벤트 상세 HTML에 이벤트명 og:title이 들어간다", async ({ page }) => {
+    await page.goto("/");
+
+    const eventPath = await page.locator("a[href]").evaluateAll(
+      (links, pattern) =>
+        links
+          .map((link) => link.getAttribute("href"))
+          .find((href): href is string => !!href && new RegExp(pattern).test(href)) ??
+        null,
+      eventPathPattern.source,
+    );
+
+    if (!eventPath) {
+      test.skip(true, "홈에 노출된 이벤트가 없어서 상세 메타 검증을 건너뜁니다.");
+      return;
+    }
+
+    await page.goto(eventPath);
+    const title = (await page.locator("h1").first().textContent())?.trim();
+    const ogTitle = await page
+      .locator('meta[property="og:title"]')
+      .getAttribute("content");
+
+    expect(title).toBeTruthy();
+    expect(ogTitle).toBe(title);
   });
 });
