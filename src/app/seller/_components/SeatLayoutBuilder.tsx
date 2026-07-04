@@ -37,9 +37,9 @@ export interface SeatGradeOption {
 // 등급마다 고정 색을 순서대로 배정 (등급 자체에 색 컬럼이 없으므로 인덱스 기반으로 매핑)
 const GRADE_COLORS = ["#a855f7", "#f97316", "#06b6d4", "#22c55e", "#ef4444", "#eab308"];
 const controlClass =
-  "border-gray-200 bg-white text-gray-900 dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-100";
+  "border-gray-200 bg-white text-gray-900 dark:border-surface-3 dark:bg-surface-2 dark:text-gray-100";
 const controlHoverClass =
-  "hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-[#34363a] dark:hover:text-gray-100";
+  "hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-surface-4 dark:hover:text-gray-100";
 
 function colorForGrade(gradeId: string | null, grades: SeatGradeOption[]) {
   if (!gradeId) return "#ffffff";
@@ -651,14 +651,14 @@ export default function SeatLayoutBuilder({
           type="button"
           onClick={deleteSelected}
           disabled={selectedIds.size === 0}
-          className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-danger-600 hover:bg-danger-50 disabled:opacity-40 dark:border-[#3c4043] dark:hover:bg-danger-950/30"
+          className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-danger-600 hover:bg-danger-50 disabled:opacity-40 dark:border-surface-3 dark:hover:bg-danger-950/30"
         >
           <Trash2 size={14} />
           선택 삭제
         </button>
       </div>
 
-      <div className="flex flex-wrap items-end gap-2 rounded-lg bg-gray-50 p-2 dark:bg-[#303134]">
+      <div className="flex flex-wrap items-end gap-2 rounded-lg bg-gray-50 p-2 dark:bg-surface-2">
         <label className="flex flex-col gap-1 text-xs text-gray-500">
           배치 프리셋
           <select
@@ -840,7 +840,7 @@ export default function SeatLayoutBuilder({
       </div>
 
       {groups.length > 0 && (
-        <div className="flex flex-col gap-2 rounded-lg border border-gray-200 p-3 dark:border-[#3c4043]">
+        <div className="flex flex-col gap-2 rounded-lg border border-gray-200 p-3 dark:border-surface-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">그룹 인스펙터</p>
             <label className="flex items-center gap-1 text-xs text-gray-500">
@@ -859,7 +859,7 @@ export default function SeatLayoutBuilder({
               return (
                 <li
                   key={name}
-                  className="flex flex-wrap items-center gap-2 rounded-md bg-gray-50 px-2 py-1.5 text-sm dark:bg-[#303134]"
+                  className="flex flex-wrap items-center gap-2 rounded-md bg-gray-50 px-2 py-1.5 text-sm dark:bg-surface-2"
                 >
                   <input
                     key={name}
@@ -894,7 +894,7 @@ export default function SeatLayoutBuilder({
                   <button
                     type="button"
                     onClick={() => ungroupAll(name)}
-                    className="rounded border border-gray-200 px-2 py-1 text-xs text-danger-600 hover:bg-danger-50 dark:border-[#3c4043] dark:hover:bg-danger-950/30"
+                    className="rounded border border-gray-200 px-2 py-1 text-xs text-danger-600 hover:bg-danger-50 dark:border-surface-3 dark:hover:bg-danger-950/30"
                   >
                     그룹 해제
                   </button>
@@ -921,7 +921,7 @@ export default function SeatLayoutBuilder({
           onMouseDown={handleCanvasMouseDown}
           onMouseMove={handleCanvasMouseMove}
           onMouseUp={handleCanvasMouseUp}
-          className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-[#3c4043] dark:bg-[#303134]"
+          className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-surface-3 dark:bg-surface-2"
         >
           <StageBlock
             stage={stage}

@@ -65,15 +65,15 @@ export default function MemberTable({
           placeholder="회원 이름 또는 이메일 검색..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-4 text-sm text-gray-900 outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-100 dark:placeholder:text-gray-500"
+          className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-4 text-sm text-gray-900 outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-100 dark:placeholder:text-gray-500"
         />
       </form>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-surface-3 dark:bg-surface-1">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 text-left text-gray-500 dark:border-[#3c4043] dark:text-gray-400">
+              <tr className="border-b border-gray-100 text-left text-gray-500 dark:border-surface-3 dark:text-gray-400">
                 <th className="px-5 py-3.5 font-medium">ID</th>
                 <th className="px-5 py-3.5 font-medium">이름</th>
                 <th className="px-5 py-3.5 font-medium">이메일</th>
@@ -84,7 +84,7 @@ export default function MemberTable({
                 <th className="px-5 py-3.5 font-medium">관리</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-[#3c4043]">
+            <tbody className="divide-y divide-gray-50 dark:divide-surface-3">
               {members.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-16 text-center text-gray-400">
@@ -95,7 +95,7 @@ export default function MemberTable({
                 members.map((member) => (
                   <tr
                     key={member.id}
-                    className="hover:bg-gray-50/60 dark:hover:bg-[#303134]"
+                    className="hover:bg-gray-50/60 dark:hover:bg-surface-2"
                   >
                     <td className="px-5 py-4 text-gray-400">{member.index}</td>
                     <td className="px-5 py-4 font-medium text-gray-900 dark:text-gray-50">
@@ -157,7 +157,7 @@ export default function MemberTable({
             </tbody>
           </table>
         </div>
-        <div className="border-t border-gray-100 px-5 py-3 text-xs text-gray-400 dark:border-[#3c4043]">
+        <div className="border-t border-gray-100 px-5 py-3 text-xs text-gray-400 dark:border-surface-3">
           총 {members.length}명
         </div>
       </div>

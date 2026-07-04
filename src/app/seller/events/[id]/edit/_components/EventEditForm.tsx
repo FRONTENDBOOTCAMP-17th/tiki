@@ -22,7 +22,7 @@ export interface SlotRow {
 }
 
 const inputClass =
-  "rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-gray-500";
+  "rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary-500 dark:border-surface-3 dark:bg-surface-2 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-gray-500";
 const selectClass = `${inputClass} h-10 w-full appearance-none pr-9`;
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
@@ -233,7 +233,7 @@ export default function EventEditForm({
       </SectionCard>
 
       <SectionCard step={3} title="회차 시간">
-        <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500 dark:bg-[#303134] dark:text-gray-400">
+        <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500 dark:bg-surface-2 dark:text-gray-400">
           <span>
             공연 기간{" "}
             <span className="font-medium text-gray-700 dark:text-gray-200">
@@ -267,7 +267,7 @@ export default function EventEditForm({
             </p>
             <div className="max-h-112 space-y-3 overflow-auto pr-1">
               {Object.entries(slotsByDate).map(([date, slots]) => (
-                <div key={date} className="rounded-xl border border-gray-100 p-4 dark:border-[#3c4043]">
+                <div key={date} className="rounded-xl border border-gray-100 p-4 dark:border-surface-3">
                   <p className="mb-3 text-sm font-semibold text-gray-800 dark:text-gray-200">
                     {formatDateLabel(date)}
                   </p>
@@ -294,7 +294,7 @@ export default function EventEditForm({
                                 [slot.slot_id]: e.target.value,
                               }))
                             }
-                            className={`${inputClass} disabled:bg-gray-50 dark:disabled:bg-[#2a2b2f] ${isRemoved ? "line-through" : ""}`}
+                            className={`${inputClass} disabled:bg-gray-50 dark:disabled:bg-surface-1 ${isRemoved ? "line-through" : ""}`}
                           />
                           {run > 0 && (
                             <span className="text-xs text-gray-400">
@@ -304,7 +304,7 @@ export default function EventEditForm({
 
                           <div className="ml-auto">
                             {orders > 0 ? (
-                              <span className="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-500 dark:bg-[#303134] dark:text-gray-400">
+                              <span className="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-500 dark:bg-surface-2 dark:text-gray-400">
                                 예매 {orders}건
                               </span>
                             ) : isRemoved ? (
@@ -346,7 +346,7 @@ export default function EventEditForm({
         />
       </SectionCard>
 
-      <div className="sticky bottom-0 flex justify-end gap-3 rounded-2xl border border-gray-200 bg-white/90 p-4 backdrop-blur dark:border-[#3c4043] dark:bg-[#242528]/90">
+      <div className="sticky bottom-0 flex justify-end gap-3 rounded-2xl border border-gray-200 bg-white/90 p-4 backdrop-blur dark:border-surface-3 dark:bg-surface-header/90">
         <Button
           variant="outlinePrimary"
           type="button"

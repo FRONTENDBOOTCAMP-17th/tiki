@@ -23,6 +23,22 @@
 body {
   background: var(--app-bg);
   color: var(--app-text);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+:where(a, button, [role="button"], input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-primary-700);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .dark :where(.bg-white) {
@@ -34,11 +50,11 @@ body {
 }
 
 .dark :where(.bg-gray-100) {
-  background-color: #303134;
+  background-color: var(--color-surface-2);
 }
 
 .dark :where(.bg-gray-200) {
-  background-color: #3c4043;
+  background-color: var(--color-surface-3);
 }
 
 .dark :where(.bg-whisper, .bg-search-background-pink) {
@@ -82,7 +98,7 @@ body {
 }
 
 .dark :where(.hover\:bg-gray-50:hover, .hover\:bg-gray-100:hover, .hover\:bg-primary-50:hover) {
-  background-color: #303134;
+  background-color: var(--color-surface-2);
 }
 
 .dark :where(.hover\:border-primary-300:hover) {
@@ -98,6 +114,17 @@ body {
 }
 
 @theme {
+  --color-page-muted: #fafafb;
+
+  --color-surface-0: #202124;
+  --color-surface-header: #242528;
+  --color-surface-1: #2a2b2f;
+  --color-surface-elevated: #2c2d30;
+  --color-surface-2: #303134;
+  --color-surface-3: #3c4043;
+  --color-surface-4: #34363a;
+  --color-surface-5: #4a4c50;
+
   --color-primary: #cdb4db;
 
   --color-primary-100: #f6f1f8;

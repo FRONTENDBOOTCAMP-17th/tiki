@@ -8,7 +8,7 @@ import { UserRole } from '@/types/domain/user-role';
 
 const BASE_ROLE_BUTTON_CLASS = 'h-fit border-2 flex-col gap-2 md:py-2 md:w-full';
 const UNSELECTED_ROLE_BUTTON_CLASS =
-  'border-primary-300 text-primary-700 hover:bg-primary-100 dark:border-[#3c4043] dark:text-primary-300 dark:hover:bg-[#34363a]';
+  'border-primary-300 text-primary-700 hover:bg-primary-100 dark:border-surface-3 dark:text-primary-300 dark:hover:bg-surface-4';
 const SELECTED_ROLE_BUTTON_CLASS =
   'border-primary-700 bg-primary-700 text-white hover:bg-primary-700 hover:text-white';
 

@@ -36,7 +36,7 @@ function PosterCard({
       href={`/${item.eventId}`}
       className="group flex w-36 shrink-0 flex-col gap-2 transition-transform active:scale-95 md:w-44"
     >
-      <div className="relative aspect-3/4 w-full overflow-hidden rounded-xl bg-gray-100 shadow-sm transition-shadow group-hover:shadow-md dark:bg-[#34363a]">
+      <div className="relative aspect-3/4 w-full overflow-hidden rounded-xl bg-gray-100 shadow-sm transition-shadow group-hover:shadow-md dark:bg-surface-4">
         <div className="relative size-full transition-transform duration-300 group-hover:scale-105">
           <ThumbnailImage
             src={item.thumbnail}

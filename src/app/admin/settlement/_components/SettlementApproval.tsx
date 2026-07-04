@@ -60,7 +60,7 @@ export default function SettlementApproval({
 
   if (requests.length === 0) {
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white py-16 text-center text-sm text-gray-400 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+      <div className="rounded-2xl border border-gray-200 bg-white py-16 text-center text-sm text-gray-400 dark:border-surface-3 dark:bg-surface-1">
         정산 신청 내역이 없습니다
       </div>
     );
@@ -78,10 +78,10 @@ export default function SettlementApproval({
         건
       </p>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-[#3c4043]">
+      <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-surface-3">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 text-left text-xs text-gray-500 dark:bg-[#242528] dark:text-gray-400">
+            <tr className="bg-gray-50 text-left text-xs text-gray-500 dark:bg-surface-header dark:text-gray-400">
               <th className="px-4 py-3 font-medium">판매자</th>
               <th className="px-4 py-3 font-medium">정산 기간</th>
               <th className="px-4 py-3 text-right font-medium">결제액</th>
@@ -93,7 +93,7 @@ export default function SettlementApproval({
             {requests.map((r) => (
               <tr
                 key={r.settlement_id}
-                className="border-t border-gray-100 bg-white dark:border-[#3c4043] dark:bg-[#2a2b2f]"
+                className="border-t border-gray-100 bg-white dark:border-surface-3 dark:bg-surface-1"
               >
                 <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-50">
                   {r.seller_name}

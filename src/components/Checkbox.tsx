@@ -32,7 +32,7 @@ export default function Checkbox({
       />
       <span
         className={cn(
-          'flex size-5 shrink-0 items-center justify-center rounded-md border-2 border-gray-300 text-transparent transition-colors dark:border-[#4a4c50]',
+          'flex size-5 shrink-0 items-center justify-center rounded-md border-2 border-gray-300 text-transparent transition-colors dark:border-surface-5',
           checked &&
             'border-primary-700 bg-primary-700 text-white dark:border-primary-600 dark:bg-primary-600',
         )}

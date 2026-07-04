@@ -145,7 +145,7 @@ export default async function EventDetailPage({
                         공연정보
                       </h2>
 
-                      <ul className="grid gap-3 rounded-lg border border-info-border p-4 sm:grid-cols-2 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+                      <ul className="grid gap-3 rounded-2xl border border-info-border p-4 sm:grid-cols-2 dark:border-surface-3 dark:bg-surface-1">
                         <li className="flex items-center gap-3">
                           <Calendar className="h-5 w-5 shrink-0 text-info-accent" />
                           <div className="flex flex-col gap-0.5">
@@ -202,7 +202,7 @@ export default async function EventDetailPage({
 
                       <EventIntro images={event.images.slice(1)} />
                       {event.images.length <= 1 && (
-                        <p className="rounded-lg border border-gray-100 p-8 text-center text-sm text-gray-400">
+                        <p className="rounded-2xl border border-gray-100 p-8 text-center text-sm text-gray-400">
                           등록된 상세 이미지가 없습니다.
                         </p>
                       )}
@@ -234,7 +234,7 @@ export default async function EventDetailPage({
                         <h2 className="text-xl font-bold text-gray-900">
                           장소
                         </h2>
-                        <div className="flex flex-col gap-4 rounded-lg border border-gray-200 p-4 text-sm">
+                        <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 p-4 text-sm">
                           <dl className="grid gap-3 md:grid-cols-2">
                             <div className="flex flex-col gap-1">
                               <dt className="text-xs font-medium text-gray-400">

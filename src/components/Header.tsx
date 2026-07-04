@@ -51,7 +51,7 @@ function HeaderThemeToggle() {
       aria-label={isDark ? "라이트모드로 보기" : "다크모드로 보기"}
       title={isDark ? "라이트모드로 보기" : "다크모드로 보기"}
       onClick={toggleTheme}
-      className="inline-flex h-9 items-center gap-1.5 rounded-full px-2.5 text-sm font-semibold text-white/90 transition hover:bg-white/15 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-primary-300 dark:text-gray-100 dark:hover:bg-[#34363a] dark:focus:ring-offset-[#242528] lg:px-3"
+      className="inline-flex h-9 items-center gap-1.5 rounded-full px-2.5 text-sm font-semibold text-white/90 transition hover:bg-white/15 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-primary-300 dark:text-gray-100 dark:hover:bg-surface-4 dark:focus:ring-offset-surface-header lg:px-3"
     >
       <Icon size={18} strokeWidth={2.15} aria-hidden />
       <span className="hidden lg:inline">{isDark ? "라이트" : "다크"}</span>
@@ -74,7 +74,7 @@ export default function Header({
   return (
     <header
       className={cn(
-        "relative z-50 w-full bg-linear-to-r from-primary-300 to-secondary-300 transition-colors dark:from-[#242528] dark:to-[#242528]",
+        "relative z-50 w-full bg-linear-to-r from-primary-300 to-secondary-300 transition-colors dark:from-surface-header dark:to-surface-header",
         className,
       )}
       {...props}
@@ -128,7 +128,7 @@ export default function Header({
       </div>
 
       {showCategory && (
-        <div className="border-b border-gray-100 bg-white transition-colors dark:border-[#3c4043] dark:bg-[#242528]">
+        <div className="border-b border-gray-100 bg-white transition-colors dark:border-surface-3 dark:bg-surface-header">
           <nav className="scrollbar-hide mx-auto flex h-11 max-w-360 items-center gap-5 overflow-x-auto px-7 lg:px-8">
             {categories.map((cat) => {
               const active = path === cat.href;

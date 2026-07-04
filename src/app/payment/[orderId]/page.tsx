@@ -31,7 +31,7 @@ function PaymentStatusNotice({
       <div className="flex gap-3">
         <Link
           href={`/${eventId}`}
-          className="inline-flex h-11 items-center justify-center rounded-lg border border-gray-300 px-5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-[#3c4043] dark:text-gray-200 dark:hover:bg-[#303134]"
+          className="inline-flex h-11 items-center justify-center rounded-lg border border-gray-300 px-5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-surface-3 dark:text-gray-200 dark:hover:bg-surface-2"
         >
           다시 예매하기
         </Link>

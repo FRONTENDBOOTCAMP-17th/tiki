@@ -42,7 +42,7 @@ export default function EventCard({ event, href }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-primary-300 hover:shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:border-gray-500">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-primary-300 hover:shadow-sm dark:border-surface-3 dark:bg-surface-1 dark:hover:border-gray-500">
       <div className="flex gap-5">
         <Link
           href={href}
@@ -110,7 +110,7 @@ export default function EventCard({ event, href }: Props) {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-3 gap-3 rounded-xl bg-gray-50 p-3 dark:bg-[#303134]">
+          <div className="mt-4 grid grid-cols-3 gap-3 rounded-xl bg-gray-50 p-3 dark:bg-surface-2">
             <div>
               <p className="text-xs text-gray-500">예매</p>
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">
@@ -133,7 +133,7 @@ export default function EventCard({ event, href }: Props) {
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-4 dark:border-[#3c4043]">
+      <div className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-4 dark:border-surface-3">
         <Link href={`${href}/edit`}>
           <Button size="sm" variant="outlinePrimary">
             <Pencil size={14} />

@@ -13,7 +13,7 @@ type RecentSearchProps = {
 
 export default function RecentSearch({ keyword, onRemove }: RecentSearchProps) {
   return (
-    <div className="flex w-fit items-center gap-1.5 rounded-4xl border border-gray-300 bg-gray-200 px-4 py-1.5 text-sm font-bold text-gray-700 lg:gap-2 lg:px-5 lg:py-2 lg:text-base dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-100">
+    <div className="flex w-fit items-center gap-1.5 rounded-4xl border border-gray-300 bg-gray-200 px-4 py-1.5 text-sm font-bold text-gray-700 lg:gap-2 lg:px-5 lg:py-2 lg:text-base dark:border-surface-3 dark:bg-surface-2 dark:text-gray-100">
       <span className="whitespace-nowrap">{keyword}</span>
       <button
         type="button"

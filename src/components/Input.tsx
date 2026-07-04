@@ -42,7 +42,7 @@ export function Input({
         aria-describedby={descId}
         className={cn(
           'h-11 w-full rounded-lg border bg-white px-3 text-sm text-gray-900 outline-none transition',
-          'placeholder:text-gray-400 dark:bg-[#2a2b2f] dark:text-gray-50 dark:placeholder:text-gray-500',
+          'placeholder:text-gray-400 dark:bg-surface-1 dark:text-gray-50 dark:placeholder:text-gray-500',
           'border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-gray-700 dark:focus:border-gray-400 dark:focus:ring-gray-700',
           'disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400 dark:disabled:bg-gray-800 dark:disabled:text-gray-500',
           error && 'border-red-400 focus:border-red-500 focus:ring-red-200', // 에러가 포커스보다 우선

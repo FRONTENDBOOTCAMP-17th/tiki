@@ -71,7 +71,7 @@ export default function FaqSection({ showTitle = true }: { showTitle?: boolean }
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
               filter === f.value
                 ? "bg-primary-700 text-white dark:bg-gray-100 dark:text-gray-950"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#2a2b2f] dark:text-gray-300 dark:hover:bg-[#303134] dark:hover:text-gray-100"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-surface-1 dark:text-gray-300 dark:hover:bg-surface-2 dark:hover:text-gray-100"
             }`}
           >
             {f.label}
@@ -83,10 +83,10 @@ export default function FaqSection({ showTitle = true }: { showTitle?: boolean }
         {visible.map((faq, i) => (
           <li
             key={`${filter}-${i}`}
-            className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f]"
+            className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-surface-3 dark:bg-surface-1"
           >
             <details className="group">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-medium text-gray-900 transition-colors hover:bg-primary-100 dark:text-gray-100 dark:hover:bg-[#303134]">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-medium text-gray-900 transition-colors hover:bg-primary-100 dark:text-gray-100 dark:hover:bg-surface-2">
                 <span>{faq.q}</span>
                 <svg
                   className="h-5 w-5 shrink-0 text-primary-600 transition-transform duration-200 group-open:rotate-180 dark:text-gray-300"
@@ -102,7 +102,7 @@ export default function FaqSection({ showTitle = true }: { showTitle?: boolean }
                   />
                 </svg>
               </summary>
-              <div className="border-t border-gray-100 px-5 py-4 text-sm leading-relaxed text-gray-600 dark:border-[#3c4043] dark:text-gray-300">
+              <div className="border-t border-gray-100 px-5 py-4 text-sm leading-relaxed text-gray-600 dark:border-surface-3 dark:text-gray-300">
                 {faq.a}
               </div>
             </details>

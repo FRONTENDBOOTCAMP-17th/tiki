@@ -81,8 +81,8 @@ const FEATURES: { Icon: LucideIcon; title: string; desc: string }[] = [
 export default function AboutContent() {
   return (
     <div className="space-y-10">
-      <section className="grid gap-6 rounded-2xl border border-gray-200 bg-white p-6 dark:border-[#3c4043] dark:bg-[#2a2b2f] sm:p-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-center">
-        <div className="mx-auto flex size-40 items-center justify-center overflow-hidden rounded-3xl bg-gray-50 dark:bg-[#303134] sm:size-48">
+      <section className="grid gap-6 rounded-2xl border border-gray-200 bg-white p-6 dark:border-surface-3 dark:bg-surface-1 sm:p-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-center">
+        <div className="mx-auto flex size-40 items-center justify-center overflow-hidden rounded-3xl bg-gray-50 dark:bg-surface-2 sm:size-48">
           <Image
             src="/tiki-character-readme.svg"
             alt="TiKi 캐릭터 로고"
@@ -115,7 +115,7 @@ export default function AboutContent() {
         {TARGETS.map((item) => (
           <div
             key={item.title}
-            className="rounded-xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]"
+            className="rounded-xl border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1"
           >
             <h3 className="text-base font-bold text-gray-950 dark:text-gray-50">
               {item.title}
@@ -127,7 +127,7 @@ export default function AboutContent() {
         ))}
       </section>
 
-      <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f] sm:p-6">
+      <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1 sm:p-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-primary-700 dark:text-gray-300">
@@ -143,7 +143,7 @@ export default function AboutContent() {
           {SERVICE_FLOW.map((step, index) => (
             <div
               key={step}
-              className="flex items-center gap-3 rounded-lg bg-gray-50 px-3 py-3 dark:bg-[#303134] lg:flex-col lg:items-start"
+              className="flex items-center gap-3 rounded-lg bg-gray-50 px-3 py-3 dark:bg-surface-2 lg:flex-col lg:items-start"
             >
               <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gray-900 text-xs font-semibold text-white dark:bg-gray-100 dark:text-gray-950">
                 {index + 1}
@@ -170,9 +170,9 @@ export default function AboutContent() {
           {FEATURES.map(({ Icon, title, desc }) => (
             <div
               key={title}
-              className="flex gap-4 rounded-xl border border-gray-200 bg-white p-5 dark:border-[#3c4043] dark:bg-[#2a2b2f]"
+              className="flex gap-4 rounded-xl border border-gray-200 bg-white p-5 dark:border-surface-3 dark:bg-surface-1"
             >
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-700 dark:bg-[#303134] dark:text-gray-100">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-700 dark:bg-surface-2 dark:text-gray-100">
                 <Icon className="size-5" strokeWidth={1.6} />
               </span>
               <div className="flex flex-col gap-1">
@@ -188,7 +188,7 @@ export default function AboutContent() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-[#3c4043] dark:bg-[#303134] sm:p-6">
+      <section className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-surface-3 dark:bg-surface-2 sm:p-6">
         <div className="flex gap-3">
           <Share2
             className="mt-0.5 size-5 shrink-0 text-primary-700 dark:text-gray-100"
@@ -207,7 +207,7 @@ export default function AboutContent() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-[#3c4043] dark:bg-[#303134] sm:p-6">
+      <section className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-surface-3 dark:bg-surface-2 sm:p-6">
         <div className="flex gap-3">
           <CheckCircle2
             className="mt-0.5 size-5 shrink-0 text-primary-700 dark:text-gray-100"

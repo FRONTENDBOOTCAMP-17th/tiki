@@ -51,7 +51,7 @@ function Modal({
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          "flex max-h-[85vh] w-full flex-col overflow-hidden bg-white shadow-xl dark:border dark:border-[#3c4043] dark:bg-[#2a2b2f]",
+          "flex max-h-[85vh] w-full flex-col overflow-hidden bg-white shadow-xl dark:border dark:border-surface-3 dark:bg-surface-1",
           position === "center"
             ? "max-w-md rounded-2xl"
             : "max-w-xl rounded-t-2xl",

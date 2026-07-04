@@ -119,7 +119,7 @@ export default function ProfileMenu({ profile }: { profile: HeaderProfile }) {
             role="menu"
             aria-label="내 메뉴"
             onKeyDown={handleTrapTab}
-            className="absolute right-0 z-[70] mt-3 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 text-left shadow-xl dark:border-[#3c4043] dark:bg-[#2a2b2f]"
+            className="absolute right-0 z-[70] mt-3 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 text-left shadow-xl dark:border-surface-3 dark:bg-surface-1"
           >
             {profile.name && (
               <p className="truncate px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-50">
@@ -133,7 +133,7 @@ export default function ProfileMenu({ profile }: { profile: HeaderProfile }) {
               ))}
 
               {(isSeller || isAdmin) && (
-                <div className="my-1 border-t border-gray-100 dark:border-[#3c4043]" />
+                <div className="my-1 border-t border-gray-100 dark:border-surface-3" />
               )}
               {isSeller && (
                 <SidebarMenuItem
@@ -151,11 +151,11 @@ export default function ProfileMenu({ profile }: { profile: HeaderProfile }) {
               )}
             </nav>
 
-            <div className="my-1 border-t border-gray-100 dark:border-[#3c4043]" />
+            <div className="my-1 border-t border-gray-100 dark:border-surface-3" />
             <form action={logout}>
               <button
                 type="submit"
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-danger-500 transition-colors hover:bg-gray-50 hover:text-danger-600 dark:hover:bg-[#303134]"
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-danger-500 transition-colors hover:bg-gray-50 hover:text-danger-600 dark:hover:bg-surface-2"
               >
                 <LogOut size={18} />
                 로그아웃

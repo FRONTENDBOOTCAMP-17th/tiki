@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import ToastProvider from "@/components/ToastProvider";
 import { Toaster } from "sonner";
@@ -7,14 +7,11 @@ import FloatingActions from "@/components/FloatingActions";
 import ThemeInitScript from "@/components/theme/ThemeInitScript";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const pretendard = localFont({
+  src: "../../public/fonts/PretendardVariable.woff2",
+  variable: "--font-pretendard",
+  weight: "45 920",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -45,12 +42,14 @@ export default function RootLayout({
     <html
       lang="ko"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
       <head>
         <ThemeInitScript />
       </head>
-      <body className="min-h-full flex flex-col bg-white dark:bg-[#202124]">
+      <body
+        className={`${pretendard.variable} ${pretendard.className} min-h-full flex flex-col bg-white dark:bg-surface-0`}
+      >
         <ThemeProvider>
           <ToastProvider animation="slide" position="bottom-center">
             {children}
