@@ -103,6 +103,7 @@ async function fetchBestReviews(
   const { data: reviewRows } = await supabase
     .from("review")
     .select("review_id, event_id, user_id, rating, memo, created_at")
+    .is("deleted_at", null) // 삭제된 리뷰는 베스트 리뷰에서 제외
     .not("memo", "is", null)
     .order("created_at", { ascending: false })
     .limit(REVIEW_POOL_LIMIT);
@@ -124,6 +125,7 @@ async function fetchBestReviews(
     supabase
       .from("event")
       .select("event_id, title, thumbnail, status")
+      .is("deleted_at", null) // 삭제된 게시물의 리뷰는 노출하지 않음
       .in("event_id", eventIds),
     supabase.from("users").select("id, name").in("id", userIds),
     supabase.from("review_like").select("review_id").in("review_id", reviewIds),
@@ -187,6 +189,7 @@ export default async function Home() {
         .from("event")
         .select("event_id, title, thumbnail, start_date, end_date, venue_name, created_at")
         .in("status", VISIBLE_STATUSES)
+        .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
         .order("created_at", { ascending: false })
         .limit(EVENT_POOL_LIMIT),
       fetchCategories().catch((error) => {
@@ -212,6 +215,7 @@ export default async function Home() {
         .from("event")
         .select("event_id, title, thumbnail, start_date, end_date, venue_name, created_at, category_id")
         .in("status", VISIBLE_STATUSES)
+        .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
         .in("category_id", categoryIds)
         .order("created_at", { ascending: false })
     : { data: [] as CategoryEventRow[], error: null };

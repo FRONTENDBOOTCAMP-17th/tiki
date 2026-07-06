@@ -26,9 +26,11 @@ export default async function AdminNotificationsPage() {
       .order("created_at", { ascending: false })
       .limit(2000),
     // 알림에 게시물 링크를 바로 연결할 수 있도록 이벤트 목록도 함께 불러온다.
+    // (삭제된 게시물은 링크 대상에서 제외)
     supabase
       .from("event")
       .select("event_id, title, status")
+      .is("deleted_at", null)
       .order("created_at", { ascending: false }),
   ]);
 

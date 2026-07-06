@@ -45,6 +45,7 @@ export async function fetchUpcoming(options?: {
         (slug ? ", category:category_id!inner ( slug )" : ""),
     )
     .in("status", VISIBLE_STATUSES)
+    .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
     .gt("start_date", today)
     .order("start_date", { ascending: true })
     .limit(limit);

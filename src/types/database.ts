@@ -48,6 +48,8 @@ export type Database = {
         Row: {
           category_id: string
           created_at: string
+          deleted_at: string | null
+          deleted_by: string | null
           description: string | null
           duration: number | null
           end_date: string
@@ -67,6 +69,8 @@ export type Database = {
         Insert: {
           category_id: string
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           description?: string | null
           duration?: number | null
           end_date: string
@@ -86,6 +90,8 @@ export type Database = {
         Update: {
           category_id?: string
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           description?: string | null
           duration?: number | null
           end_date?: string
@@ -407,6 +413,7 @@ export type Database = {
       review: {
         Row: {
           created_at: string
+          deleted_at: string | null
           event_id: string
           memo: string
           order_id: string
@@ -417,6 +424,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           event_id: string
           memo: string
           order_id: string
@@ -427,6 +435,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           event_id?: string
           memo?: string
           order_id?: string

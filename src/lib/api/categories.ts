@@ -57,6 +57,7 @@ export async function fetchCategoryEvents(
     )
     .eq("category.slug", slug)
     .in("status", ["공개", "일시정지"])
+    .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
     .order("created_at", { ascending: false });
 
   if (error) throw error;

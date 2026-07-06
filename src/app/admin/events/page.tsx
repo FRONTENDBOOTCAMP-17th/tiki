@@ -31,7 +31,7 @@ export default async function AdminEventsPage({
 
   let query = supabase
     .from("event")
-    .select("event_id, title, status, category_id, seller_id, start_date, created_at")
+    .select("event_id, title, status, category_id, seller_id, start_date, created_at, deleted_at")
     .order("created_at", { ascending: false });
 
   if (search) {
@@ -40,9 +40,16 @@ export default async function AdminEventsPage({
   if (matchedCategory) {
     query = query.eq("category_id", matchedCategory.category_id);
   }
-  if (status && status !== "all") {
-    const dbStatus = DISPLAY_TO_DB[status] ?? status;
-    query = query.eq("status", dbStatus);
+  // "삭제됨" 필터는 status 컬럼이 아니라 deleted_at 기준.
+  // 그 외 필터에서는 삭제된 게시물을 목록에서 제외한다.
+  if (status === "삭제됨") {
+    query = query.not("deleted_at", "is", null);
+  } else {
+    query = query.is("deleted_at", null);
+    if (status && status !== "all") {
+      const dbStatus = DISPLAY_TO_DB[status] ?? status;
+      query = query.eq("status", dbStatus);
+    }
   }
 
   const { data: events } = await query;

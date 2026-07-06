@@ -16,6 +16,7 @@ export default async function SellerStaffPage() {
       .from("event")
       .select("event_id, title")
       .eq("seller_id", user.id)
+      .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
       .order("created_at", { ascending: false }),
     supabase.rpc("get_event_staff_overview"),
   ]);

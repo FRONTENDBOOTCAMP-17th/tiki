@@ -46,7 +46,7 @@ export default async function AdminDashboardPage() {
     { count: monthOrderCount },
   ] = await Promise.all([
     supabase.from("users").select("role", { count: "exact" }),
-    supabase.from("event").select("status, title, event_id, created_at").order("created_at", { ascending: false }).limit(5),
+    supabase.from("event").select("status, title, event_id, created_at").is("deleted_at", null).order("created_at", { ascending: false }).limit(5),
     sumPaidRevenue(supabase),
     supabase.from("category").select("*", { count: "exact", head: true }),
     // 이번 달 "결제 완료(paid)" 주문만 집계. isBooked 규칙과 동일하게 결제 대기/취소/실패는 제외.

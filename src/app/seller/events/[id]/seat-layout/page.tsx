@@ -21,6 +21,7 @@ export default async function Page({
     .select("event_id, title")
     .eq("event_id", id)
     .eq("seller_id", user.id)
+    .is("deleted_at", null) // 관리자가 삭제한 게시물은 접근 차단
     .maybeSingle();
   if (!event) notFound();
 

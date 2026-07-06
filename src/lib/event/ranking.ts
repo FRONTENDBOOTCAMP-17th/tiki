@@ -55,6 +55,7 @@ export async function fetchRanking(options?: {
         (slug ? ", category:category_id!inner ( slug )" : ""),
     )
     .in("status", VISIBLE_STATUSES)
+    .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
     .gte("end_date", today);
 
   if (slug) query = query.eq("category.slug", slug);

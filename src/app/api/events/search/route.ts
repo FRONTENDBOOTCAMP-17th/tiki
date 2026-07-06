@@ -54,6 +54,7 @@ export async function GET(request: Request) {
       { count: "exact" }, // 개수 카운트
     )
     .in("status", VISIBLE_STATUSES)
+    .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
     .or(`title.ilike.%${safe}%,venue_name.ilike.%${safe}%`)
     .order(sortColumn, { ascending })
     // 같은 날짜나 제목이어도 고유키로 2차 정렬

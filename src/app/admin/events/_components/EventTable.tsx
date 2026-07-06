@@ -2,9 +2,9 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Search, CirclePause, CirclePlay, Trash2 } from "lucide-react";
+import { Search, CirclePause, CirclePlay, Trash2, RotateCcw } from "lucide-react";
 import type { CategoryRow } from "@/lib/api/categories";
-import { hideEvent, publishEvent, deleteEvent } from "../actions";
+import { hideEvent, publishEvent, deleteEvent, restoreEvent } from "../actions";
 
 interface Event {
   event_id: string;
@@ -14,6 +14,7 @@ interface Event {
   categoryName: string;
   start_date: string;
   partyCount: number;
+  deleted_at: string | null;
 }
 
 interface EventTableProps {
@@ -41,7 +42,7 @@ function getStatusDisplay(dbStatus: string) {
 }
 
 // 화면 상태 필터 목록
-const STATUS_FILTERS = ["전체", "승인", "대기", "신고", "예매 일시중지"];
+const STATUS_FILTERS = ["전체", "승인", "대기", "신고", "예매 일시중지", "삭제됨"];
 
 // 화면 상태 → URL param
 const DISPLAY_TO_PARAM: Record<string, string> = {
@@ -50,6 +51,7 @@ const DISPLAY_TO_PARAM: Record<string, string> = {
   대기: "대기",
   신고: "신고",
   "예매 일시중지": "예매 일시중지",
+  삭제됨: "삭제됨",
 };
 
 export default function EventTable({
@@ -105,10 +107,20 @@ export default function EventTable({
   }
 
   async function handleDelete(eventId: string) {
-    if (!confirm("이벤트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) return;
+    if (!confirm("이벤트를 삭제하시겠습니까? 삭제된 게시물은 '삭제됨' 필터에서 확인·복구할 수 있습니다.")) return;
     setActionTarget(eventId);
     startTransition(async () => {
       const result = await deleteEvent(eventId);
+      if (result.error) alert(result.error);
+      else router.refresh();
+      setActionTarget(null);
+    });
+  }
+
+  async function handleRestore(eventId: string) {
+    setActionTarget(eventId);
+    startTransition(async () => {
+      const result = await restoreEvent(eventId);
       if (result.error) alert(result.error);
       else router.refresh();
       setActionTarget(null);
@@ -203,9 +215,12 @@ export default function EventTable({
                 </tr>
               ) : (
                 events.map((event) => {
-                  const display = getStatusDisplay(event.status);
-                  const isPublic = event.status === "공개";
-                  const isSuspended = event.status === "일시정지";
+                  const isDeleted = !!event.deleted_at;
+                  const display = isDeleted
+                    ? { label: "삭제됨", className: "bg-danger-100 text-danger-700" }
+                    : getStatusDisplay(event.status);
+                  const isPublic = !isDeleted && event.status === "공개";
+                  const isSuspended = !isDeleted && event.status === "일시정지";
                   const processing = isProcessing(event.event_id);
 
                   return (
@@ -235,6 +250,16 @@ export default function EventTable({
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-4">
+                          {isDeleted && (
+                            <button
+                              onClick={() => handleRestore(event.event_id)}
+                              disabled={processing}
+                              className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700 disabled:opacity-40"
+                            >
+                              <RotateCcw size={14} />
+                              복구
+                            </button>
+                          )}
                           {isPublic && (
                             <button
                               onClick={() => handleHide(event.event_id)}
@@ -255,14 +280,16 @@ export default function EventTable({
                               일시정지 해제
                             </button>
                           )}
-                          <button
-                            onClick={() => handleDelete(event.event_id)}
-                            disabled={processing}
-                            className="flex items-center gap-1 text-sm font-medium text-danger-500 hover:text-danger-600 disabled:opacity-40"
-                          >
-                            <Trash2 size={14} />
-                            삭제
-                          </button>
+                          {!isDeleted && (
+                            <button
+                              onClick={() => handleDelete(event.event_id)}
+                              disabled={processing}
+                              className="flex items-center gap-1 text-sm font-medium text-danger-500 hover:text-danger-600 disabled:opacity-40"
+                            >
+                              <Trash2 size={14} />
+                              삭제
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
