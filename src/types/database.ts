@@ -822,6 +822,30 @@ export type Database = {
           },
         ]
       }
+      ticket_entry_code: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          subject_id: string
+          subject_type: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at: string
+          subject_id: string
+          subject_type: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          subject_id?: string
+          subject_type?: string
+        }
+        Relationships: []
+      }
       ticket_grade: {
         Row: {
           created_at: string
@@ -951,6 +975,7 @@ export type Database = {
         Args: { p_event_id: string; p_order_id: string; p_user_id: string }
         Returns: boolean
       }
+      can_checkin_event: { Args: { p_event_id: string }; Returns: boolean }
       cancel_order: { Args: { p_order_id: string }; Returns: boolean }
       cancel_stale_orders: { Args: { p_ttl_minutes?: number }; Returns: number }
       checkin_ticket: {
@@ -969,6 +994,16 @@ export type Database = {
         Returns: {
           id: string
           name: string
+        }[]
+      }
+      get_checkin_events: {
+        Args: never
+        Returns: {
+          event_id: string
+          my_role: string
+          thumbnail: string
+          title: string
+          venue_name: string
         }[]
       }
       get_event_reviews: {
@@ -1070,6 +1105,14 @@ export type Database = {
         Returns: Json
       }
       is_admin: { Args: never; Returns: boolean }
+      issue_entry_code: {
+        Args: {
+          p_subject_id: string
+          p_subject_type: string
+          p_ttl_seconds?: number
+        }
+        Returns: string
+      }
       notify_inquiry_answered: {
         Args: { p_inquiry_id: string }
         Returns: undefined
@@ -1102,6 +1145,13 @@ export type Database = {
       request_review_deletion: {
         Args: { p_reason: string; p_review_id: string }
         Returns: boolean
+      }
+      resolve_entry_code: {
+        Args: { p_code: string }
+        Returns: {
+          subject_id: string
+          subject_type: string
+        }[]
       }
       revoke_ticket_share: { Args: { p_share_id: string }; Returns: Json }
       send_friend_request: { Args: { p_email: string }; Returns: Json }

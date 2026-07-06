@@ -7,6 +7,8 @@ import { createTicketToken, TICKET_TOKEN_TTL_SECONDS } from "./token";
 
 export interface IssueTokenSuccess {
   token: string;
+  /** 8자리 짧은 입장 코드 — QR 스캔이 어려울 때 수기입력용 */
+  entryCode: string;
   /** 만료까지 남은 시간(초) — 클라이언트 자동 갱신 주기 계산용 */
   expiresIn: number;
 }
@@ -42,8 +44,15 @@ export async function issueOrderQrToken(
     return { error: "결제 완료된 티켓만 QR 발급이 가능합니다." };
   }
 
+  const { data: entryCode } = await supabase.rpc("issue_entry_code", {
+    p_subject_type: "order",
+    p_subject_id: orderId,
+    p_ttl_seconds: TICKET_TOKEN_TTL_SECONDS,
+  });
+
   return {
     token: createTicketToken("order", orderId),
+    entryCode: entryCode ?? "",
     expiresIn: TICKET_TOKEN_TTL_SECONDS,
   };
 }
@@ -72,8 +81,15 @@ export async function issueShareQrToken(
     return { error: "수락된 공유 티켓만 QR 발급이 가능합니다." };
   }
 
+  const { data: entryCode } = await supabase.rpc("issue_entry_code", {
+    p_subject_type: "share",
+    p_subject_id: shareId,
+    p_ttl_seconds: TICKET_TOKEN_TTL_SECONDS,
+  });
+
   return {
     token: createTicketToken("share", shareId),
+    entryCode: entryCode ?? "",
     expiresIn: TICKET_TOKEN_TTL_SECONDS,
   };
 }
