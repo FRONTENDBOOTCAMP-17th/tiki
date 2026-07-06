@@ -18,7 +18,7 @@ function PaymentStatusNotice({
 }: {
   title: string;
   description: string;
-  eventId: string;
+  eventId?: string;
 }) {
   return (
     <main className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
@@ -30,10 +30,10 @@ function PaymentStatusNotice({
       </div>
       <div className="flex gap-3">
         <Link
-          href={`/${eventId}`}
+          href={eventId ? `/${eventId}` : "/"}
           className="inline-flex h-11 items-center justify-center rounded-lg border border-gray-300 px-5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-surface-3 dark:text-gray-200 dark:hover:bg-surface-2"
         >
-          다시 예매하기
+          {eventId ? "다시 예매하기" : "홈으로"}
         </Link>
         <Link
           href="/mypage/reservations"
@@ -67,10 +67,29 @@ export default async function PaymentPage({
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!order) notFound();
+  // 존재하지 않거나 내 주문이 아닌 경우: 없는 페이지(404)가 아니라 접근할 수
+  // 없는 주문임을 알려준다. (다른 사용자의 주문인지 여부는 구분해 보여주지 않음)
+  if (!order) {
+    return (
+      <PaymentStatusNotice
+        title="잘못된 주문입니다"
+        description="존재하지 않거나 접근할 수 없는 주문입니다. 예매내역에서 다시 확인해주세요."
+      />
+    );
+  }
 
-  // 이미 결제 완료된 주문은 결제창을 다시 띄울 필요가 없음
-  if (order.status === ORDER_STATUS.PAID) notFound();
+  // 이미 결제 완료된 주문은 결제창을 다시 띄울 필요가 없음.
+  // 웹훅/결제확인 API가 리다이렉트보다 먼저 상태를 바꾸는 레이스나, 결제 후
+  // 뒤로가기로 이 페이지에 돌아오는 경우가 있어 404 대신 안내 화면을 보여준다.
+  if (order.status === ORDER_STATUS.PAID) {
+    return (
+      <PaymentStatusNotice
+        title="이미 결제가 완료되었습니다"
+        description="이미 결제가 완료된 예매입니다. 예매내역에서 확인해주세요."
+        eventId={order.event_id}
+      />
+    );
+  }
 
   const [{ data: event }, { data: slot }, { data: grade }, { data: profile }, { data: orderSeats }] =
     await Promise.all([
