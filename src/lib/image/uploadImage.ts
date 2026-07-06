@@ -36,13 +36,24 @@ export async function uploadImageAsWebp(
     .webp({ quality: 90 })
     .toBuffer();
 
+  try {
+    await sharp(webpBuffer).metadata();
+  } catch (error) {
+    console.error("[event-images] WebP 변환 결과 검증 실패:", error);
+    return null;
+  }
+
   const path = `${nanoid()}.webp`;
-  const { error } = await supabase.storage.from(BUCKET).upload(path, webpBuffer, {
+  const webpBody = new Blob([webpBuffer], { type: "image/webp" });
+  const { error } = await supabase.storage.from(BUCKET).upload(path, webpBody, {
     contentType: "image/webp",
     cacheControl: "3600",
     upsert: false,
   });
-  if (error) return null;
+  if (error) {
+    console.error("[event-images] Storage 업로드 실패:", error.message);
+    return null;
+  }
 
   return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 }

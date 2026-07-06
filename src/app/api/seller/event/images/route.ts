@@ -4,6 +4,8 @@ import { requireUserApi } from "@/lib/api/require-user";
 import { SELLER_EVENT_LIMITS } from "@/app/seller/_lib/limits";
 import { uploadImageAsWebp } from "@/lib/image/uploadImage";
 
+export const runtime = "nodejs";
+
 export async function POST(req: NextRequest) {
   const ctx = await requireUserApi();
   if ("error" in ctx) return ctx.error;
