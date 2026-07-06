@@ -16,8 +16,8 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Pencil, Trash2, Check, X } from "lucide-react";
-import { reorderCategories, updateCategory, deleteCategory } from "../actions";
+import { GripVertical } from "lucide-react";
+import { reorderCategories } from "../actions";
 
 interface Category {
   category_id: string;
@@ -29,19 +29,7 @@ interface Category {
   eventCount: number;
 }
 
-function SortableRow({
-  category,
-  index,
-  onEdit,
-  onDelete,
-  isPendingDelete,
-}: {
-  category: Category;
-  index: number;
-  onEdit: (id: string) => void;
-  onDelete: (id: string, count: number) => void;
-  isPendingDelete: boolean;
-}) {
+function SortableRow({ category, index }: { category: Category; index: number }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: category.category_id });
 
@@ -75,80 +63,6 @@ function SortableRow({
       <td className="px-4 py-4 text-gray-500 dark:text-gray-400">
         {category.eventCount}개
       </td>
-      <td className="px-4 py-4">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => onEdit(category.category_id)}
-            className="flex items-center gap-1 text-sm font-medium text-primary-500 hover:text-primary-700"
-          >
-            <Pencil size={13} />
-            수정
-          </button>
-          <button
-            onClick={() => onDelete(category.category_id, category.eventCount)}
-            disabled={isPendingDelete}
-            className="flex items-center gap-1 text-sm font-medium text-red-500 hover:text-red-700 disabled:opacity-40"
-          >
-            <Trash2 size={13} />
-            삭제
-          </button>
-        </div>
-      </td>
-    </tr>
-  );
-}
-
-function EditRow({
-  category,
-  onSave,
-  onCancel,
-  isPending,
-}: {
-  category: Category;
-  onSave: (formData: FormData) => void;
-  onCancel: () => void;
-  isPending: boolean;
-}) {
-  return (
-    <tr className="border-b border-primary-100 bg-primary-50/30 dark:border-surface-3 dark:bg-surface-2">
-      <td className="w-10 px-4 py-3" />
-      <td className="w-16 px-4 py-3 text-gray-400">{category.display_order}</td>
-      <td className="px-4 py-3" colSpan={2}>
-        <form
-          action={onSave}
-          className="flex items-center gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSave(new FormData(e.currentTarget));
-          }}
-        >
-          <input type="hidden" name="categoryId" value={category.category_id} />
-          <input
-            name="name"
-            defaultValue={category.category_name}
-            autoFocus
-            required
-            className="rounded-lg border border-primary-300 px-3 py-1.5 text-sm text-gray-900 outline-none focus:ring-1 focus:ring-primary-400 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-100"
-          />
-          <button
-            type="submit"
-            disabled={isPending}
-            className="flex items-center gap-1 rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-600 disabled:opacity-50"
-          >
-            <Check size={13} />
-            저장
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:border-surface-3 dark:text-gray-300 dark:hover:bg-surface-4"
-          >
-            <X size={13} />
-            취소
-          </button>
-        </form>
-      </td>
-      <td className="px-4 py-3" />
     </tr>
   );
 }
@@ -159,8 +73,7 @@ export default function CategoryManager({
   initialCategories: Category[];
 }) {
   const [categories, setCategories] = useState(initialCategories);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -180,39 +93,6 @@ export default function CategoryManager({
       await reorderCategories(
         reordered.map((c, i) => ({ categoryId: c.category_id, displayOrder: i + 1 })),
       );
-    });
-  }
-
-  function handleSave(formData: FormData) {
-    startTransition(async () => {
-      const result = await updateCategory(formData);
-      if (result?.error) {
-        alert(result.error);
-      } else {
-        const id = String(formData.get("categoryId"));
-        const name = String(formData.get("name"));
-        setCategories((prev) =>
-          prev.map((c) => (c.category_id === id ? { ...c, category_name: name } : c)),
-        );
-        setEditingId(null);
-      }
-    });
-  }
-
-  function handleDelete(categoryId: string, eventCount: number) {
-    if (eventCount > 0) {
-      alert(`이벤트 ${eventCount}개가 사용 중인 카테고리는 삭제할 수 없습니다.`);
-      return;
-    }
-    if (!confirm("카테고리를 삭제하시겠습니까?")) return;
-
-    startTransition(async () => {
-      const result = await deleteCategory(categoryId);
-      if (result?.error) {
-        alert(result.error);
-      } else {
-        setCategories((prev) => prev.filter((c) => c.category_id !== categoryId));
-      }
     });
   }
 
@@ -240,30 +120,12 @@ export default function CategoryManager({
                   <th className="w-16 px-4 py-3.5 font-medium">순서</th>
                   <th className="px-4 py-3.5 font-medium">카테고리명</th>
                   <th className="px-4 py-3.5 font-medium">이벤트 수</th>
-                  <th className="px-4 py-3.5 font-medium">관리</th>
                 </tr>
               </thead>
               <tbody>
-                {categories.map((cat, index) =>
-                  editingId === cat.category_id ? (
-                    <EditRow
-                      key={cat.category_id}
-                      category={cat}
-                      onSave={handleSave}
-                      onCancel={() => setEditingId(null)}
-                      isPending={isPending}
-                    />
-                  ) : (
-                    <SortableRow
-                      key={cat.category_id}
-                      category={cat}
-                      index={index}
-                      onEdit={setEditingId}
-                      onDelete={handleDelete}
-                      isPendingDelete={isPending}
-                    />
-                  ),
-                )}
+                {categories.map((cat, index) => (
+                  <SortableRow key={cat.category_id} category={cat} index={index} />
+                ))}
               </tbody>
             </table>
           </SortableContext>
