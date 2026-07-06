@@ -129,3 +129,32 @@ dev 3201. `tests/tiki-role.spec.ts`(신규). 캡처 `review/images/2026-06-25/ti
 - **[필수·신규] `/api/events/[eventId]` 원문 DB 에러 노출**: 비-uuid id → 500 + `invalid input syntax for type uuid` 노출. 회원가입 에러 노출과 같은 패턴(원문→일반 메시지+로그).
 - **[신규 백엔드 연결]** 이벤트 상세 API(`/api/events/[eventId]`, reviews), 주문(`/api/orders`, 인증·재고·회차 검증), 판매자 이벤트 CRUD(`/api/seller/event`, `[id]`, stats) 추가. tsc 0·build 38라우트 성공.
 - 한계: service role 키 없음·시드 없음 → 로그인 후/실데이터 화면은 다음 회차(여전히).
+
+## 19차 추가 (2026-07-06) — 판매자 스태프 관리 + 공연별 체크인 (신규 도메인)
+
+포트 3201(dev). 스펙 `tests/tiki-daily.spec.ts`, 캡처 `review/images/2026-07-06/`.
+일반 사용자 여정 → 판매자 여정(스태프 초대) → 스태프 여정(수락→체크인) 순서로 실행.
+
+| ID | 시나리오 | 대상 | 기대 | 결과(2026-07-06) |
+|----|----------|------|------|-----------------|
+| S01 | 홈(데스크톱) | `/` | 200, 랭킹/추천 렌더 | pass |
+| S02 | 홈(모바일 390) | `/` | 200 | pass |
+| S03 | 카테고리 + 상세 진입 | `/category` → 카드 클릭 | 200 | pass |
+| S04 | 비로그인 스태프 가드(신규) | `/staff` 비로그인 | `/login?next=/staff` 리다이렉트 | **pass** |
+| S05 | 판매자 로그인→대시보드 | 로그인(sellertest) | role별 리다이렉트 `/seller` | pass |
+| S06 | 예매관리 서버 페이지네이션/CSV(신규) | `/seller/ticketManagement` | 200, 필터/정렬/CSV 버튼 | pass(주문 0건 빈상태) |
+| S07 | 스태프 초대(신규) | `/seller/staff`에서 usertest 초대 | "초대를 보냈습니다" | **pass**(재실행 시 "이미 초대" 멱등) |
+| S08 | 스태프 로그인→초대 수락(신규) | 로그인(usertest)→/staff 수락 | pending→담당 공연 이동 | **pass** |
+| S09 | 배정 공연 체크인(신규) | `/staff/checkin/{배정 eventId}` | 스캐너+수동입력 폴백 렌더 | **pass**(헤드리스라 카메라 불가→수동입력 폴백 정상) |
+| S10 | 미배정 공연 체크인 차단(신규·인가) | `/staff/checkin/{미배정 eventId}` | "배정되지 않은 공연입니다" | **pass** |
+
+보안 실측(anon/service-role REST):
+- anon `POST /rest/v1/rpc/invite_event_staff` → **401 permission denied**(authenticated에만 grant). pass
+- anon `GET /rest/v1/event_staff` → **200 `[]`**(RLS 정책 없음 → 전 행 차단). pass
+- `checkin_ticket` RPC: staff는 해당 주문 이벤트에 accepted 배정된 경우만 통과(코드 확인). 페이지 가드와 이중 방어.
+
+발견(19차):
+- **스태프 도메인 전체 인가 견고**(김연수/harilog). RLS(정책0)+SECURITY DEFINER RPC로만 접근, 초대는 공연 소유자만, 수락/거절은 본인만, 체크인은 배정된 공연만. **신규 [필수] 없음**.
+- [제안] CSV 내보내기(방효진/lllillly) 수식 인젝션 방어 없음(`= + - @` 시작 셀). [제안] `NEXT_PUBLIC_SITE_URL` 끝 슬래시→OAuth 콜백 `//auth/callback` 이중슬래시. [사소] login `data!.role` non-null 단언.
+- 이월 [필수] 아님(운영/발표): README 라이브 데모 링크 부재 + Vercel 배포 stale(sitemap 07-01·구 `/support` 경로·`//` — **현재 소스는 정상**, 재배포만 필요) + 팀원표 "작성 예정" 4명.
+- 정적: tsc 0(.next 캐시 정리 후)·eslint 0(앱)·build 성공(84라우트)·vitest 6파일 19테스트 pass.
