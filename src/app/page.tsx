@@ -302,17 +302,14 @@ export default async function Home() {
   return (
     <>
       <Header loggedIn={loggedIn} profile={profile} />
-      <main className="flex-1 bg-white pb-4 transition-colors dark:bg-[#202124] min-[744px]:pb-0">
-        <div className="bg-linear-to-b from-primary-100 via-secondary-100 to-white transition-colors dark:from-[#242528] dark:via-[#242528] dark:to-[#202124]">
+      <main className="flex-1 bg-white pb-4 transition-colors dark:bg-surface-0 min-[744px]:pb-0">
+        <div className="bg-linear-to-b from-primary-100 via-secondary-100 to-white transition-colors dark:from-surface-header dark:via-surface-header dark:to-surface-0">
           <HeroSlider slides={heroSlides} />
-          <div
-            id="home-content-start"
-            className="mx-auto w-full max-w-7xl scroll-mt-20"
-          >
+          <div id="home-content-start" className="scroll-mt-20">
             <HomeSectionLink categories={topCategories} />
           </div>
         </div>
-        <div className="mx-auto w-full max-w-7xl">
+        <div>
           <TicketOpenSection
             todayEvents={todayOpened}
             fallbackEvents={recentlyOpened}
@@ -323,7 +320,7 @@ export default async function Home() {
             moreHref="/ranking"
             events={ranking}
             showRank
-            className="bg-white dark:bg-[#202124]"
+            className="bg-white dark:bg-surface-0"
           />
           <RecommendedSection events={recommended} />
           {featuredCategories.map((category) => (
@@ -332,14 +329,14 @@ export default async function Home() {
               title={category.category_name}
               moreHref={`/category/${category.slug}`}
               events={eventsByCategory.get(category.category_id) ?? []}
-              className="bg-white dark:bg-[#202124]"
+              className="bg-white dark:bg-surface-0"
             />
           ))}
         </div>
         <BestReviewSection reviews={bestReviews} />
         <div
           id="home-page-end"
-          className="h-1 scroll-mt-24 bg-white transition-colors dark:bg-[#202124] min-[744px]:h-12"
+          className="h-1 scroll-mt-24 bg-white transition-colors dark:bg-surface-0 min-[744px]:h-12"
           aria-hidden
         />
       </main>

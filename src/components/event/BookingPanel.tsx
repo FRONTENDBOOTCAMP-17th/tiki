@@ -181,8 +181,8 @@ export default function BookingPanel({
                       className={cn(
                         "flex shrink-0 flex-col items-center gap-0.5 rounded-xl border px-4 py-2 text-sm",
                         active
-                          ? "border-primary-500 bg-primary-100 text-primary-800 dark:border-gray-500 dark:bg-[#303134] dark:text-gray-50"
-                          : "border-gray-200 text-gray-600 dark:border-[#3c4043] dark:text-gray-300 dark:hover:bg-[#303134]",
+                          ? "border-primary-500 bg-primary-100 text-primary-800 dark:border-gray-500 dark:bg-surface-2 dark:text-gray-50"
+                          : "border-gray-200 text-gray-600 dark:border-surface-3 dark:text-gray-300 dark:hover:bg-surface-2",
                         s.isClosed && "opacity-40 dark:text-gray-500",
                       )}
                     >
@@ -217,7 +217,7 @@ export default function BookingPanel({
                   : "좌석 선택하기"}
               </Button>
               {seatLayout && grade && selectedSeatIds.size > 0 && (
-                <p className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-300">
+                <p className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:border-surface-3 dark:bg-surface-2 dark:text-gray-300">
                   {grade.name} ·{" "}
                   {seatLayout.seats
                     .filter((s) => selectedSeatIds.has(s.seatId))
@@ -246,10 +246,10 @@ export default function BookingPanel({
                         className={cn(
                           "flex items-center justify-between rounded-xl border px-4 py-3 text-left transition-colors",
                           active
-                            ? "border-primary-500 bg-primary-100 text-primary-900 dark:border-gray-500 dark:bg-[#303134] dark:text-gray-50"
-                            : "border-gray-200 bg-white hover:border-primary-200 hover:bg-primary-50 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-[#303134]",
+                            ? "border-primary-500 bg-primary-100 text-primary-900 dark:border-gray-500 dark:bg-surface-2 dark:text-gray-50"
+                            : "border-gray-200 bg-white hover:border-primary-200 hover:bg-primary-50 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-surface-2",
                           soldOut &&
-                            "cursor-not-allowed bg-gray-50 text-gray-300 hover:border-gray-200 hover:bg-gray-50 dark:bg-[#303134] dark:text-gray-500 dark:hover:border-[#3c4043]",
+                            "cursor-not-allowed bg-gray-50 text-gray-300 hover:border-gray-200 hover:bg-gray-50 dark:bg-surface-2 dark:text-gray-500 dark:hover:border-surface-3",
                         )}
                       >
                         <span className="flex flex-col gap-0.5">
@@ -289,7 +289,7 @@ export default function BookingPanel({
                 <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                   3. 수량
                 </p>
-                <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 dark:border-[#3c4043]">
+                <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 dark:border-surface-3">
                   <span className="text-sm text-gray-600 dark:text-gray-300">
                     매수
                   </span>
@@ -299,7 +299,7 @@ export default function BookingPanel({
                       aria-label="수량 감소"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                       disabled={!grade || safeQuantity <= 1}
-                      className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300 dark:border-[#3c4043] dark:text-gray-300 dark:disabled:text-gray-600"
+                      className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300 dark:border-surface-3 dark:text-gray-300 dark:disabled:text-gray-600"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
@@ -311,7 +311,7 @@ export default function BookingPanel({
                       aria-label="수량 증가"
                       onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
                       disabled={!grade || safeQuantity >= maxQuantity}
-                      className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300 dark:border-[#3c4043] dark:text-gray-300 dark:disabled:text-gray-600"
+                      className="flex size-7 items-center justify-center rounded-full border border-gray-300 text-gray-600 disabled:border-gray-200 disabled:text-gray-300 dark:border-surface-3 dark:text-gray-300 dark:disabled:text-gray-600"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
@@ -337,7 +337,7 @@ export default function BookingPanel({
       )}
 
       {/* 고정 푸터 : 합계 + 버튼 (스크롤 없이 항상 보임) */}
-      <div className="shrink-0 border-t border-gray-100 px-6 py-3 dark:border-[#3c4043] lg:py-5">
+      <div className="shrink-0 border-t border-gray-100 px-6 py-3 dark:border-surface-3 lg:py-5">
         <div className="flex flex-col gap-2 text-sm">
           <div className="flex justify-between text-gray-600 dark:text-gray-300">
             <span>티켓 금액 ({safeQuantity}매)</span>

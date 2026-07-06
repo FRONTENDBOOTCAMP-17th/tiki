@@ -8,6 +8,7 @@ import {
   Bell,
   MessageCircle,
   Wallet,
+  Star,
   LogOut,
 } from "lucide-react";
 import SidebarMenuItem from "./SidebarMenuItem";
@@ -20,13 +21,14 @@ const ADMIN_MENU: SidebarItem[] = [
   { label: "회원 관리", href: "/admin/members", icon: BarChart2 },
   { label: "카테고리 관리", href: "/admin/categories", icon: Folder },
   { label: "정산 관리", href: "/admin/settlement", icon: Wallet },
+  { label: "리뷰 관리", href: "/admin/reviews", icon: Star },
   { label: "알림 관리", href: "/admin/notifications", icon: Bell },
   { label: "문의 관리", href: "/admin/inquiries", icon: MessageCircle },
 ];
 
 export default function AdminSidebar() {
   return (
-    <aside className="flex w-64 shrink-0 flex-col justify-between border-r border-gray-100 bg-white px-4 py-6 transition-colors dark:border-[#3c4043] dark:bg-[#242528]">
+    <aside className="flex w-64 shrink-0 flex-col justify-between border-r border-gray-100 bg-white px-4 py-6 transition-colors dark:border-surface-3 dark:bg-surface-header">
       <div>
         <h2 className="mb-4 px-3 text-base font-bold text-primary-600 dark:text-gray-100">
           관리자님, 환영합니다
@@ -38,9 +40,9 @@ export default function AdminSidebar() {
         </nav>
       </div>
 
-      <div className="border-t border-gray-100 pt-3 dark:border-[#3c4043]">
+      <div className="border-t border-gray-100 pt-3 dark:border-surface-3">
         <div className="flex items-center gap-3 px-1 py-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 text-sm font-bold text-white dark:from-gray-700 dark:to-gray-500">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 text-sm font-bold text-primary-900 dark:text-white dark:from-gray-700 dark:to-gray-500">
             A
           </div>
           <div className="min-w-0">

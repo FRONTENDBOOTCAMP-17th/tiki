@@ -176,9 +176,9 @@ export default function SearchClient({
   const isInitialLoading = trimmed !== "" && !isCurrent;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#202124] lg:bg-gray-50">
+    <div className="min-h-screen bg-white dark:bg-surface-0 lg:bg-gray-50">
       {/* ── 검색 헤더 (입력 동작 보존, 레이아웃은 리뉴얼) ── */}
-      <header className="sticky top-0 z-40 border-b border-gray-100 bg-white dark:border-[#3c4043] dark:bg-[#242528]">
+      <header className="sticky top-0 z-40 border-b border-gray-100 bg-white dark:border-surface-3 dark:bg-surface-header">
         <div className="flex items-center gap-3 px-4 py-3 lg:mx-auto lg:max-w-360 lg:gap-4 lg:px-8 lg:py-4">
           {/* 홈 헤더 로고와 동일 폭 슬롯 → 검색바 시작 위치 정렬 (데스크탑) */}
           <div className="flex shrink-0 items-center min-[744px]:w-17">
@@ -186,7 +186,7 @@ export default function SearchClient({
               type="button"
               onClick={() => router.back()}
               aria-label="뒤로 가기"
-              className="cursor-pointer rounded-full p-1 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#303134]"
+              className="cursor-pointer rounded-full p-1 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-surface-2"
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
@@ -247,7 +247,7 @@ export default function SearchClient({
               <ResultsSkeleton />
             ) : results.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-20 text-center">
-                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-[#303134]">
+                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-surface-2">
                   <SearchX className="h-8 w-8 text-gray-300 dark:text-gray-500" />
                 </span>
                 <p className="text-sm text-gray-500">

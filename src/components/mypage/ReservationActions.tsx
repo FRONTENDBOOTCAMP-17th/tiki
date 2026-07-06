@@ -1,12 +1,13 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { QrCode, Share2, Star } from "lucide-react";
 import useToast from "@/hooks/useToast";
 import type { Reservation } from "./ReservationCard";
 import QrTicketModal from "./QrTicketModal";
 import ShareTicketModal from "./ShareTicketModal";
-import CancelledDetailModal from "./CancelledDetailModal";
+import ReservationDetailModal from "./ReservationDetailModal";
 import Dialog from "@/components/modal/Dialog";
 import { cancelReservation } from "@/app/action";
 
@@ -15,6 +16,7 @@ export default function ReservationActions({
 }: {
   reservation: Reservation;
 }) {
+  const router = useRouter();
   const { success, error } = useToast();
   const [modal, setModal] = useState<
     "none" | "qr" | "share" | "detail" | "cancel"
@@ -31,6 +33,7 @@ export default function ReservationActions({
       return;
     }
     success("예매가 취소되었습니다");
+    router.refresh(); // 서버 컴포넌트 재검증 → 카드 상태 즉시 갱신
   };
 
   // ① 예매 취소 → 상세보기 + 재예매
@@ -47,13 +50,13 @@ export default function ReservationActions({
           </button>
           <Link
             href={`/${reservation.eventId}`}
-            className="flex flex-1 items-center justify-center rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 lg:flex-none"
+            className="flex flex-1 items-center justify-center rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-medium text-primary-900 transition hover:opacity-90 lg:flex-none"
           >
             재예매
           </Link>
         </div>
 
-        <CancelledDetailModal
+        <ReservationDetailModal
           open={modal === "detail"}
           onClose={() => setModal("none")}
           reservation={reservation}
@@ -76,14 +79,14 @@ export default function ReservationActions({
           </button>
           <Link
             href={`/${reservation.eventId}#reviews`}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 lg:flex-none"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-2 text-sm font-medium text-primary-900 transition hover:opacity-90 lg:flex-none"
           >
             <Star size={16} />
             리뷰 쓰기
           </Link>
         </div>
 
-        <CancelledDetailModal
+        <ReservationDetailModal
           open={modal === "detail"}
           onClose={() => setModal("none")}
           reservation={reservation}
@@ -114,13 +117,15 @@ export default function ReservationActions({
             <span className="hidden lg:inline">친구 </span>공유
           </button>
         )}
-        <button
-          type="button"
-          onClick={() => setModal("cancel")}
-          className="shrink-0 rounded-lg border border-danger-200 px-3 py-2 text-sm font-medium text-danger-600 transition-colors hover:bg-danger-50"
-        >
-          예매 취소<span className="hidden lg:inline"> 하기</span>
-        </button>
+        {!reservation.checkedIn && (
+          <button
+            type="button"
+            onClick={() => setModal("cancel")}
+            className="shrink-0 rounded-lg border border-danger-200 px-3 py-2 text-sm font-medium text-danger-600 transition-colors hover:bg-danger-50"
+          >
+            예매 취소<span className="hidden lg:inline"> 하기</span>
+          </button>
+        )}
       </div>
 
       <QrTicketModal

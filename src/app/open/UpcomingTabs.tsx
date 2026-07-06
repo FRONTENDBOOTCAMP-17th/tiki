@@ -44,7 +44,7 @@ function UpcomingCard({ item }: { item: UpcomingItem }) {
     <li>
       <Link
         href={`/${item.eventId}`}
-        className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 transition-shadow hover:shadow-md dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:bg-[#303134]"
+        className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 transition-shadow hover:shadow-md dark:border-surface-3 dark:bg-surface-1 dark:hover:bg-surface-2"
       >
         <span className="flex w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-primary-100 py-2.5 text-center">
           <span className="text-xs font-bold text-primary-700">{dday}</span>
@@ -142,7 +142,7 @@ export default function UpcomingTabs({
               className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
                 active
                   ? "border-primary-600 bg-primary-600 text-white"
-                  : "border-gray-200 bg-white text-gray-500 hover:border-primary-300 hover:text-primary-700 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-100"
+                  : "border-gray-200 bg-white text-gray-500 hover:border-primary-300 hover:text-primary-700 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-100"
               }`}
             >
               {tab.name}
@@ -158,7 +158,7 @@ export default function UpcomingTabs({
           type="button"
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className="flex cursor-pointer items-center gap-1 rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-700 disabled:opacity-40 dark:border-[#3c4043] dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200"
+          className="flex cursor-pointer items-center gap-1 rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-700 disabled:opacity-40 dark:border-surface-3 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200"
         >
           <RefreshCw className={`h-3 w-3 ${isRefreshing ? "animate-spin" : ""}`} />
           {isRefreshing ? "업데이트 중..." : "새로고침"}

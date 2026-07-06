@@ -1,6 +1,10 @@
+import type { Metadata } from "next";
+import { cache } from "react";
 import { MapPin, Star, Clock, Calendar } from "lucide-react";
+import { notFound } from "next/navigation";
 
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { getCurrentUser, getHeaderProfile } from "@/lib/auth";
 import {
   getEventDetail,
@@ -20,6 +24,49 @@ import DetailTabs from "./_components/DetailTabs";
 import VenueMap from "./_components/VenueMap";
 import ReviewComposer from "./_components/reviews/ReviewComposer";
 import ReviewSection from "./_components/reviews/ReviewSection";
+
+const EVENT_ID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const getCachedEventDetail = cache(getEventDetail);
+const DEFAULT_METADATA: Metadata = {
+  title: "공연 상세",
+  description: "TiKi에서 다양한 공연과 이벤트를 확인해 보세요.",
+};
+
+function getSummary(description: string) {
+  const normalized = description.replace(/\s+/g, " ").trim();
+  if (!normalized) return DEFAULT_METADATA.description ?? "";
+  return normalized.length > 100 ? `${normalized.slice(0, 100)}...` : normalized;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ eventId: string }>;
+}): Promise<Metadata> {
+  const { eventId } = await params;
+  if (!EVENT_ID_RE.test(eventId)) return DEFAULT_METADATA;
+
+  try {
+    const event = await getCachedEventDetail(eventId);
+    if (!event) return DEFAULT_METADATA;
+
+    const description = getSummary(event.description);
+
+    // og:image는 opengraph-image.tsx가 담당하므로 여기선 images를 넣지 않는다.
+    return {
+      title: event.title,
+      description,
+      openGraph: {
+        title: event.title,
+        description,
+      },
+    };
+  } catch {
+    return DEFAULT_METADATA;
+  }
+}
 
 // 최초 공연 날짜 (가장 이른 회차)
 function formatFirstDate(slots: Slot[]) {
@@ -48,21 +95,33 @@ export default async function EventDetailPage({
 }) {
   const { eventId } = await params;
   const { reviewSort, reviewDirection } = await searchParams;
+
+  // 상세 페이지 500 방지: UUID 형식이 아니면 나머지 조회 전에 404로 처리
+  if (!EVENT_ID_RE.test(eventId)) notFound();
+
   const [user, profile] = await Promise.all([
     getCurrentUser(),
     getHeaderProfile(),
   ]);
   const loggedIn = !!user;
 
-  // 상세/회차/등급/리뷰를 서버에서 병렬 조회 (존재하지 않는 공연이면 event 가 null)
-  const [event, slots, grades, seatLayout, reviewData, writableSlots] = await Promise.all([
-    getEventDetail(eventId),
-    getSlots(eventId),
-    getGrades(eventId),
-    getSeatLayout(eventId),
-    getReviews(eventId),
-    getWritableReviewSlots(eventId),
-  ]);
+  const event = await getCachedEventDetail(eventId);
+
+  const [slots, grades, seatLayout, reviewData, writableSlots] = event
+    ? await Promise.all([
+        getSlots(eventId),
+        getGrades(eventId),
+        getSeatLayout(eventId),
+        getReviews(eventId),
+        getWritableReviewSlots(eventId),
+      ])
+    : [
+        [],
+        [],
+        null,
+        { averageRating: 0, totalCount: 0, reviews: [], page: 1, limit: 0 },
+        [],
+      ];
 
   const firstShowDate = formatFirstDate(slots);
   const { averageRating, totalCount: reviewCount, reviews } = reviewData;
@@ -129,7 +188,7 @@ export default async function EventDetailPage({
                         공연정보
                       </h2>
 
-                      <ul className="grid gap-3 rounded-lg border border-info-border p-4 sm:grid-cols-2 dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+                      <ul className="grid gap-3 rounded-2xl border border-info-border p-4 sm:grid-cols-2 dark:border-surface-3 dark:bg-surface-1">
                         <li className="flex items-center gap-3">
                           <Calendar className="h-5 w-5 shrink-0 text-info-accent" />
                           <div className="flex flex-col gap-0.5">
@@ -186,7 +245,7 @@ export default async function EventDetailPage({
 
                       <EventIntro images={event.images.slice(1)} />
                       {event.images.length <= 1 && (
-                        <p className="rounded-lg border border-gray-100 p-8 text-center text-sm text-gray-400">
+                        <p className="rounded-2xl border border-gray-100 p-8 text-center text-sm text-gray-400">
                           등록된 상세 이미지가 없습니다.
                         </p>
                       )}
@@ -218,7 +277,7 @@ export default async function EventDetailPage({
                         <h2 className="text-xl font-bold text-gray-900">
                           장소
                         </h2>
-                        <div className="flex flex-col gap-4 rounded-lg border border-gray-200 p-4 text-sm">
+                        <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 p-4 text-sm">
                           <dl className="grid gap-3 md:grid-cols-2">
                             <div className="flex flex-col gap-1">
                               <dt className="text-xs font-medium text-gray-400">
@@ -263,6 +322,9 @@ export default async function EventDetailPage({
           </>
         )}
       </main>
+      <div className="hidden lg:contents">
+        <Footer />
+      </div>
     </>
   );
 }

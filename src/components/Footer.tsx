@@ -2,8 +2,8 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="w-full border-t bg-mirage px-24 text-white transition-colors dark:border-[#3c4043] dark:bg-[#242528]">
-      <div className="flex flex-row items-center justify-between border-b border-b-gray-700 py-8 dark:border-b-[#3c4043]">
+    <footer className="w-full border-t bg-mirage px-24 text-white transition-colors dark:border-surface-3 dark:bg-surface-header">
+      <div className="flex flex-row items-center justify-between border-b border-b-gray-700 py-8 dark:border-b-surface-3">
         <p>
           티켓팅의 설렘이 공연이 끝난 뒤에도 오래 남도록
           <br />

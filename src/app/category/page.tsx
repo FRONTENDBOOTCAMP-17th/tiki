@@ -41,7 +41,7 @@ export default async function CategoryPage() {
   return (
     <>
       <Header loggedIn={loggedIn} profile={profile} showCategory={false} />
-      <main className="flex-1 bg-white pb-20 dark:bg-[#202124] min-[744px]:pb-0">
+      <main className="flex-1 bg-white pb-20 dark:bg-surface-0 min-[744px]:pb-0">
         <div className="mx-auto w-full max-w-7xl">
           <div className="px-4 pt-4 md:px-8 lg:px-16">
             <BackButton />
@@ -65,7 +65,7 @@ export default async function CategoryPage() {
                   <li key={category.category_id}>
                     <Link
                       href={`/category/${category.slug}`}
-                      className="group flex flex-col items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-white py-8 transition-colors hover:border-primary-300 hover:bg-primary-50 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:border-gray-500 dark:hover:bg-[#303134]"
+                      className="group flex flex-col items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-white py-8 transition-colors hover:border-primary-300 hover:bg-primary-50 dark:border-surface-3 dark:bg-surface-1 dark:hover:border-gray-500 dark:hover:bg-surface-2"
                     >
                       <span
                         className={cn(
@@ -95,7 +95,7 @@ export default async function CategoryPage() {
                 <Link
                   key={href}
                   href={href}
-                  className="group flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition-colors hover:border-primary-300 hover:bg-primary-50 dark:border-[#3c4043] dark:bg-[#2a2b2f] dark:hover:border-gray-500 dark:hover:bg-[#303134]"
+                  className="group flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition-colors hover:border-primary-300 hover:bg-primary-50 dark:border-surface-3 dark:bg-surface-1 dark:hover:border-gray-500 dark:hover:bg-surface-2"
                 >
                   <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-700">
                     <Icon

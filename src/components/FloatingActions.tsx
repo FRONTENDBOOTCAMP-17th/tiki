@@ -63,7 +63,7 @@ function FloatingButton({
       title={label}
       onClick={onClick}
       className={cn(
-        "flex size-11 items-center justify-center rounded-full border border-white/80 bg-white/95 text-gray-800 shadow-lg shadow-primary-200/50 backdrop-blur transition hover:-translate-y-0.5 hover:bg-primary-50 hover:text-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:border-[#3c4043] dark:bg-[#2a2b2f]/95 dark:text-gray-100 dark:shadow-black/20 dark:hover:bg-[#34363a]",
+        "flex size-11 items-center justify-center rounded-full border border-white/80 bg-white/95 text-gray-800 shadow-lg shadow-primary-200/50 backdrop-blur transition hover:-translate-y-0.5 hover:bg-primary-50 hover:text-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:border-surface-3 dark:bg-surface-1/95 dark:text-gray-100 dark:shadow-black/20 dark:hover:bg-surface-4",
         className,
       )}
     >

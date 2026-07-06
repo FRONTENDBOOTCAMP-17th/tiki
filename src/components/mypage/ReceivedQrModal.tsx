@@ -1,9 +1,14 @@
 "use client";
+import { useCallback, useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { Calendar, MapPin, Ticket } from "lucide-react";
+import { Calendar, MapPin, RefreshCw, Ticket } from "lucide-react";
 import Modal from "@/components/modal/Modal";
 import Button from "@/components/Button";
+import { issueShareQrToken } from "@/lib/tickets/actions";
 import type { ReceivedTicket } from "./ReceivedTicketCard";
+
+// TTL 5분 — 만료 1분 전에 자동 갱신
+const REFRESH_INTERVAL_MS = 4 * 60 * 1000;
 
 export default function ReceivedQrModal({
   open,
@@ -15,8 +20,48 @@ export default function ReceivedQrModal({
   ticket: ReceivedTicket;
 }) {
   const place = [t.venue_address, t.venue_name].filter(Boolean).join(" ");
-  // QR에 담을 값 (입장 식별용)
-  const qrValue = `TIKI-SHARE-${t.share_id}`;
+
+  const [token, setToken] = useState<string | null>(null);
+  const [entryCode, setEntryCode] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  // 수동 "다시 시도" 트리거 — 값이 바뀌면 effect가 재실행됨
+  const [retryKey, setRetryKey] = useState(0);
+
+  const retry = useCallback(() => setRetryKey((k) => k + 1), []);
+
+  useEffect(() => {
+    if (!open) return;
+
+    let active = true;
+
+    const fetchToken = async () => {
+      setError(null);
+      try {
+        const res = await issueShareQrToken(t.share_id);
+        if (!active) return;
+        if ("error" in res) {
+          setError(res.error);
+          setToken(null);
+          setEntryCode(null);
+        } else {
+          setToken(res.token);
+          setEntryCode(res.entryCode || null);
+        }
+      } catch {
+        if (!active) return;
+        setError("QR 발급 중 오류가 발생했습니다.");
+        setToken(null);
+      }
+    };
+
+    fetchToken();
+    const timer = setInterval(fetchToken, REFRESH_INTERVAL_MS);
+
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, [open, t.share_id, retryKey]);
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -38,18 +83,49 @@ export default function ReceivedQrModal({
           </span>
         </div>
 
-        {/* 실제 QR 코드 */}
+        {/* 서명 토큰 QR */}
         <div className="flex flex-col items-center gap-3 rounded-xl border border-gray-200 p-6">
-          <div className="rounded-lg bg-white p-3">
-            <QRCodeCanvas value={qrValue} size={160} level="M" />
-          </div>
-          <p className="text-xs text-gray-400">
-            {t.share_id.slice(0, 8).toUpperCase()}
-          </p>
+          {token ? (
+            <div className="rounded-lg bg-white p-3">
+              <QRCodeCanvas value={token} size={160} level="M" />
+            </div>
+          ) : (
+            <div className="flex h-[184px] w-[184px] flex-col items-center justify-center gap-3 rounded-lg bg-gray-50">
+              {error ? (
+                <>
+                  <p className="px-4 text-center text-sm text-gray-500">
+                    {error}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={retry}
+                    className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:underline"
+                  >
+                    <RefreshCw size={14} />
+                    다시 시도
+                  </button>
+                </>
+              ) : (
+                <p className="text-sm text-gray-400">QR 생성 중...</p>
+              )}
+            </div>
+          )}
+          {entryCode && (
+            <div className="mt-3 flex flex-col items-center gap-1 border-t border-gray-100 pt-3 dark:border-surface-3">
+              <p className="text-xs text-gray-400">
+                입장 코드 (스캔이 안 될 때)
+              </p>
+              <p className="font-mono text-2xl font-bold tracking-[0.2em] text-gray-900 dark:text-gray-50">
+                {entryCode}
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="rounded-lg bg-secondary-100 px-4 py-3 text-center text-sm text-secondary-700">
-          {t.sharer_name}님이 공유한 티켓입니다. 현장에서 스캔하여 입장하세요
+          {t.sharer_name}님이 공유한 티켓입니다. 현장에서 스캔하여 입장하세요.
+          <br />
+          보안을 위해 QR은 주기적으로 자동 갱신됩니다
         </div>
       </Modal.Body>
       <Modal.Footer>

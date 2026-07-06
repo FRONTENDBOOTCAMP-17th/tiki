@@ -99,8 +99,6 @@ export default function PaymentForm({
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!redirectedPaymentId) return;
-
     if (redirectErrorCode) {
       // 결제창에서 취소/실패하고 돌아온 경우, 주문을 ordered 상태로 방치하지 않고
       // 즉시 취소 처리해 예매목록/재고에 남지 않게 한다.
@@ -112,9 +110,12 @@ export default function PaymentForm({
           console.error("[PAY] cancelReservation after redirect failed:", e);
         }
         toast.error(searchParams.get("message") || "결제가 취소되었습니다.");
+        router.replace(`/payment/${orderId}?result=cancelled`);
       })();
       return;
     }
+
+    if (!redirectedPaymentId) return;
 
     confirmPayment(orderId)
       .then(() => {
@@ -164,7 +165,7 @@ export default function PaymentForm({
         // 결제 취소/실패 시 ordered 상태로 방치하지 않고 즉시 취소 처리한다.
         await cancelReservation(orderId);
         toast.error(response.message || "결제에 실패했습니다.");
-        setSubmitting(false);
+        router.replace(`/payment/${orderId}?result=cancelled`);
         return;
       }
 
@@ -180,7 +181,7 @@ export default function PaymentForm({
   return (
     <>
       {/* 모바일/태블릿: 간단한 타이틀 바 */}
-      <header className="flex w-full items-center justify-center border-b-2 border-primary-100 p-4 dark:border-[#3c4043] md:hidden">
+      <header className="flex w-full items-center justify-center border-b-2 border-primary-100 p-4 dark:border-surface-3 md:hidden">
         <h1 className="text-lg font-semibold text-primary-900 dark:text-gray-50">결제하기</h1>
       </header>
 
@@ -197,8 +198,8 @@ export default function PaymentForm({
         <div className="flex flex-col gap-6">
           <section className="flex flex-col gap-3">
             <h2 className="text-base font-bold text-gray-900">예매 정보</h2>
-            <div className="flex gap-3 rounded-2xl bg-search-background-pink p-4 dark:border dark:border-[#3c4043] dark:bg-[#2a2b2f]">
-              <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-lg bg-white dark:bg-[#34363a]">
+            <div className="flex gap-3 rounded-2xl bg-search-background-pink p-4 dark:border dark:border-surface-3 dark:bg-surface-1">
+              <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-lg bg-white dark:bg-surface-4">
                 {booking.thumbnail && (
                   <Image
                     src={booking.thumbnail}
@@ -261,7 +262,7 @@ export default function PaymentForm({
         </div>
 
         {/* 우측(웹: sticky 카드) / 모바일·태블릿: 본문 하단 */}
-        <section className="mt-6 flex flex-col gap-3 rounded-2xl border border-gray-100 p-4 shadow-sm dark:border-[#3c4043] dark:bg-[#2a2b2f] md:sticky md:top-6 md:mt-0">
+        <section className="mt-6 flex flex-col gap-3 rounded-2xl border border-gray-100 p-4 shadow-sm dark:border-surface-3 dark:bg-surface-1 md:sticky md:top-6 md:mt-0">
           <h2 className="text-base font-bold text-gray-900">결제 금액</h2>
           <div className="flex flex-col gap-2 text-sm">
             <div className="flex justify-between text-gray-600">

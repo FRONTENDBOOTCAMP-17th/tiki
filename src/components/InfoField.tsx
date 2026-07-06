@@ -12,7 +12,7 @@ export default function InfoField({
   valueClassName?: string;
 }) {
   return (
-    <div className="rounded-lg bg-gray-50 p-3 dark:bg-[#303134]">
+    <div className="rounded-lg bg-gray-50 p-3 dark:bg-surface-2">
       <p className="text-xs text-gray-400 dark:text-gray-500">{label}</p>
       <p
         className={cn(

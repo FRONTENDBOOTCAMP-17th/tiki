@@ -15,7 +15,7 @@ export default function ContactPage() {
         고객센터
       </h2>
 
-      <div className="rounded-2xl bg-gradient-to-br from-primary-100 to-secondary-100 p-6 sm:p-8 dark:from-[#2a2b2f] dark:to-[#242528]">
+      <div className="rounded-2xl bg-gradient-to-br from-primary-100 to-secondary-100 p-6 sm:p-8 dark:from-surface-1 dark:to-surface-header">
         <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
           궁금한 점이 해결되지 않으셨나요? 1:1 문의를 남겨주시면 순차적으로
           답변드립니다. 답변은 마이페이지의 1:1 문의 내역에서 확인할 수 있습니다.
@@ -28,7 +28,7 @@ export default function ContactPage() {
         </Link>
       </div>
 
-      <dl className="mt-6 divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white dark:divide-[#3c4043] dark:border-[#3c4043] dark:bg-[#2a2b2f]">
+      <dl className="mt-6 divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white dark:divide-surface-3 dark:border-surface-3 dark:bg-surface-1">
         {CONTACTS.map((c) => (
           <div
             key={c.label}

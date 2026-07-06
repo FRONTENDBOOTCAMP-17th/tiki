@@ -117,7 +117,7 @@ export default function ReviewComposerForm({ eventId, slots }: Props) {
           maxLength={REVIEW_MEMO_MAX_LENGTH}
           rows={3}
           placeholder="관람 후기를 적어 주세요."
-          className="min-h-24 resize-none rounded-lg border border-gray-200 bg-gray-50 px-3 py-3 text-sm leading-relaxed text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100 dark:border-[#3c4043] dark:bg-[#303134] dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:bg-[#303134] dark:focus:ring-[#3c4043]"
+          className="min-h-24 resize-none rounded-lg border border-gray-200 bg-gray-50 px-3 py-3 text-sm leading-relaxed text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100 dark:border-surface-3 dark:bg-surface-2 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:bg-surface-2 dark:focus:ring-surface-3"
         />
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

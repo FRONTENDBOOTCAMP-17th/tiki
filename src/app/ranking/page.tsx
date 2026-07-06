@@ -19,7 +19,7 @@ export default async function RankingPage() {
   return (
     <>
       <Header loggedIn={loggedIn} profile={profile} />
-      <main className="flex-1 bg-white pb-20 dark:bg-[#202124] min-[744px]:pb-0">
+      <main className="flex-1 bg-white pb-20 dark:bg-surface-0 min-[744px]:pb-0">
         <RankingTabs
           initialItems={initialItems}
           generatedAt={new Date().toISOString()}
