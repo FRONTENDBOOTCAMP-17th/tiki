@@ -71,7 +71,7 @@ export default async function StaffHomePage() {
           accepted.map((e) => (
             <Link
               key={e.staff_id}
-              href={`/staff/checkin/${e.event_id}`}
+              href={`/checkin/${e.event_id}`}
               className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 p-4 transition hover:bg-gray-50 dark:border-[#3c4043] dark:hover:bg-[#2c2d30]"
             >
               <div className="min-w-0">
