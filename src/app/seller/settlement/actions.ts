@@ -82,7 +82,8 @@ export async function requestSettlement() {
       return { error: "이미 신청된 기간입니다" };
     }
 
-    return { error: error.message };
+    console.error("[settlement] request failed:", error.message);
+    return { error: "정산 신청 중 오류가 발생했습니다" };
   }
 
   revalidatePath("/seller/settlement");
