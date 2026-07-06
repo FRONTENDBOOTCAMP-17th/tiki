@@ -16,6 +16,7 @@ export interface Reservation {
   orderNo: string;
   price: number;
   isEnded: boolean;
+  checkedIn: boolean;
 }
 
 const STATUS_STYLE: Record<Reservation["status"], string> = {

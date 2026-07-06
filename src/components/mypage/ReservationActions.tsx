@@ -117,13 +117,15 @@ export default function ReservationActions({
             <span className="hidden lg:inline">친구 </span>공유
           </button>
         )}
-        <button
-          type="button"
-          onClick={() => setModal("cancel")}
-          className="shrink-0 rounded-lg border border-danger-200 px-3 py-2 text-sm font-medium text-danger-600 transition-colors hover:bg-danger-50"
-        >
-          예매 취소<span className="hidden lg:inline"> 하기</span>
-        </button>
+        {!reservation.checkedIn && (
+          <button
+            type="button"
+            onClick={() => setModal("cancel")}
+            className="shrink-0 rounded-lg border border-danger-200 px-3 py-2 text-sm font-medium text-danger-600 transition-colors hover:bg-danger-50"
+          >
+            예매 취소<span className="hidden lg:inline"> 하기</span>
+          </button>
+        )}
       </div>
 
       <QrTicketModal
