@@ -160,7 +160,10 @@ export default async function AdminDashboardPage() {
             <ul className="space-y-1">
               {(events ?? []).map((event) => (
                 <li key={event.event_id}>
-                  <div className="flex items-center justify-between rounded-lg px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-surface-2">
+                  <Link
+                    href={`/${event.event_id}`}
+                    className="flex items-center justify-between rounded-lg px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-surface-2"
+                  >
                     <span className="truncate text-sm text-gray-800 dark:text-gray-200">
                       {event.title}
                     </span>
@@ -173,7 +176,7 @@ export default async function AdminDashboardPage() {
                     >
                       {event.status}
                     </span>
-                  </div>
+                  </Link>
                 </li>
               ))}
             </ul>
