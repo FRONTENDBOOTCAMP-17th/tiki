@@ -22,6 +22,7 @@ export default function ReceivedQrModal({
   const place = [t.venue_address, t.venue_name].filter(Boolean).join(" ");
 
   const [token, setToken] = useState<string | null>(null);
+  const [entryCode, setEntryCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   // 수동 "다시 시도" 트리거 — 값이 바뀌면 effect가 재실행됨
   const [retryKey, setRetryKey] = useState(0);
@@ -41,8 +42,10 @@ export default function ReceivedQrModal({
         if ("error" in res) {
           setError(res.error);
           setToken(null);
+          setEntryCode(null);
         } else {
           setToken(res.token);
+          setEntryCode(res.entryCode || null);
         }
       } catch {
         if (!active) return;
@@ -105,6 +108,16 @@ export default function ReceivedQrModal({
               ) : (
                 <p className="text-sm text-gray-400">QR 생성 중...</p>
               )}
+            </div>
+          )}
+          {entryCode && (
+            <div className="mt-3 flex flex-col items-center gap-1 border-t border-gray-100 pt-3 dark:border-surface-3">
+              <p className="text-xs text-gray-400">
+                입장 코드 (스캔이 안 될 때)
+              </p>
+              <p className="font-mono text-2xl font-bold tracking-[0.2em] text-gray-900 dark:text-gray-50">
+                {entryCode}
+              </p>
             </div>
           )}
         </div>

@@ -124,15 +124,15 @@ export default function CheckinScanner() {
   const [manualOpen, setManualOpen] = useState(false);
   const [manualValue, setManualValue] = useState("");
 
-  const verify = useCallback(
-    async (token: string) => {
+  const verifyBody = useCallback(
+    async (body: { token: string } | { code: string }) => {
       if (verifying) return;
       setVerifying(true);
       try {
         const res = await fetch("/api/tickets/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
+          body: JSON.stringify(body),
         });
         const data: VerifyResponse = await res.json();
         setResult(data);
@@ -145,6 +145,15 @@ export default function CheckinScanner() {
     [verifying],
   );
 
+  const verify = useCallback(
+    (token: string) => verifyBody({ token }),
+    [verifyBody],
+  );
+  const verifyByCode = useCallback(
+    (code: string) => verifyBody({ code }),
+    [verifyBody],
+  );
+
   const handleScan = useCallback(
     (codes: IDetectedBarcode[]) => {
       const raw = codes[0]?.rawValue;
@@ -155,9 +164,9 @@ export default function CheckinScanner() {
   );
 
   const handleManualSubmit = () => {
-    const value = manualValue.trim();
-    if (!value) return;
-    verify(value);
+    const value = manualValue.trim().toUpperCase();
+    if (value.length !== 8) return;
+    verifyByCode(value);
     setManualValue("");
   };
 
@@ -248,7 +257,7 @@ export default function CheckinScanner() {
         </div>
       )}
 
-      {/* 직접 입력 (테스트/카메라 불가 시 폴백) */}
+      {/* 코드 직접 입력 (카메라 불가 / 스캔 안 될 때) */}
       <div className="rounded-2xl border border-gray-200 p-4 dark:border-surface-3">
         <button
           type="button"
@@ -256,23 +265,38 @@ export default function CheckinScanner() {
           className="flex w-full items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400"
         >
           <Keyboard size={16} />
-          코드 직접 입력
+          8자리 코드 직접 입력
         </button>
         {manualOpen && (
-          <div className="mt-3 flex gap-2">
-            <input
-              type="text"
-              value={manualValue}
-              onChange={(e) => setManualValue(e.target.value)}
-              placeholder="QR 토큰 값을 붙여넣으세요"
-              className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary-400 focus:outline-none dark:border-surface-3 dark:bg-surface-header dark:text-gray-50"
-            />
-            <Button
-              onClick={handleManualSubmit}
-              disabled={verifying || !manualValue.trim()}
-            >
-              검증
-            </Button>
+          <div className="mt-3 flex flex-col gap-2">
+            <p className="text-xs text-gray-500">
+              관람객 QR 화면 아래의 8자리 입장 코드를 입력하세요
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                inputMode="text"
+                autoCapitalize="characters"
+                maxLength={8}
+                value={manualValue}
+                onChange={(e) =>
+                  setManualValue(
+                    e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""),
+                  )
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleManualSubmit();
+                }}
+                placeholder="예: YTU3LMMX"
+                className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-center font-mono text-lg tracking-[0.3em] text-gray-900 placeholder:tracking-normal placeholder:text-base placeholder:text-gray-400 focus:border-primary-400 focus:outline-none dark:border-surface-3 dark:bg-surface-header dark:text-gray-50"
+              />
+              <Button
+                onClick={handleManualSubmit}
+                disabled={verifying || manualValue.trim().length !== 8}
+              >
+                검증
+              </Button>
+            </div>
           </div>
         )}
       </div>
