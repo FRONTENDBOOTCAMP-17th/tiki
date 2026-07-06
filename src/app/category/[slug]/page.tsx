@@ -93,10 +93,12 @@ export default async function CategoryDetailPage({
       <main className="flex-1 bg-white pb-20 dark:bg-surface-0 min-[744px]:pb-0">
         <PosterSlider items={sliderItems} />
 
-        <div className="mx-auto w-full max-w-7xl px-4 pt-2 md:px-8 lg:px-16">
-          <h1 className="text-center text-2xl font-bold tracking-tight text-gray-950 dark:text-gray-50">
-            {category.name}
-          </h1>
+        <div className="bg-white dark:bg-surface-0">
+          <div className="mx-auto w-full max-w-7xl px-4 pt-2 md:px-8 lg:px-16">
+            <h1 className="text-center text-2xl font-bold tracking-tight text-gray-950 dark:text-gray-50">
+              {category.name}
+            </h1>
+          </div>
         </div>
 
         {events.length === 0 ? (
