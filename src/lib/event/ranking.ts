@@ -24,7 +24,8 @@ type EventRow = {
   ticket_grade: { price: number }[] | null;
 };
 
-const PUBLISHED_STATUS = "공개";
+// 비공개(판매자 미공개 초안)만 제외. 일시정지(관리자 예매 중단)는 노출.
+const VISIBLE_STATUSES = ["공개", "일시정지"];
 
 /**
  * 최근 N일 예매 수량 기준 랭킹 상위 이벤트를 반환한다.
@@ -53,7 +54,7 @@ export async function fetchRanking(options?: {
       "event_id, title, thumbnail, start_date, end_date, venue_name, created_at, ticket_grade ( price )" +
         (slug ? ", category:category_id!inner ( slug )" : ""),
     )
-    .eq("status", PUBLISHED_STATUS)
+    .in("status", VISIBLE_STATUSES)
     .gte("end_date", today);
 
   if (slug) query = query.eq("category.slug", slug);

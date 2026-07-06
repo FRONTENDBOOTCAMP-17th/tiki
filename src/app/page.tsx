@@ -15,7 +15,8 @@ import type {
   HomeEventCardItem,
 } from "./_components/home/types";
 
-const PUBLISHED_STATUS = "공개";
+// 비공개(판매자 미공개 초안)만 제외. 일시정지(관리자 예매 중단)는 노출.
+const VISIBLE_STATUSES = ["공개", "일시정지"];
 const EVENT_POOL_LIMIT = 36; // 랭킹/티켓오픈/히어로 섹션이 고를 후보 풀 크기
 const HERO_SLIDE_SIZE = 5;
 const RANKING_SIZE = 10;
@@ -130,7 +131,7 @@ async function fetchBestReviews(
 
   const eventMap = new Map(
     (eventRows ?? [])
-      .filter((event) => event.status === PUBLISHED_STATUS)
+      .filter((event) => VISIBLE_STATUSES.includes(event.status))
       .map((event) => [event.event_id, event]),
   );
   const nameMap = new Map(
@@ -185,7 +186,7 @@ export default async function Home() {
       supabase
         .from("event")
         .select("event_id, title, thumbnail, start_date, end_date, venue_name, created_at")
-        .eq("status", PUBLISHED_STATUS)
+        .in("status", VISIBLE_STATUSES)
         .order("created_at", { ascending: false })
         .limit(EVENT_POOL_LIMIT),
       fetchCategories().catch((error) => {
@@ -210,7 +211,7 @@ export default async function Home() {
     ? await supabase
         .from("event")
         .select("event_id, title, thumbnail, start_date, end_date, venue_name, created_at, category_id")
-        .eq("status", PUBLISHED_STATUS)
+        .in("status", VISIBLE_STATUSES)
         .in("category_id", categoryIds)
         .order("created_at", { ascending: false })
     : { data: [] as CategoryEventRow[], error: null };

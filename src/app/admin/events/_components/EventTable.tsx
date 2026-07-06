@@ -27,7 +27,8 @@ interface EventTableProps {
 // DB 상태 → 화면 표시
 const DB_TO_DISPLAY: Record<string, { label: string; className: string }> = {
   공개: { label: "승인", className: "bg-green-500 text-white" },
-  비공개: { label: "예매 일시중지", className: "bg-orange-500 text-white" },
+  일시정지: { label: "예매 일시중지", className: "bg-orange-500 text-white" },
+  비공개: { label: "비공개", className: "bg-gray-400 text-white" },
 };
 
 function getStatusDisplay(dbStatus: string) {
@@ -201,7 +202,7 @@ export default function EventTable({
                 events.map((event) => {
                   const display = getStatusDisplay(event.status);
                   const isPublic = event.status === "공개";
-                  const isSuspended = event.status === "비공개";
+                  const isSuspended = event.status === "일시정지";
                   const processing = isProcessing(event.event_id);
 
                   return (

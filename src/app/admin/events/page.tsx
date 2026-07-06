@@ -11,7 +11,7 @@ interface SearchParams {
 // 화면 표시 상태 → DB 상태
 const DISPLAY_TO_DB: Record<string, string> = {
   승인: "공개",
-  "예매 일시중지": "비공개",
+  "예매 일시중지": "일시정지",
 };
 
 export default async function AdminEventsPage({

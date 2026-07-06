@@ -9,7 +9,7 @@ export async function hideEvent(eventId: string) {
   const supabase = getSupabaseAdmin();
   const { error } = await supabase
     .from("event")
-    .update({ status: "비공개" })
+    .update({ status: "일시정지" })
     .eq("event_id", eventId);
   if (error) return { error: error.message };
   revalidatePath("/admin/events");
