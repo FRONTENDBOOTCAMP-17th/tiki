@@ -166,6 +166,16 @@ export default async function ReservationsPage({
   const slotMap = new Map((slots ?? []).map((s) => [s.slot_id, s]));
   const gradeMap = new Map((grades ?? []).map((g) => [g.grade_id, g]));
 
+  // 체크인 이력 있는 주문 (입장 완료분은 취소 불가 → 버튼 비노출용)
+  const orderIds = (orders ?? []).map((o) => o.order_id);
+  const { data: checkins } = orderIds.length
+    ? await supabase
+        .from("ticket_checkin")
+        .select("order_id")
+        .in("order_id", orderIds)
+    : { data: [] as { order_id: string }[] };
+  const checkedInSet = new Set((checkins ?? []).map((c) => c.order_id));
+
   const now = new Date();
 
   const reservations: Reservation[] = (orders ?? []).map((o) => {
@@ -196,6 +206,7 @@ export default async function ReservationsPage({
       orderNo: o.order_id.slice(0, 8).toUpperCase(),
       price: o.total_price,
       isEnded,
+      checkedIn: checkedInSet.has(o.order_id),
     };
   });
 
