@@ -65,14 +65,23 @@ export default function SettlementView({ orders, bank, requests }: Props) {
     });
   }
 
-  // 월 → 정산 상태 (승인이 신청보다 우선)
-  const monthStatus = new Map<string, "approved" | "requested">();
+  // 월 → 정산 상태. 우선순위: 승인 > 신청 중 > 반려됨
+  // (반려 후 재신청하면 같은 달에 반려 건과 신청 건이 함께 존재할 수 있다)
+  const STATUS_PRIORITY = { rejected: 0, requested: 1, approved: 2 } as const;
+  type MonthStatus = keyof typeof STATUS_PRIORITY;
+
+  const monthStatus = new Map<string, MonthStatus>();
+  const monthRejectReason = new Map<string, string>();
   for (const req of requests) {
+    const status = req.status as MonthStatus;
+    if (!(status in STATUS_PRIORITY)) continue;
     for (const month of monthsInRange(req.period_start, req.period_end)) {
-      if (req.status === "approved") {
-        monthStatus.set(month, "approved");
-      } else if (monthStatus.get(month) !== "approved") {
-        monthStatus.set(month, "requested");
+      const current = monthStatus.get(month);
+      if (!current || STATUS_PRIORITY[status] > STATUS_PRIORITY[current]) {
+        monthStatus.set(month, status);
+      }
+      if (status === "rejected" && req.reject_reason) {
+        monthRejectReason.set(month, req.reject_reason);
       }
     }
   }
@@ -120,13 +129,20 @@ export default function SettlementView({ orders, bank, requests }: Props) {
   function monthStatusBadge(month: string) {
     const status = monthStatus.get(month);
     if (status === "approved") {
-      return { label: "정산완료", className: "bg-green-50 text-green-700" };
+      return { label: "정산완료", className: "bg-emerald-100 text-emerald-700" };
     }
     if (status === "requested") {
-      return { label: "승인대기", className: "bg-blue-50 text-blue-600" };
+      return { label: "승인대기", className: "bg-primary-100 text-primary-700" };
+    }
+    if (status === "rejected") {
+      return {
+        label: "반려됨",
+        className: "bg-danger-100 text-danger-700",
+        title: monthRejectReason.get(month),
+      };
     }
     if (month >= thisMonth) {
-      return { label: "정산예정", className: "bg-amber-50 text-amber-600" };
+      return { label: "정산예정", className: "bg-warning-100 text-warning-700" };
     }
     return { label: "미신청", className: "bg-gray-100 text-gray-500" };
   }
@@ -243,6 +259,7 @@ export default function SettlementView({ orders, bank, requests }: Props) {
                           const badge = monthStatusBadge(row.month);
                           return (
                             <span
+                              title={badge.title}
                               className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${badge.className}`}
                             >
                               {badge.label}
