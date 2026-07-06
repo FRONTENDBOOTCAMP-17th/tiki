@@ -54,20 +54,25 @@ export default async function AdminEventsPage({
 
   const { data: events } = await query;
 
-  // 이벤트별 결제 완료 주문 수
+  // 이벤트별 결제 완료 주문 수(파티 수) + 티켓 판매 수량 합계
   const eventIds = (events ?? []).map((e) => e.event_id);
   const { data: orderRows } =
     eventIds.length > 0
       ? await supabase
           .from("orders")
-          .select("event_id")
+          .select("event_id, quantity")
           .in("event_id", eventIds)
           .eq("status", "paid")
       : { data: [] };
 
   const orderCountMap = new Map<string, number>();
+  const ticketCountMap = new Map<string, number>();
   for (const o of orderRows ?? []) {
     orderCountMap.set(o.event_id, (orderCountMap.get(o.event_id) ?? 0) + 1);
+    ticketCountMap.set(
+      o.event_id,
+      (ticketCountMap.get(o.event_id) ?? 0) + (o.quantity ?? 0),
+    );
   }
 
   // 카테고리명 매핑
@@ -80,6 +85,7 @@ export default async function AdminEventsPage({
     index: index + 1,
     categoryName: categoryNameMap.get(e.category_id) ?? "-",
     partyCount: orderCountMap.get(e.event_id) ?? 0,
+    ticketCount: ticketCountMap.get(e.event_id) ?? 0,
   }));
 
   return (
