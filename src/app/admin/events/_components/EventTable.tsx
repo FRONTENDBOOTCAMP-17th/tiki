@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Search } from "lucide-react";
+import { Search, CirclePause, CirclePlay, Trash2 } from "lucide-react";
 import type { CategoryRow } from "@/lib/api/categories";
 import { hideEvent, publishEvent, deleteEvent } from "../actions";
 
@@ -24,18 +24,18 @@ interface EventTableProps {
   currentStatus: string;
 }
 
-// DB 상태 → 화면 표시
+// DB 상태 → 화면 표시 (프로젝트 테마 컬러 사용)
 const DB_TO_DISPLAY: Record<string, { label: string; className: string }> = {
-  공개: { label: "승인", className: "bg-green-500 text-white" },
-  일시정지: { label: "예매 일시중지", className: "bg-orange-500 text-white" },
-  비공개: { label: "비공개", className: "bg-gray-400 text-white" },
+  공개: { label: "승인", className: "bg-emerald-100 text-emerald-700" },
+  일시정지: { label: "예매 일시중지", className: "bg-warning-100 text-warning-700" },
+  비공개: { label: "비공개", className: "bg-gray-100 text-gray-600" },
 };
 
 function getStatusDisplay(dbStatus: string) {
   return (
     DB_TO_DISPLAY[dbStatus] ?? {
       label: dbStatus,
-      className: "bg-yellow-400 text-white",
+      className: "bg-primary-100 text-primary-700",
     }
   );
 }
@@ -89,6 +89,7 @@ export default function EventTable({
     startTransition(async () => {
       const result = await hideEvent(eventId);
       if (result.error) alert(result.error);
+      else router.refresh();
       setActionTarget(null);
     });
   }
@@ -98,6 +99,7 @@ export default function EventTable({
     startTransition(async () => {
       const result = await publishEvent(eventId);
       if (result.error) alert(result.error);
+      else router.refresh();
       setActionTarget(null);
     });
   }
@@ -108,6 +110,7 @@ export default function EventTable({
     startTransition(async () => {
       const result = await deleteEvent(eventId);
       if (result.error) alert(result.error);
+      else router.refresh();
       setActionTarget(null);
     });
   }
@@ -236,26 +239,29 @@ export default function EventTable({
                             <button
                               onClick={() => handleHide(event.event_id)}
                               disabled={processing}
-                              className="flex items-center gap-1 text-sm font-medium text-orange-500 hover:text-orange-700 disabled:opacity-40"
+                              className="flex items-center gap-1 text-sm font-medium text-warning-600 hover:text-warning-700 disabled:opacity-40"
                             >
-                              🛑 예매 일시정지
+                              <CirclePause size={14} />
+                              예매 일시정지
                             </button>
                           )}
                           {isSuspended && (
                             <button
                               onClick={() => handlePublish(event.event_id)}
                               disabled={processing}
-                              className="flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-700 disabled:opacity-40"
+                              className="flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 disabled:opacity-40"
                             >
-                              ▶ 일시정지 해제
+                              <CirclePlay size={14} />
+                              일시정지 해제
                             </button>
                           )}
                           <button
                             onClick={() => handleDelete(event.event_id)}
                             disabled={processing}
-                            className="flex items-center gap-1 text-sm font-medium text-red-500 hover:text-red-700 disabled:opacity-40"
+                            className="flex items-center gap-1 text-sm font-medium text-danger-500 hover:text-danger-600 disabled:opacity-40"
                           >
-                            🗑️ 삭제
+                            <Trash2 size={14} />
+                            삭제
                           </button>
                         </div>
                       </td>
