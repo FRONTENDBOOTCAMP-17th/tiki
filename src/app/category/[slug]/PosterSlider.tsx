@@ -37,7 +37,7 @@ export default function PosterSlider({
   const duration = items.length * SECONDS_PER_CARD;
 
   return (
-    <section className="overflow-hidden py-6 dark:bg-surface-0">
+    <section className="overflow-hidden py-6 dark:bg-surface-1">
       {title && (
         <h2 className="mb-4 px-4 text-lg font-bold tracking-tight text-gray-950 dark:text-gray-50 md:px-8 md:text-xl lg:px-16">
           {title}
