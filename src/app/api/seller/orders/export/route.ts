@@ -19,9 +19,14 @@ const CSV_HEADER = [
   "상태",
 ];
 
+const CSV_FORMULA_PREFIX_RE = /^[=+\-@]/;
+
 // 콤마/따옴표/줄바꿈이 있으면 따옴표로 감싸고 내부 따옴표는 두 번으로 이스케이프.
 function csvCell(value: unknown) {
-  const text = value == null ? "" : String(value);
+  let text = value == null ? "" : String(value);
+  if (CSV_FORMULA_PREFIX_RE.test(text)) {
+    text = `'${text}`;
+  }
   return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
