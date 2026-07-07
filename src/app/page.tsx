@@ -4,13 +4,14 @@ import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
 import { getHeaderProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { fetchCategories } from "@/lib/api/categories";
+import { fetchCategories, type CategoryRow } from "@/lib/api/categories";
 import HeroSlider from "./_components/home/HeroSlider";
 import TicketOpenSection from "./_components/home/TicketOpenSection";
 import HorizontalCardSection from "./_components/home/HorizontalCardSection";
 import HomeSectionLink from "./_components/home/HomeSectionLink";
 import BestReviewSection from "./_components/home/BestReviewSection";
 import BestReviewSkeleton from "./_components/home/BestReviewSkeleton";
+import CategorySectionsSkeleton from "./_components/home/CategorySectionsSkeleton";
 import RecommendedSection from "./_components/home/RecommendedSection";
 import type {
   BestReviewItem,
@@ -190,6 +191,78 @@ async function BestReviewSectionAsync({
   return <BestReviewSection reviews={reviews} />;
 }
 
+// 카테고리 섹션 카드용 이벤트 + 최저가 조회. pool(히어로/랭킹/티켓오픈/추천)이
+// 쓰는 event id 집합과 완전히 분리해서, pool 쪽 렌더링을 기다리지 않고 이 조회만
+// 따로 진행되도록 한다(호출부에서 await하지 않고 Suspense로 스트리밍).
+async function fetchCategorySectionEvents(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  categoryIds: string[],
+): Promise<Map<string, HomeEventCardItem[]>> {
+  const eventsByCategory = new Map<string, HomeEventCardItem[]>();
+  if (categoryIds.length === 0) return eventsByCategory;
+
+  // 카테고리 섹션은 "최근 등록" 풀에 안 든 이벤트도 보여줘야 하므로 별도로 조회한다.
+  const { data: categoryEventRows, error: categoryEventError } = await supabase
+    .from("event")
+    .select("event_id, title, thumbnail, start_date, end_date, venue_name, created_at, category_id")
+    .in("status", VISIBLE_STATUSES)
+    .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
+    .in("category_id", categoryIds)
+    .order("created_at", { ascending: false });
+  if (categoryEventError)
+    console.error("[HOME] category event query failed:", categoryEventError);
+
+  const rows = (categoryEventRows ?? []) as CategoryEventRow[];
+  const eventIds = [...new Set(rows.map((event) => event.event_id))];
+
+  const { data: gradeRows, error: gradeError } = eventIds.length
+    ? await supabase.from("ticket_grade").select("event_id, price").in("event_id", eventIds)
+    : { data: [], error: null };
+  if (gradeError)
+    console.error("[HOME] category ticket_grade query failed:", gradeError);
+
+  const minPriceByEvent = new Map<string, number>();
+  for (const grade of gradeRows ?? []) {
+    const current = minPriceByEvent.get(grade.event_id);
+    if (current == null || grade.price < current) {
+      minPriceByEvent.set(grade.event_id, grade.price);
+    }
+  }
+
+  // category_id별로 묶고, 카테고리 한 섹션당 보여줄 개수만큼만 자른다.
+  for (const event of rows) {
+    const list = eventsByCategory.get(event.category_id) ?? [];
+    if (list.length < CATEGORY_EVENT_LIMIT) {
+      list.push(toCardItem(event, minPriceByEvent));
+    }
+    eventsByCategory.set(event.category_id, list);
+  }
+  return eventsByCategory;
+}
+
+async function CategorySectionsAsync({
+  categories,
+  eventsByCategoryPromise,
+}: {
+  categories: CategoryRow[];
+  eventsByCategoryPromise: Promise<Map<string, HomeEventCardItem[]>>;
+}) {
+  const eventsByCategory = await eventsByCategoryPromise;
+  return (
+    <>
+      {categories.map((category) => (
+        <HorizontalCardSection
+          key={category.category_id}
+          title={category.category_name}
+          moreHref={`/category/${category.slug}`}
+          events={eventsByCategory.get(category.category_id) ?? []}
+          className="bg-white dark:bg-surface-0"
+        />
+      ))}
+    </>
+  );
+}
+
 export default async function Home() {
   const supabase = await createClient();
 
@@ -200,9 +273,11 @@ export default async function Home() {
     return [] as BestReviewItem[];
   });
 
-  // 서로 의존성이 없는 조회(로그인 여부/이벤트 풀/카테고리)는 직렬로 기다리지 않고
-  // 한 번에 병렬로 보내야 첫 응답까지의 시간(FCP/LCP)이 늘어지지 않는다.
-  const [profile, { data: eventRows, error: eventError }, categories] =
+  // 서로 의존성이 없는 조회(로그인 여부/이벤트 풀/카테고리/예매 랭킹 집계)는 직렬로
+  // 기다리지 않고 한 번에 병렬로 보내야 첫 응답까지의 시간(FCP/LCP)이 늘어지지 않는다.
+  // bookingCounts는 event_id 필터 없이 전체를 집계해 오는 RPC라 pool 조회 결과를
+  // 기다릴 필요가 없으므로 여기서 같이 병렬 처리한다.
+  const [profile, { data: eventRows, error: eventError }, categories, bookingCountRows] =
     await Promise.all([
       getHeaderProfile(),
       supabase
@@ -216,6 +291,9 @@ export default async function Home() {
         console.error("[HOME] fetchCategories failed:", error);
         return [];
       }),
+      // orders는 본인 주문만 보이는 RLS가 걸려 있지만, 비로그인 사용자도 보는
+      // "전체 예매 랭킹" 집계는 event_id별 합계만 돌려주는 RPC로 anon 키로도 조회한다.
+      fetchBookingCounts(supabase),
     ]);
   if (eventError) console.error("[HOME] event pool query failed:", eventError);
 
@@ -225,44 +303,25 @@ export default async function Home() {
   const featuredCategories = topCategories.slice(0, FEATURED_CATEGORY_SECTION_LIMIT);
   const categoryIds = topCategories.map((c) => c.category_id);
 
-  // 카테고리 섹션은 "최근 등록" 풀에 안 든 이벤트도 보여줘야 하므로 별도로 조회한다.
-  const { data: categoryEventRows, error: categoryEventError } = categoryIds.length
-    ? await supabase
-        .from("event")
-        .select("event_id, title, thumbnail, start_date, end_date, venue_name, created_at, category_id")
-        .in("status", VISIBLE_STATUSES)
-        .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
-        .in("category_id", categoryIds)
-        .order("created_at", { ascending: false })
-    : { data: [] as CategoryEventRow[], error: null };
-  if (categoryEventError)
-    console.error("[HOME] category event query failed:", categoryEventError);
-
-  // 두 조회 결과를 합쳐서 주문/가격 조회를 한 번에 처리한다.
-  const eventIds = [
-    ...new Set([
-      ...pool.map((e) => e.event_id),
-      ...(categoryEventRows ?? []).map((e) => e.event_id),
-    ]),
-  ];
-
-  // orders는 본인 주문만 보이는 RLS가 걸려 있지만, 비로그인 사용자도 보는
-  // "전체 예매 랭킹" 집계는 event_id별 합계만 돌려주는 RPC로 anon 키로도 조회한다.
-  const [bookingCountRows, { data: gradeRows, error: gradeError }] = eventIds.length
-    ? await Promise.all([
-        fetchBookingCounts(supabase),
-        supabase
-          .from("ticket_grade")
-          .select("event_id, price")
-          .in("event_id", eventIds),
-      ])
-    : [[], { data: [], error: null }];
-  if (gradeError) console.error("[HOME] ticket_grade query failed:", gradeError);
+  // 카테고리 섹션은 pool과 event id 집합이 완전히 분리돼 있어 pool 렌더링을
+  // 기다릴 필요가 없다. await하지 않고 바로 실행만 시켜 Suspense로 스트리밍한다.
+  const eventsByCategoryPromise = fetchCategorySectionEvents(supabase, categoryIds);
 
   // event_id별 누적 예매 수량 (RPC가 이미 DB에서 합산해 돌려준다)
   const bookingCountByEvent = new Map<string, number>(
     bookingCountRows.map((row) => [row.event_id, row.total_quantity]),
   );
+
+  // 히어로/랭킹/티켓오픈/추천 섹션은 pool 이벤트만 쓰므로, 그 id로만 가격을 조회한다
+  // (카테고리 섹션의 별도 조회를 기다리지 않는다).
+  const poolEventIds = pool.map((event) => event.event_id);
+  const { data: gradeRows, error: gradeError } = poolEventIds.length
+    ? await supabase
+        .from("ticket_grade")
+        .select("event_id, price")
+        .in("event_id", poolEventIds)
+    : { data: [], error: null };
+  if (gradeError) console.error("[HOME] ticket_grade query failed:", gradeError);
 
   // event_id별 최저 티켓 가격
   const minPriceByEvent = new Map<string, number>();
@@ -310,16 +369,6 @@ export default async function Home() {
     .slice(0, RECOMMENDED_SIZE)
     .map((event) => toCardItem(event, minPriceByEvent));
 
-  // category_id별로 묶고, 카테고리 한 섹션당 보여줄 개수만큼만 자른다.
-  const eventsByCategory = new Map<string, HomeEventCardItem[]>();
-  for (const event of categoryEventRows ?? []) {
-    const list = eventsByCategory.get(event.category_id) ?? [];
-    if (list.length < CATEGORY_EVENT_LIMIT) {
-      list.push(toCardItem(event, minPriceByEvent));
-    }
-    eventsByCategory.set(event.category_id, list);
-  }
-
   return (
     <>
       <Header loggedIn={loggedIn} profile={profile} />
@@ -344,15 +393,12 @@ export default async function Home() {
             className="bg-white dark:bg-surface-0"
           />
           <RecommendedSection events={recommended} />
-          {featuredCategories.map((category) => (
-            <HorizontalCardSection
-              key={category.category_id}
-              title={category.category_name}
-              moreHref={`/category/${category.slug}`}
-              events={eventsByCategory.get(category.category_id) ?? []}
-              className="bg-white dark:bg-surface-0"
+          <Suspense fallback={<CategorySectionsSkeleton count={featuredCategories.length} />}>
+            <CategorySectionsAsync
+              categories={featuredCategories}
+              eventsByCategoryPromise={eventsByCategoryPromise}
             />
-          ))}
+          </Suspense>
         </div>
         <Suspense fallback={<BestReviewSkeleton />}>
           <BestReviewSectionAsync reviewsPromise={bestReviewsPromise} />
