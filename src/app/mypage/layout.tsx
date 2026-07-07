@@ -48,9 +48,11 @@ export default async function MyPageLayout({
       <div className="flex-1 bg-gray-50 dark:bg-surface-0">
         <div className="mx-auto max-w-screen-xl p-4 md:p-6">
           <div className="flex gap-6">
-            {/* 데스크탑(lg+): 세로 사이드바 */}
+            {/* 데스크탑(lg+): 세로 사이드바 — sticky 고정 */}
             <div className="hidden w-64 shrink-0 lg:block">
-              <MyPageSidebar {...profile} />
+              <div className="sticky top-6 h-[calc(100vh-3rem)]">
+                <MyPageSidebar {...profile} />
+              </div>
             </div>
             <main className="min-w-0 flex-1 pb-20 min-[744px]:pb-0">
               {children}

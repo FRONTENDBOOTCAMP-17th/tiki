@@ -71,9 +71,10 @@ export default async function LibraryPage({
     (categories ?? []).map((c) => [c.category_id, c.slug]),
   );
 
-  // 4) 해당 월 이벤트만 LibraryEvent로 변환
+  // 4) 해당 월 이벤트만 LibraryEvent로 변환 (같은 공연·같은 날 중복 제거)
   const monthKey = `${year}-${String(m + 1).padStart(2, "0")}`; // "2026-06"
   const libraryEvents: LibraryEvent[] = [];
+  const seen = new Set<string>();
 
   for (const o of orders ?? []) {
     const ev = eventMap.get(o.event_id);
@@ -82,6 +83,11 @@ export default async function LibraryPage({
     const sl = o.slot_id ? slotMap.get(o.slot_id) : null;
     const dateStr: string | undefined = sl?.date ?? ev.start_date; // 관람일: slot 우선
     if (!dateStr?.startsWith(monthKey)) continue; // 이번 달만
+
+    // 같은 공연을 여러 번 예매해도 캘린더엔 한 번만 (중복 이미지 방지)
+    const dedupKey = `${ev.event_id}-${dateStr}`;
+    if (seen.has(dedupKey)) continue;
+    seen.add(dedupKey);
 
     const slug = catMap.get(ev.category_id);
     const category = (
