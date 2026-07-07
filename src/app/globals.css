@@ -241,6 +241,15 @@ body {
   display: none;
 }
 
+/* 가로 스크롤바 숨김 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  
 /* 좌우 엣지 페이드. 모바일(<768px)은 적용 안 함 */
 @media (min-width: 768px) {
   .poster-fade {
@@ -399,4 +408,5 @@ body {
   summary {
     cursor: pointer;
   }
+}
 }

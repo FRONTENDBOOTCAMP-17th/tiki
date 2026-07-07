@@ -1,14 +1,14 @@
-import Toggle from "@/components/Toggle";
 import InfoLinkButton from "@/components/mypage/InfoLinkButton";
 import PasswordChangeButton from "@/components/mypage/PasswordChangeButton";
 import WithdrawButton from "@/components/mypage/WithdrawButton";
 import TermsContent from "@/components/policies/TermsContent";
 import PrivacyContent from "@/components/policies/PrivacyContent";
+import NotificationSettings from "@/components/mypage/NotificationSettings";
+import { getNotificationSettings } from "@/lib/mypage/notificationSettings";
 
-// 더미 알림 설정 (나중에 Supabase 조회로 교체)
-const notif = { friend: true, event: true, marketing: false };
+export default async function SettingsPage() {
+  const notif = await getNotificationSettings();
 
-export default function SettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* 설정 카드 */}
@@ -19,27 +19,7 @@ export default function SettingsPage() {
 
         <div className="mt-6 flex flex-col gap-8">
           {/* 알림 설정 */}
-          <div className="flex flex-col gap-3">
-            <h2 className="text-sm font-semibold text-gray-500">알림 설정</h2>
-            <Toggle
-              name="friend"
-              title="친구 신청 알림"
-              description="친구 신청 알림을 받습니다"
-              defaultChecked={notif.friend}
-            />
-            <Toggle
-              name="event"
-              title="이벤트 시작 알림"
-              description="공연 시작 1시간 전 알림을 받습니다"
-              defaultChecked={notif.event}
-            />
-            <Toggle
-              name="marketing"
-              title="마케팅 알림"
-              description="이벤트 및 프로모션 정보를 받습니다"
-              defaultChecked={notif.marketing}
-            />
-          </div>
+          <NotificationSettings initial={notif} />
 
           {/* 개인정보 */}
           <div className="flex flex-col gap-3">

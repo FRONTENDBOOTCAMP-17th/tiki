@@ -22,27 +22,30 @@ const FILTERS = [
 
 function FilterTabs({ filter }: { filter: string }) {
   return (
-    <div className="flex w-fit flex-wrap gap-1 rounded-2xl bg-gray-100 p-1">
-      {FILTERS.map((f) => {
-        const active = filter === f.value;
-        const href =
-          f.value === "all"
-            ? "/mypage/reservations"
-            : `/mypage/reservations?filter=${f.value}`;
-        return (
-          <Link
-            key={f.value}
-            href={href}
-            className={
-              active
-                ? "rounded-full bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-1.5 text-sm font-semibold text-primary-900 shadow-sm"
-                : "rounded-full px-4 py-1.5 text-sm text-gray-500 transition-colors hover:text-gray-900"
-            }
-          >
-            {f.label}
-          </Link>
-        );
-      })}
+    <div className="-mx-4 overflow-x-auto px-4">
+      <div className="flex w-max gap-2 rounded-2xl bg-gray-100 p-1">
+        {FILTERS.map((f) => {
+          const active = filter === f.value;
+          const href =
+            f.value === "all"
+              ? "/mypage/reservations"
+              : `/mypage/reservations?filter=${f.value}`;
+
+          return (
+            <Link
+              key={f.value}
+              href={href}
+              className={
+                active
+                  ? "whitespace-nowrap rounded-full bg-gradient-to-r from-primary-400 to-secondary-400 px-4 py-1.5 text-sm font-semibold text-primary-900 shadow-sm"
+                  : "whitespace-nowrap rounded-full px-4 py-1.5 text-sm text-gray-500 transition-colors hover:text-gray-900"
+              }
+            >
+              {f.label}
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

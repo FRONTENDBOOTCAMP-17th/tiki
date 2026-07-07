@@ -39,7 +39,9 @@ export default async function FriendsPage() {
             함께 공연을 즐길 친구들을 관리하세요
           </p>
         </div>
-        <AddFriendButton />
+        <div className="flex shrink-0 justify-end">
+          <AddFriendButton />
+        </div>
       </div>
 
       {/* 내 친구 */}
