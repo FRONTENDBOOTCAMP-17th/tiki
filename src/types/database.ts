@@ -940,6 +940,7 @@ export type Database = {
           email: string
           id: string
           name: string
+          notification_settings: Json
           phone: string | null
           role: string
         }
@@ -949,6 +950,7 @@ export type Database = {
           email: string
           id?: string
           name: string
+          notification_settings?: Json
           phone?: string | null
           role: string
         }
@@ -958,6 +960,7 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+          notification_settings?: Json
           phone?: string | null
           role?: string
         }
@@ -1155,6 +1158,7 @@ export type Database = {
       }
       revoke_ticket_share: { Args: { p_share_id: string }; Returns: Json }
       send_friend_request: { Args: { p_email: string }; Returns: Json }
+      update_notification_settings: { Args: { p_settings: Json }; Returns: Json }
       share_ticket: {
         Args: { p_order_id: string; p_quantity: number; p_shared_with: string }
         Returns: Json
