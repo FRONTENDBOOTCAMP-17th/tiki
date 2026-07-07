@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import CheckinScanner from "@/components/checkin/CheckinScanner";
+import DesktopNotice from "@/components/checkin/DesktopNotice";
 
 export const metadata = { title: "입장 검증" };
 
@@ -45,6 +46,7 @@ export default async function CheckinScanPage({
         </p>
       </div>
       <CheckinScanner />
+      <DesktopNotice />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 // 공용 QR 검증 - 공연 선택 (셀러 본인 공연 + 배정 스태프 공연)
 import Link from "next/link";
-import { ScanLine, TicketCheck } from "lucide-react";
+import { ScanLine, TicketCheck, ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "입장 검증" };
@@ -18,8 +18,20 @@ export default async function CheckinSelectPage() {
   const { data } = await supabase.rpc("get_checkin_events");
   const events = (data ?? []) as CheckinEvent[];
 
+  // 판매자면 판매자 페이지로, 아니면 스태프 홈으로 복귀
+  const hasSeller = events.some((e) => e.my_role === "seller");
+  const backHref = hasSeller ? "/seller" : "/staff";
+  const backLabel = hasSeller ? "판매자 페이지로" : "스태프 홈으로";
+
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-5 px-4 py-6">
+      <Link
+        href={backHref}
+        className="flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300"
+      >
+        <ArrowLeft size={15} />
+        {backLabel}
+      </Link>
       <div className="flex items-center gap-2">
         <ScanLine className="text-primary-600" size={22} />
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">
