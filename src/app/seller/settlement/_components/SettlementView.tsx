@@ -174,7 +174,7 @@ export default function SettlementView({ orders, bank, requests }: Props) {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 py-6">
+    <div className="mx-auto max-w-7xl space-y-6 py-6">
       <header className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">매출 · 정산</h1>

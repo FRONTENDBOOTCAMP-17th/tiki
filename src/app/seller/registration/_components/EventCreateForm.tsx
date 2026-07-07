@@ -308,7 +308,7 @@ export default function EventCreateForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="mx-auto max-w-6xl space-y-6 py-6">
+    <form onSubmit={onSubmit} className="mx-auto max-w-7xl space-y-6 py-6">
       <PageHeader title="새 이벤트 등록" />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
