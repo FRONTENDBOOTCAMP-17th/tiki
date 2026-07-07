@@ -57,7 +57,8 @@ export function SearchBarInput({
         data-search-input
         type="text"
         placeholder={SEARCH_PLACEHOLDER}
-        className="flex-1 border-none bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 dark:text-gray-50 dark:placeholder:text-gray-500"
+        style={{ outline: "none" }}
+        className="flex-1 border-none bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-50 dark:placeholder:text-gray-500"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
