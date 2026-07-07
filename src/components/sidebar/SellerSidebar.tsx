@@ -10,9 +10,7 @@ import {
   CalendarDays,
   Star,
   UserCog,
-  ArrowLeft,
 } from "lucide-react";
-import Link from "next/link";
 import SidebarMenuItem from "./SidebarMenuItem";
 import Avatar from "@/components/Avatar";
 import type { SidebarItem } from "./types";
