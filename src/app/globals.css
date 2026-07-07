@@ -32,6 +32,10 @@ body {
   outline-offset: 2px;
 }
 
+:where(input[data-search-input]):focus-visible {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

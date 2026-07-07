@@ -12,13 +12,6 @@ interface ToastProps extends VariantProps<typeof toastVariants> {
   description: string;
 }
 
-const defaultTitle = {
-  success: '성공',
-  error: '오류',
-  warning: '경고',
-  info: '정보',
-} as const;
-
 export default function Toast({
   id,
   title,
@@ -52,10 +45,8 @@ export default function Toast({
           }
         }}
       >
-        <h3 className='font-bold'>
-          {title ? title : defaultTitle[variant as keyof typeof defaultTitle]}
-        </h3>
-        <p>{description}</p>
+        {title && <h3 className='font-bold'>{title}</h3>}
+        <p className='pr-6 text-sm font-medium leading-relaxed'>{description}</p>
         <button
           className='absolute top-4 right-4 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-current rounded-md'
           onClick={() => handleRemove(id)}

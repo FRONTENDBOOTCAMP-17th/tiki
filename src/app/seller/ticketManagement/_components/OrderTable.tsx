@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -268,6 +273,16 @@ export default function OrderTable({
     }
   }
 
+  function handleOrderRowKeyDown(
+    e: ReactKeyboardEvent<HTMLTableRowElement>,
+    order: OrderRow,
+  ) {
+    if (e.target !== e.currentTarget) return;
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    setReceipt(order);
+  }
+
   const { page, totalPages, totalCount } = pagination;
 
   const allVisibleSelected =
@@ -416,7 +431,11 @@ export default function OrderTable({
                 <tr
                   key={order.order_id}
                   onClick={() => setReceipt(order)}
-                  className="cursor-pointer hover:bg-gray-50 dark:hover:bg-surface-2"
+                  onKeyDown={(e) => handleOrderRowKeyDown(e, order)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${order.event_title} 예매 영수증 보기`}
+                  className="cursor-pointer hover:bg-gray-50 focus-visible:bg-gray-50 dark:hover:bg-surface-2 dark:focus-visible:bg-surface-2"
                 >
                   <td
                     className="px-4 py-3"
