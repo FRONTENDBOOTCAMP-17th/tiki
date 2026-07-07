@@ -171,19 +171,16 @@ export default function SeatSelectionModal({
         <div className="flex flex-wrap gap-2">
           {grades.map((g) => {
             const active = selectedGradeId === g.gradeId;
-            const disabled = !!selectedGradeId && !active;
             return (
               <button
                 key={g.gradeId}
                 type="button"
                 onClick={() => handleSelectGradeTab(g.gradeId)}
-                disabled={disabled}
                 className={cn(
                   "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
                   active
                     ? "border-primary-500 bg-primary-100 text-primary-900 dark:border-gray-500 dark:bg-surface-2 dark:text-gray-50"
                     : "border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-surface-3 dark:text-gray-300 dark:hover:bg-surface-2",
-                  disabled && "cursor-not-allowed opacity-40",
                 )}
               >
                 {g.name} · {g.price.toLocaleString()}원

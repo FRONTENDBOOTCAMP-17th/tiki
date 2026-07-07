@@ -37,7 +37,7 @@ export default function PosterSlider({
   const duration = items.length * SECONDS_PER_CARD;
 
   return (
-    <section className="py-6 dark:bg-surface-0">
+    <section className="py-6 dark:bg-surface-1">
       {/* 하단 '인기 랭킹'과 동일한 max-w-7xl + 좌우 패딩으로 폭을 맞춘다 */}
       <div className="mx-auto w-full max-w-7xl px-4 md:px-8 lg:px-16">
         {title && (
