@@ -3,9 +3,19 @@
 
   <h1>TiKi</h1>
 
+  <p><i>티켓팅의 설렘이 공연이 끝난 뒤에도 오래 남도록</i></p>
+
   <p>
     소규모 공연 기획자, 프리랜서 강사, 로컬 이벤트 주최자 등<br />
-    대형 플랫폼 입점이 어려운 판매자를 위한 예약형 티켓 오픈마켓 플랫폼입니다.
+    대형 플랫폼 입점이 어려운 판매자를 위한 예약형 티켓 오픈마켓입니다.
+  </p>
+
+  <p><sub>멋쟁이사자처럼 프론트엔드 부트캠프 17기 파이널 프로젝트</sub></p>
+
+  <p>
+    <a href="https://tiki-final.vercel.app">
+      <img src="https://img.shields.io/badge/🎫_Live_Demo-tiki--final.vercel.app-6C5CE7?style=for-the-badge" alt="Live Demo" />
+    </a>
   </p>
 
   <p>
@@ -23,24 +33,35 @@
 ## 목차
 
 - [프로젝트 소개](#프로젝트-소개)
+- [기술 스택](#기술-스택)
 - [팀원 소개](#팀원-소개)
+- [팀원 소감](#팀원-소감)
 - [주요 기능](#주요-기능)
-- [페이지 구성](#페이지-구성)
+- [데모 · 스크린샷](#데모--스크린샷)
+- [서비스 흐름](#서비스-흐름)
 - [실행 방법](#실행-방법)
-- [파일 구조](#파일-구조)
-- [관련 문서](#관련-문서)
-- [트러블 슈팅](#트러블-슈팅)
+- [문서](#문서)
 - [Git 컨벤션](#git-컨벤션)
 
 ---
 
 ## 프로젝트 소개
 
-`TiKi`는 소규모 공연 기획자, 프리랜서 강사, 로컬 이벤트 주최자 등 대형 플랫폼 입점이 어려운 다양한 판매자가 일정 기반 상품(공연, 클래스, 전시, 팬미팅 등)을 직접 등록하고 판매할 수 있는 예약형 오픈마켓 플랫폼입니다.
+TiKi는 대형 플랫폼에 입점하기 어려운 소규모 공연 기획자, 프리랜서 강사, 로컬 이벤트 주최자를 위한 예약형 티켓 오픈마켓입니다. 판매자가 공연·클래스·전시·팬미팅 같은 일정 기반 상품을 직접 등록해 팔고, 구매자는 원하는 날짜와 좌석을 골라 예매합니다.
 
-판매자는 티켓(상품)을 등록하고 날짜/시간 슬롯을 구성할 수 있으며, 구매자는 원하는 일정과 좌석을 선택해 예매합니다. 예매 완료 후에는 QR 티켓이 발급되고, 관람 이후에는 라이브러리에 기록이 남아 티켓팅 이후의 경험까지 이어집니다.
+예매하면 QR 티켓이 발급되고, 친구에게 티켓을 나눠줄 수 있습니다. 공연을 본 뒤에는 라이브러리에 기록이 남고 리뷰를 쓸 수 있습니다.
 
-또한 친구 기능을 통해 예매한 티켓을 다른 사용자에게 공유할 수 있으며, 받은 티켓은 마이페이지에서 확인하고 입장 티켓으로 사용할 수 있습니다.
+### 핵심 가치
+
+| 🤝 친구 | 🎁 공유 | 📚 기록 |
+| :---: | :---: | :---: |
+| 함께 볼 친구와 연결 | 예매한 티켓을 친구에게 전달 | 관람 공연과 후기를 라이브러리에 보관 |
+
+### 기획 배경
+
+대부분의 티켓 서비스는 대형 공연 예매에 맞춰져 있어서, 소규모 공연은 정보가 여기저기 흩어져 찾기 어려웠습니다. 예매한 다음도 마찬가지였습니다. 친구에게 티켓을 줄 때는 캡처를 보내야 했고, 공연이 끝나면 어떤 공연을 봤는지 기록이 남지 않았습니다.
+
+판매자 쪽도 일정·회차·좌석이 있는 티켓을 직접 등록하고 예매자와 잔여석을 관리할 마땅한 도구가 없었습니다. 그래서 공연을 찾는 구매자와 직접 티켓을 파는 소규모 주최자를 함께 놓고, 탐색부터 예매·공유·관람·기록까지를 한 서비스로 묶었습니다.
 
 ```text
 티켓(상품) 등록
@@ -55,68 +76,299 @@
 | 항목 | 내용 |
 | --- | --- |
 | 프로젝트명 | `TiKi` |
-| 프로젝트 기간 | `2026.05.28 ~ 2026.07.08` |
+| 소속 | `멋쟁이사자처럼 프론트엔드 부트캠프 17기` 파이널 프로젝트 |
+| 기간 | `2026.05.28 ~ 2026.07.08` |
 | 발표일 | `2026.07.08` |
-| 개발 방식 | `Next.js + TypeScript + Supabase` |
+| 스택 | `Next.js + TypeScript + Supabase` |
 | 주요 도메인 | `티켓 예매`, `좌석 선택`, `판매자 이벤트 관리`, `관리자 운영` |
+
+<br />
+
+## 기술 스택
+
+<table>
+  <tr>
+    <td><b>Framework</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=nextdotjs&logoColor=white" />
+      <img src="https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB" />
+    </td>
+  </tr>
+  <tr>
+    <td><b>Language</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" />
+    </td>
+  </tr>
+  <tr>
+    <td><b>Styling</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/Tailwind_CSS_4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" />
+      <img src="https://img.shields.io/badge/CVA-1E293B?style=flat-square" />
+      <img src="https://img.shields.io/badge/Lucide-000000?style=flat-square&logo=lucide&logoColor=white" />
+    </td>
+  </tr>
+  <tr>
+    <td><b>Backend / DB</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white" />
+      <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white" />
+    </td>
+  </tr>
+  <tr>
+    <td><b>External</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/PortOne_V2-1E6FFF?style=flat-square" />
+      <img src="https://img.shields.io/badge/Kakao_Map-FFCD00?style=flat-square&logo=kakao&logoColor=000000" />
+    </td>
+  </tr>
+  <tr>
+    <td><b>Test</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/Vitest-6E9F18?style=flat-square&logo=vitest&logoColor=white" />
+      <img src="https://img.shields.io/badge/Playwright-2EAD33?style=flat-square&logo=playwright&logoColor=white" />
+    </td>
+  </tr>
+  <tr>
+    <td><b>Deploy · 협업</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white" />
+      <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white" />
+      <img src="https://img.shields.io/badge/Discord-5865F2?style=flat-square&logo=discord&logoColor=white" />
+      <img src="https://img.shields.io/badge/Notion-000000?style=flat-square&logo=notion&logoColor=white" />
+    </td>
+  </tr>
+  <tr>
+    <td><b>Tooling</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/ESLint-4B32C3?style=flat-square&logo=eslint&logoColor=white" />
+      <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white" />
+    </td>
+  </tr>
+</table>
+
+주요 라이브러리
+
+| 라이브러리 | 용도 |
+| --- | --- |
+| `@supabase/ssr`, `@supabase/supabase-js` | 인증 · DB · Storage · RPC 연동 (SSR 지원) |
+| `@portone/browser-sdk`, `@portone/server-sdk` | PortOne V2 결제 요청 및 서버 검증 |
+| `@dnd-kit/*` | 좌석 배치도 드래그 앤 드롭 편집 |
+| `sharp` | 이미지 서버 사이드 WebP 변환 · 리사이즈 |
+| `@yudiel/react-qr-scanner`, `qrcode.react` | QR 티켓 발급 및 입장 스캔 |
+| `recharts` | 판매자 대시보드 · 정산 통계 차트 |
+| `react-daum-postcode` | 주소 검색 (스토어/배송지) |
+| `sonner` | 토스트 알림 |
+| `class-variance-authority`, `clsx`, `tailwind-merge` | 스타일 변형 관리 및 클래스 병합 |
+| `nanoid` | 업로드 파일명 · 코드 생성 |
+
+<details>
+<summary><b>기술 스택 선정 이유</b></summary>
+
+<br/>
+
+**Next.js**
+
+결제 검증, 이미지 변환, 권한별 라우팅처럼 클라이언트에서만 처리하기 어려운 로직이 많았습니다. 서버 컴포넌트, Route Handler, 미들웨어를 한 프로젝트 안에서 함께 사용할 수 있어 구매자·판매자·관리자·스태프 흐름을 역할별로 분리하기에 적합하다고 판단했습니다.
+
+**TypeScript**
+
+주문 상태가 회차, 좌석, 티켓 등급, 정산, 리뷰까지 이어지는 구조라 상태값이나 필드명 오류를 빠르게 잡는 것이 중요했습니다. Supabase DB 타입을 화면과 서버 로직에 함께 적용해 스키마 변경 시 컴파일 단계에서 문제를 확인할 수 있도록 했습니다.
+
+**Supabase**
+
+제한된 프로젝트 기간 안에서 인증, DB, Storage, 권한 정책을 함께 구성해야 했습니다. RLS를 통해 데이터 접근 권한을 DB 레벨에서 제어할 수 있고, 예매·취소처럼 동시성이 중요한 로직은 RPC로 원자적으로 처리할 수 있어 선택했습니다.
+
+**Tailwind CSS**
+
+여러 명이 각자 다른 화면을 개발하는 상황에서 색상, 간격, 반응형 기준을 일관되게 맞추는 것이 필요했습니다. 유틸리티 클래스와 디자인 토큰을 함께 사용해 화면별 UI 편차를 줄이고, 다크모드도 같은 기준으로 확장할 수 있도록 했습니다.
+
+</details>
+
+<br />
 
 ## 팀원 소개
 
-| 이름 | 역할 | 작성 페이지 / 기능 |
-| --- | --- | --- |
-| 강재훈 | Team Leader | 작성 예정 |
-| 김연수 | Team Member | 작성 예정 |
-| 방효진 | Team Member | 작성 예정 |
-| 이선우 | Team Member | 작성 예정 |
+<table>
+  <tr>
+    <td align="center" width="25%">
+      <b>강재훈</b><br/>
+      <sub>Team Leader</sub>
+    </td>
+    <td align="center" width="25%">
+      <b>김연수</b><br/>
+      <sub>Team Member</sub>
+    </td>
+    <td align="center" width="25%">
+      <b>방효진</b><br/>
+      <sub>Team Member</sub>
+    </td>
+    <td align="center" width="25%">
+      <b>이선우</b><br/>
+      <sub>Team Member</sub>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top" width="25%">
+      <b>탐색 · 카테고리</b><br/>
+      이벤트 필터·정렬 컴포넌트, 카테고리별 이벤트 목록, 랭킹/오픈 페이지 흐름 구성<br/><br/>
+      <b>이벤트 상세</b><br/>
+      이벤트 상세 페이지 구조, 공연 정보·상세 이미지·리뷰·예매 영역 화면 구성<br/><br/>
+      <b>관리자 · 판매자</b><br/>
+      관리자 페이지 기본 구조, 판매자 매출 그래프 컴포넌트, 정산 화면 보완<br/><br/>
+      <b>시스템 보완</b><br/>
+      알림 시스템 리팩토링(링크 추가·디자인 개선), 결제 흐름 보완, 운영 화면 QA
+    </td>
+    <td valign="top" width="25%">
+      <b>마이페이지</b><br/>
+      프로필·예매내역·라이브러리·친구 관리·알림 화면, Supabase 연동과 사용자 데이터 흐름 구현<br/><br/>
+      <b>티켓 · 체크인</b><br/>
+      티켓 공유·회수, 수량 검증, QR 서명 토큰 발급·검증, 공연 입장 체크인 시스템 설계<br/><br/>
+      <b>스태프 · 문의</b><br/>
+      스태프 role 시스템, 공연별 초대·배정·체크인, 1:1 문의·고객센터·관리자 답변 기능<br/><br/>
+      <b>공통 기반</b><br/>
+      Sidebar·Input·Toggle 등 공통 컴포넌트, 레포 초기 세팅, CI 파이프라인 구성
+    </td>
+    <td valign="top" width="25%">
+      <b>판매자 페이지</b><br/>
+      이벤트 등록·관리·수정, 예매 관리(페이지네이션·필터·CSV), 매출·정산, 스토어 정보, 정산 신청 중복 방어<br/><br/>
+      <b>주문 · 이미지</b><br/>
+      판매자 API 인증 가드 공통화, 주문 생성·취소 RPC, 서버 이미지 파이프라인(sharp·WebP 변환·검증)<br/><br/>
+      <b>리뷰 · 화면 개선</b><br/>
+      리뷰 작성·수정·삭제·좋아요, 판매자 리뷰 관리, 홈·카테고리·이벤트 상세·정책 페이지 개선
+    </td>
+    <td valign="top" width="25%">
+      <b>디자인 시스템</b><br/>
+      Button·Toast·Spinner 등 초기 공통 컴포넌트 제작, 사용자 피드백 UI 기반 구성<br/><br/>
+      <b>인증</b><br/>
+      Supabase client, 세션 갱신 미들웨어, 회원가입 Context/Provider, 로그인 서버액션, 인증 가드 구현<br/><br/>
+      <b>홈</b><br/>
+      히어로 배너, 랭킹/티켓오픈/카테고리 섹션, 카드 공통 컴포넌트화, 홈 500 이슈 제거<br/><br/>
+      <b>결제 · 좌석</b><br/>
+      결제 페이지·간편결제·승인검증 API, 좌석 DB 스키마, 배치도 빌더, 좌석선택 모달·주문 상태 보완
+    </td>
+  </tr>
+</table>
+
+## 팀원 소감
+
+<details open>
+<summary><b>강재훈</b></summary>
+
+이번 프로젝트를 진행하기 전까지는 Next.js를 활용한 프로젝트 경험이 없었습니다. 이번 기회를 통해 Next.js와 SQL 등 백엔드 기술까지 함께 학습할 수 있어 정말 의미 있는 프로젝트였다고 생각합니다.
+
+특히 `use client`와 같은 Next.js의 클라이언트 컴포넌트가 성능에 어떤 영향을 미치는지, 그리고 실제로 발생할 수 있는 티켓 공유 문제와 관리 기능의 동시성 문제를 멘토링 강사님에게 조언받으며 성능 최적화에 대해 이전보다 훨씬 깊이 있게 이해할 수 있었습니다.
+
+또한 이전에는 AI를 단순히 코드 생성 도구 정도로만 활용했지만, 이번 프로젝트에서는 VS Code의 Claude 확장 프로그램을 적극 활용해 개발 속도를 높였습니다. 팀원의 코드 리뷰에도 적극적으로 참여하며 단순히 코드를 빠르게 작성하는 것을 넘어 코드 품질, 성능 개선, 협업 방식까지 함께 고민하는 개발 습관을 기를 수 있었습니다.
+
+이번 프로젝트는 새로운 기술을 익히는 데 그치지 않고 성능 최적화와 협업 방식에 대한 시야를 넓힐 수 있었던 소중한 경험이었으며, 개발자로서 한 단계 성장할 수 있었던 뜻깊은 프로젝트였습니다.
+
+</details>
+
+<details open>
+<summary><b>김연수</b></summary>
+
+이번 프로젝트를 진행하면서 단순히 기능을 구현하는 것뿐만 아니라, 실제 서비스를 만든다는 관점에서 고민하는 경험을 할 수 있었습니다. 예매부터 QR 티켓 발급, 입장 검증까지 하나의 흐름을 직접 구현하며 사용자 경험의 중요성을 느낄 수 있었습니다.
+
+또한 Supabase와 Next.js를 활용해 인증, 권한 관리, 실시간 기능 등을 구현하면서 기술적인 경험도 쌓을 수 있었습니다. 프로젝트를 진행하는 과정에서 예상하지 못한 오류와 다양한 이슈를 해결하며 문제 해결 능력을 기를 수 있었고, GitHub를 활용한 협업과 코드 리뷰를 통해 소통의 필요성과 협업의 중요성을 다시 한번 느끼게 되었습니다.
+
+팀원들과 함께 피드백을 반영하며 프로젝트를 완성해 나간 과정 또한 의미 있는 경험이었습니다. 아직 부족한 점도 많다고 느꼈지만, 이번 프로젝트를 통해 실무와 비슷한 개발 프로세스를 경험하며 앞으로 어떤 부분을 더 공부해야 하는지 알게 되었습니다. TiKi 프로젝트는 기술적인 경험을 쌓는 것은 물론, 협업과 서비스 개발 전반을 배우며 한 단계 성장할 수 있었던 프로젝트였습니다.
+
+</details>
+
+<details open>
+<summary><b>방효진</b></summary>
+
+TiKi 프로젝트를 진행하면서 단순히 화면을 만드는 것을 넘어 실제 서비스가 끝까지 굴러가기 위해 필요한 흐름을 고민해볼 수 있었던 시간이었습니다. 처음에는 기능을 하나씩 구현하는 데 집중했지만, 프로젝트가 진행될수록 기능이 서로 연결되어야 비로소 하나의 서비스처럼 보인다는 것을 많이 느꼈습니다.
+
+기능을 완성하는 것만큼이나 예외 처리, 권한 분리처럼 눈에 잘 보이지 않는 부분들이 서비스 완성도를 결정한다는 것을 체감했습니다. 작은 문제 하나가 전체 흐름을 어색하게 만들 수 있다는 점을 경험하면서, 겉보기만 좋은 코드가 아니라 실제로 효율적인 코드를 작성해야겠다고 느꼈습니다.
+
+팀 프로젝트를 진행하는 동안 화면의 흐름이나 사용성, 완성도에 대해 꽤 많은 수정을 요청했음에도 팀원분들이 더 나은 결과물을 만들기 위한 과정으로 함께 받아들여줘서 정말 감사했습니다.
+
+</details>
+
+<details open>
+<summary><b>이선우</b></summary>
+
+부트캠프 이전에도 Next.js와 Supabase를 이용한 개발을 해본 적은 있었으나 경험이 많지 않아 기술 스택의 이점을 제대로 활용하지 못한 느낌이 있었습니다. 이번 프로젝트를 하며 멘토링도 받고 조금 더 깊게 파고들어 공부한 부분들을 어느 정도 녹여낼 수 있었던 것 같습니다.
+
+Next.js의 Context API, Server Action, API Route를 어느 때에 써야 하는지 잘 인지하게 되었고, OAuth 인증 흐름의 이해, RPC의 활용을 통한 동시성 문제 해결 및 다양한 활용 경험을 쌓을 수 있었습니다. Supabase 같은 BaaS 서비스 사용을 넘어 직접 DBMS와 백엔드 프레임워크를 사용해서 서버를 만들어 보고 싶다는 생각도 했습니다.
+
+그리고 생산성을 위해 내가 원하는 코드를 어떻게 하면 AI 도구를 활용해 만들어낼 수 있는지 공부하고 직접 응용하며 경험을 쌓을 수 있었습니다. 특히 MCP 활용이 좋았던 것 같습니다.
+
+</details>
 
 ## 주요 기능
+
+역할별 기능 목록입니다. 도메인별 상세와 기술 포인트는 위키에 따로 정리했습니다.
 
 | 구분 | 기능 |
 | --- | --- |
 | 홈 | 히어로 슬라이더, 티켓 오픈 섹션, 예매 랭킹, 추천 이벤트, 베스트 리뷰, 카테고리별 이벤트 목록 |
-| 이벤트 탐색 | 검색, 카테고리별 조회, 랭킹 조회, 최근 검색어 |
-| 이벤트 상세 | 공연 정보 조회, 상세 이미지 조회, 카카오 지도 기반 장소 확인, 회차 선택, 좌석/등급 선택, 리뷰 조회 및 작성 |
-| 예매 / 결제 | 좌석 배치도 기반 좌석 선택, 등급/수량 기반 예매, PortOne V2 결제 연동, 결제 검증, 주문 및 재고 복구 |
-| 친구 / 티켓 공유 | 친구 요청, 친구 목록 조회, 예매 티켓 공유, 받은 티켓 / 보낸 티켓 조회, 공유 티켓 수락·거절 |
-| 마이페이지 | 예매 내역 조회, 공연 라이브러리, 친구 관리, 프로필 수정, 1:1 문의 |
-| 판매자 페이지 | 판매자 대시보드, 이벤트 등록 / 수정, 좌석 배치도 관리, 예매 관리, 리뷰 관리, 정산 관리, 스토어 정보 관리 |
-| 관리자 페이지 | 회원 관리, 이벤트 관리, 카테고리 관리, 문의 답변, 공지/알림 관리 |
+| 이벤트 탐색 | 통합 검색, 최근 검색어, 카테고리별 조회, 카테고리 랭킹, 무한 스크롤 |
+| 이벤트 상세 | 공연 정보·상세 이미지, 카카오맵 장소 확인, 회차 선택, 좌석/등급 선택, 리뷰 조회·작성, SEO·동적 OG |
+| 예매 / 결제 | 좌석 배치도 기반 좌석 선택, 등급/수량 예매, PortOne V2 결제, 서버 결제 검증, 예매 취소·재고 복구 |
+| 티켓 / 소셜 | 친구 요청·목록, 티켓 공유·회수, QR 티켓, 알림, 관람 라이브러리·리뷰 |
+| 마이페이지 | 예매 내역, 공연 라이브러리(월간 캘린더), 친구 관리, 프로필·아바타, 1:1 문의 |
+| 판매자 | 대시보드·매출 차트, 이벤트 등록/수정, 좌석 배치도 빌더, 예매 관리(CSV), 리뷰 관리, 정산 |
+| 스태프 | 공연별 배정, 모바일 QR 체크인 |
+| 관리자 | 회원·이벤트·카테고리 관리, 1:1 문의 답변, 공지/알림 관리, 통계 대시보드 |
 
-## 페이지 구성
+→ [주요 기능 상세 (Wiki)](https://github.com/FRONTENDBOOTCAMP-17th/tiki/wiki/주요-기능-상세)
 
-| 경로 | 설명 |
+## 데모 · 스크린샷
+
+<div align="center">
+
+### 🔗 [tiki-final.vercel.app](https://tiki-final.vercel.app)
+
+</div>
+
+배포 환경 기준으로 캡처한 주요 화면입니다. 구매자·판매자·관리자 흐름을 나누어 확인할 수 있고, 홈 화면은 데스크탑과 모바일 반응형을 함께 담았습니다.
+
+### 홈 · 탐색
+
+| 데스크탑 홈 | 모바일 홈 |
 | --- | --- |
-| `/` | 홈 |
-| `/search` | 검색 |
-| `/category` | 카테고리 |
-| `/category/[slug]` | 카테고리별 이벤트 목록 |
-| `/ranking` | 랭킹 |
-| `/[eventId]` | 이벤트 상세 |
-| `/payment/[orderId]` | 결제 |
-| `/login` | 로그인 |
-| `/join` | 회원가입 |
-| `/mypage/reservations` | 예매 내역 |
-| `/mypage/library` | 공연 라이브러리 |
-| `/mypage/friends` | 친구 관리 |
-| `/mypage/profile` | 프로필 |
-| `/mypage/settings` | 설정 |
-| `/mypage/inquiries` | 1:1 문의 |
-| `/seller` | 판매자 대시보드 |
-| `/seller/registration` | 이벤트 등록 |
-| `/seller/list` | 판매자 이벤트 목록 |
-| `/seller/events/[id]` | 판매자 이벤트 상세 |
-| `/seller/events/[id]/edit` | 이벤트 수정 |
-| `/seller/events/[id]/seat-layout` | 좌석 배치도 편집 |
-| `/seller/ticketManagement` | 예매 관리 |
-| `/seller/reviews` | 리뷰 관리 |
-| `/seller/settlement` | 정산 |
-| `/seller/storeInfo` | 스토어 정보 |
-| `/admin` | 관리자 대시보드 |
-| `/admin/categories` | 카테고리 관리 |
-| `/admin/events` | 이벤트 관리 |
-| `/admin/members` | 회원 관리 |
-| `/admin/inquiries` | 문의 관리 |
-| `/admin/notifications` | 공지/알림 관리 |
+| <img src="./public/readme/home-desktop.png" alt="TiKi 데스크탑 홈 화면" /> | <img src="./public/readme/home-mobile.png" alt="TiKi 모바일 홈 화면" width="280" /> |
+| 히어로 슬라이더, 카테고리 바로가기, 티켓 오픈, 예매 랭킹으로 이어지는 메인 탐색 화면입니다. | 모바일에서는 상단 검색·카테고리·하단 네비게이션을 중심으로 재배치되어 작은 화면에서도 주요 탐색 흐름을 유지합니다. |
+
+| 검색 | 이벤트 상세 |
+| --- | --- |
+| <img src="./public/readme/search.png" alt="TiKi 검색 화면" /> | <img src="./public/readme/event-detail.png" alt="TiKi 이벤트 상세 화면" /> |
+| 최근 검색어와 인기 공연을 함께 보여주어 검색 전에도 탐색할 수 있도록 구성했습니다. | 포스터, 공연 정보, 장소, 리뷰 탭, 날짜/회차 선택 예매 박스를 한 화면에서 확인할 수 있습니다. |
+
+### 구매자 화면
+
+| 예매 내역 | 라이브러리 |
+| --- | --- |
+| <img src="./public/readme/mypage-reservations.png" alt="TiKi 마이페이지 예매 내역 화면" /> | <img src="./public/readme/mypage-library.png" alt="TiKi 마이페이지 라이브러리 화면" /> |
+| 예매 상태별 필터로 확정·취소·받은 티켓·보낸 티켓을 나누어 확인하는 화면입니다. | 관람한 공연을 월간 캘린더 형태로 모아보고, 공연 경험이 기록으로 남도록 구성했습니다. |
+
+### 판매자 · 관리자 화면
+
+| 판매자 대시보드 | 판매자 예매 관리 |
+| --- | --- |
+| <img src="./public/readme/seller-dashboard.png" alt="TiKi 판매자 대시보드 화면" /> | <img src="./public/readme/seller-ticket-management.png" alt="TiKi 판매자 예매 관리 화면" /> |
+| 판매자가 이벤트, 예매, 매출 현황을 빠르게 확인하고 주요 관리 메뉴로 이동하는 화면입니다. | 예매 목록을 상태·이벤트별로 필터링하고, 검색·정렬·CSV 내보내기로 운영 데이터를 관리합니다. |
+
+| 관리자 대시보드 |
+| --- |
+| <img src="./public/readme/admin-dashboard.png" alt="TiKi 관리자 대시보드 화면" /> |
+| 회원, 이벤트, 주문, 카테고리 현황을 한눈에 확인하고 운영 메뉴로 이동하는 관리자 첫 화면입니다. |
+
+## 서비스 흐름
+
+구매자, 판매자, 스태프, 관리자 네 역할이 하나의 흐름으로 이어집니다.
+
+<div align="center">
+  <img src="./public/tikiflow.png" alt="TiKi 서비스 흐름도" width="820" />
+</div>
+
+- 스태프는 판매자가 공연별로 초대·배정하고, 초대를 수락하면 담당 공연에 편성됩니다. 배정된 공연만 모바일에서 체크인할 수 있습니다 (`event_staff` 권한 가드).
+- 입장 검증은 QR 토큰과 8자리 백업 코드 두 방식을 쓰고, 스태프와 판매자가 같은 체크인 화면을 공유합니다. 실제 체크인은 DB에서 원자적으로 처리합니다.
+- 결제는 PortOne V2로 요청하고 서버에서 다시 검증합니다. 취소나 실패 시 주문 상태와 재고를 되돌립니다.
+- 이미지는 업로드할 때 서버에서 WebP로 변환·검증한 뒤 Storage에 저장합니다.
 
 ## 실행 방법
 
@@ -132,143 +384,31 @@ npm run build
 npm run lint
 ```
 
+테스트:
+
+```bash
+npm run test       # Vitest 단위 테스트
+npm run test:e2e   # Playwright E2E 테스트
+```
+
 환경 변수는 `.env.example`을 복사해 `.env.local`에 작성합니다.
 
 ```bash
 cp .env.example .env.local
 ```
 
-## 파일 구조
+## 문서
 
-```text
-tiki/
-|-- README.md
-|-- package.json
-|-- next.config.ts
-|-- tsconfig.json
-|-- public
-|   |-- tiki.svg
-|   `-- ...
-|-- docs
-|   `-- ...
-|-- review
-|   |-- e2e
-|   |-- unit
-|   `-- *.md
-|-- supabase
-|   `-- migrations
-|-- src
-|   |-- app
-|   |   |-- _components
-|   |   |   `-- home
-|   |   |-- [eventId]
-|   |   |   |-- _components
-|   |   |   `-- page.tsx
-|   |   |-- admin
-|   |   |   |-- categories
-|   |   |   |-- events
-|   |   |   |-- inquiries
-|   |   |   |-- members
-|   |   |   |-- notifications
-|   |   |   |-- layout.tsx
-|   |   |   `-- page.tsx
-|   |   |-- api
-|   |   |   |-- auth
-|   |   |   |-- categories
-|   |   |   |-- events
-|   |   |   |-- orders
-|   |   |   |-- payments
-|   |   |   `-- seller
-|   |   |-- auth
-|   |   |-- category
-|   |   |   |-- _components
-|   |   |   |-- [slug]
-|   |   |   `-- page.tsx
-|   |   |-- join
-|   |   |-- login
-|   |   |-- mypage
-|   |   |   |-- friends
-|   |   |   |-- inquiries
-|   |   |   |-- library
-|   |   |   |-- profile
-|   |   |   |-- reservations
-|   |   |   |-- settings
-|   |   |   `-- layout.tsx
-|   |   |-- open
-|   |   |-- payment
-|   |   |   `-- [orderId]
-|   |   |-- privacy
-|   |   |-- ranking
-|   |   |-- search
-|   |   |-- seller
-|   |   |   |-- _components
-|   |   |   |-- _lib
-|   |   |   |-- events
-|   |   |   |-- list
-|   |   |   |-- registration
-|   |   |   |-- reviews
-|   |   |   |-- settlement
-|   |   |   |-- storeInfo
-|   |   |   |-- ticketManagement
-|   |   |   |-- layout.tsx
-|   |   |   `-- page.tsx
-|   |   |-- support
-|   |   |-- terms
-|   |   |-- layout.tsx
-|   |   `-- page.tsx
-|   |-- components
-|   |   |-- Search
-|   |   |-- event
-|   |   |-- icons
-|   |   |-- modal
-|   |   |-- mypage
-|   |   |-- policies
-|   |   |-- reviews
-|   |   |-- sidebar
-|   |   `-- ...
-|   |-- hooks
-|   |-- lib
-|   |   |-- api
-|   |   |-- auth
-|   |   |-- event
-|   |   |-- image
-|   |   |-- mypage
-|   |   |-- portone
-|   |   |-- reviews
-|   |   |-- seat
-|   |   `-- supabase
-|   |-- types
-|   `-- proxy.ts
-```
-
-## 관련 문서
+프로젝트 상세 문서는 **[GitHub Wiki](https://github.com/FRONTENDBOOTCAMP-17th/tiki/wiki)** 에 정리되어 있습니다.
 
 | 문서 | 내용 |
 | --- | --- |
-| [홈 화면 리팩토링/개선 작업](./docs/home-refactor.md) | 홈 화면 구조 개선 및 성능/안정성 정리 |
-| [결제 기능 개발 문서](./docs/payment-feature.md) | PortOne 결제 연동과 검증 흐름 |
-| [좌석 선택/배치도 기능 개발 계획](./docs/seat-selection-feature-plan.md) | 좌석 선택 기능 설계 |
-| [좌석 선택/배치도 기능 구현 정리](./docs/seat-selection-implementation-summary.md) | 좌석 기능 실제 구현 내역 |
-| [결제 취소 주문 트러블슈팅](./docs/troubleshooting-payment-cancel-leak.md) | 결제 취소 시 주문 누락/재고 복구 문제 해결 |
-| [프론트엔드 테스트 가이드](./review/202606300919-프론트엔드-테스트-가이드.md) | 단위 테스트 및 E2E 테스트 가이드 |
-| [SEO 가이드](./review/seo-가이드.md) | SEO 점검 및 개선 가이드 |
-| [E2E 시나리오](./review/e2e/scenarios.md) | 역할별 E2E 테스트 시나리오 |
+| [주요 기능 상세](https://github.com/FRONTENDBOOTCAMP-17th/tiki/wiki/주요-기능-상세) | 도메인별 핵심 기능과 기술 포인트 |
+| [트러블슈팅](https://github.com/FRONTENDBOOTCAMP-17th/tiki/wiki/트러블슈팅) | 문제 → 원인 → 해결 → 배운 점 (QR HMAC, 결제 취소 3중 방어, 좌석 동시성, 검색 race condition 등) |
+| [페이지 구성](https://github.com/FRONTENDBOOTCAMP-17th/tiki/wiki/페이지-구성) | 전체 라우트 경로와 설명 |
+| [폴더 구조](https://github.com/FRONTENDBOOTCAMP-17th/tiki/wiki/폴더-구조) | 프로젝트 디렉터리 구조 |
 
-## 트러블 슈팅
-
-| 문제 | 원인 | 해결 방식 | 리뷰 |
-| --- | --- | --- | --- |
-| 검색 페이지 500 에러 | 외부 이미지 도메인이 Next 이미지 설정에 등록되지 않음 | `next.config.ts`에 `picsum.photos` remote pattern을 추가해 이미지 렌더링 오류 해결 | 8차 리뷰 `202606180954-리뷰.md` |
-| 이벤트 상세에서 공연장 위치 확인이 어려움 | 텍스트 주소만 제공되어 사용자가 위치를 바로 파악하기 어려움 | 카카오맵을 연동하고 상세 레이아웃 폭을 조정해 장소 정보를 시각적으로 확인 가능하게 개선 | 14차 리뷰 `202606290959-리뷰.md` |
-| 이벤트 상세 포스터 확인성이 낮음 | 포스터가 고정 크기로만 노출되어 이미지 확인이 어려움 | 포스터 돋보기 확대 기능 추가 | 14차 리뷰 `202606290959-리뷰.md` |
-| 예매 박스에서 날짜/좌석 상태 판단이 어려움 | 가까운 회차 기본 선택, 지난 날짜 비활성화, 등급별 잔여석 표시가 부족함 | 가까운 날짜 기본 선택, 이전 날짜 비활성화, 등급별 매진/잔여좌석 표시 추가 | 14차 리뷰 `202606290959-리뷰.md` |
-| 판매자 스토어 정보 API 인증/수정 범위 관리 필요 | 스토어 정보 수정 시 사용자 인증과 수정 가능한 필드 제한이 필요함 | 로그인 사용자 확인 후 허용된 필드만 부분 업데이트하도록 정리 | 8차 리뷰 `202606180954-리뷰.md` |
-| 판매자 페이지 UI 일관성 부족 | 빈 상태, 정보 필드, 상태 배지가 화면마다 다르게 구현됨 | `EmptyState`, `InfoField` 공통 컴포넌트 분리 및 판매자 화면 디자인 통일 | 14차 리뷰 `202606290959-리뷰.md` |
-| 이벤트 이미지 업로드 관리 어려움 | 대표 이미지와 상세 이미지 처리 흐름이 분리되지 않고 클라이언트 부담이 큼 | WebP 변환, 대표/상세 이미지 분리, 서버 액션 기반 업로드 흐름으로 개선 | X |
-| 예매 취소 시 재고 복구 로직 중복 | 취소 처리와 재고 복구가 화면/액션별로 흩어짐 | `cancel_order` RPC를 사용해 주문 취소와 재고 복구 흐름 일원화 | X |
-| 티켓 공유 모달 동작 오류 | 친구 목록 조회와 공유 요청 흐름이 제대로 연결되지 않음 | 친구 목록 Supabase 연동 및 티켓 공유 server action 연결 | X |
-| 홈이 service role 키에 의존해 루트가 500이 될 수 있음 | 공개 페이지에서 service role 클라이언트를 import 시점에 생성 | admin 클라이언트를 lazy 생성으로 변경하고, 랭킹 집계는 anon RPC로 전환 | 11차 리뷰 `202606230929-리뷰.md`, 12차 리뷰 `202606241000-리뷰.md` |
-| 결제 취소 후 미결제 주문이 예매 목록에 남음 | 결제창 취소 시 `orders.status='ordered'` 상태가 유지됨 | 결제 실패/취소 시 주문 취소 처리, 예매 목록은 `paid/cancelled`만 조회, TTL 정리 배치 추가 | 14차 리뷰 `202606290959-리뷰.md` |
+개발 과정 문서는 [`docs/`](./docs) 폴더에 있습니다. (홈 리팩토링 · 결제 연동 · 좌석 기능 설계/구현 등)
 
 ## Git 컨벤션
 

@@ -88,22 +88,34 @@ const RESULT_META: Record<string, { label: string; desc: string; tone: Tone }> =
 
 const TONE_STYLES: Record<
   Tone,
-  { box: string; icon: typeof CheckCircle2; iconColor: string }
+  {
+    box: string;
+    icon: typeof CheckCircle2;
+    iconColor: string;
+    banner: string;
+    bannerText: string;
+  }
 > = {
   success: {
     box: "border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/40",
     icon: CheckCircle2,
     iconColor: "text-green-600",
+    banner: "bg-green-600 dark:bg-green-600",
+    bannerText: "text-white",
   },
   warn: {
     box: "border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/40",
     icon: AlertTriangle,
     iconColor: "text-amber-600",
+    banner: "bg-amber-500 dark:bg-amber-500",
+    bannerText: "text-white",
   },
   error: {
     box: "border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/40",
     icon: XCircle,
     iconColor: "text-red-600",
+    banner: "bg-red-600 dark:bg-red-600",
+    bannerText: "text-white",
   },
 };
 
@@ -179,7 +191,7 @@ export default function CheckinScanner() {
   return (
     <div className="flex flex-col gap-4">
       {/* 스캐너 */}
-      <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-gray-200 bg-black dark:border-surface-3">
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl border border-gray-200 bg-black sm:aspect-square dark:border-surface-3">
         {cameraError ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 bg-gray-50 px-6 text-center dark:bg-surface-header">
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -190,14 +202,25 @@ export default function CheckinScanner() {
             </p>
           </div>
         ) : (
-          <Scanner
-            onScan={handleScan}
-            onError={() => setCameraError(true)}
-            formats={["qr_code"]}
-            paused={verifying || !!result}
-            sound={false}
-            constraints={{ facingMode: "environment" }}
-          />
+          <>
+            {/* 조준 가이드 — QR을 이 안에 맞추도록 */}
+            {!result && !verifying && (
+              <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4">
+                <div className="size-2/3 rounded-2xl border-4 border-white/80 shadow-[0_0_0_9999px_rgba(0,0,0,0.35)]" />
+                <p className="absolute bottom-6 rounded-full bg-black/60 px-4 py-1.5 text-sm font-medium text-white">
+                  QR을 네모 안에 맞춰주세요
+                </p>
+              </div>
+            )}
+            <Scanner
+              onScan={handleScan}
+              onError={() => setCameraError(true)}
+              formats={["qr_code"]}
+              paused={verifying || !!result}
+              sound={false}
+              constraints={{ facingMode: "environment" }}
+            />
+          </>
         )}
         {verifying && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50">
@@ -208,52 +231,64 @@ export default function CheckinScanner() {
 
       {/* 검증 결과 */}
       {result && meta && tone && (
-        <div className={`rounded-2xl border p-5 ${tone.box}`}>
-          <div className="flex items-center gap-2.5">
-            <ToneIcon size={24} className={`shrink-0 ${tone.iconColor}`} />
-            <div>
-              <p className="font-bold text-gray-900 dark:text-gray-50">
-                {meta.label}
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {result.code === "already_used" && result.checked_in_at
-                  ? `${formatCheckedInAt(result.checked_in_at)}에 입장 처리되었습니다`
-                  : meta.desc}
-              </p>
-            </div>
-          </div>
-
-          {result.code === "ok" && (
-            <div className="mt-4 flex flex-col gap-1.5 border-t border-green-200 pt-3 text-sm dark:border-green-900">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-semibold text-gray-900 dark:text-gray-50">
-                  {result.event_title}
-                </span>
-                <span className="shrink-0 rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:bg-surface-header dark:text-gray-300">
-                  {result.subject_type === "share" ? "공유 티켓" : "본인 예매"}
-                </span>
-              </div>
-              {result.slot_date && (
-                <p className="text-gray-600 dark:text-gray-400">
-                  {result.slot_date} {result.slot_time?.slice(0, 5)}
-                </p>
-              )}
-              <p className="text-gray-600 dark:text-gray-400">
-                {[result.grade_name, `${result.quantity}매`, result.holder_name]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={reset}
-            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg bg-white py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition hover:bg-gray-50 dark:bg-surface-header dark:text-gray-50 dark:hover:bg-surface-elevated"
+        <div
+          className={`overflow-hidden rounded-2xl border ${tone.box}`}
+          role="status"
+          aria-live="assertive"
+        >
+          {/* 대형 컬러 배너 — 현장에서 즉시 식별 */}
+          <div
+            className={`flex flex-col items-center gap-2 px-5 py-6 text-center ${tone.banner} ${tone.bannerText}`}
           >
-            <RotateCcw size={15} />
-            다음 스캔
-          </button>
+            <ToneIcon size={56} strokeWidth={2.5} className="shrink-0" />
+            <p className="text-3xl font-extrabold leading-tight tracking-tight">
+              {meta.label}
+            </p>
+            <p className="text-sm font-medium opacity-90">
+              {result.code === "already_used" && result.checked_in_at
+                ? `${formatCheckedInAt(result.checked_in_at)}에 입장 처리되었습니다`
+                : meta.desc}
+            </p>
+          </div>
+          <div className="p-5 pt-4">
+            {result.code === "ok" && (
+              <div className="flex flex-col gap-1.5 text-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold text-gray-900 dark:text-gray-50">
+                    {result.event_title}
+                  </span>
+                  <span className="shrink-0 rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:bg-surface-header dark:text-gray-300">
+                    {result.subject_type === "share"
+                      ? "공유 티켓"
+                      : "본인 예매"}
+                  </span>
+                </div>
+                {result.slot_date && (
+                  <p className="text-gray-600 dark:text-gray-400">
+                    {result.slot_date} {result.slot_time?.slice(0, 5)}
+                  </p>
+                )}
+                <p className="text-gray-600 dark:text-gray-400">
+                  {[
+                    result.grade_name,
+                    `${result.quantity}매`,
+                    result.holder_name,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={reset}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-white py-4 text-base font-bold text-gray-900 shadow-sm transition hover:bg-gray-50 active:scale-[0.99] dark:bg-surface-header dark:text-gray-50 dark:hover:bg-surface-elevated"
+            >
+              <RotateCcw size={18} />
+              다음 스캔
+            </button>
+          </div>
         </div>
       )}
 
@@ -262,9 +297,9 @@ export default function CheckinScanner() {
         <button
           type="button"
           onClick={() => setManualOpen((v) => !v)}
-          className="flex w-full items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400"
+          className="flex w-full items-center gap-2 py-1 text-base font-medium text-gray-600 dark:text-gray-400"
         >
-          <Keyboard size={16} />
+          <Keyboard size={18} />
           8자리 코드 직접 입력
         </button>
         {manualOpen && (
@@ -288,7 +323,7 @@ export default function CheckinScanner() {
                   if (e.key === "Enter") handleManualSubmit();
                 }}
                 placeholder="예: YTU3LMMX"
-                className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-center font-mono text-lg tracking-[0.3em] text-gray-900 placeholder:tracking-normal placeholder:text-base placeholder:text-gray-400 focus:border-primary-400 focus:outline-none dark:border-surface-3 dark:bg-surface-header dark:text-gray-50"
+                className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-3.5 text-center font-mono text-lg tracking-[0.3em] text-gray-900 placeholder:tracking-normal placeholder:text-base placeholder:text-gray-400 focus:border-primary-400 focus:outline-none dark:border-surface-3 dark:bg-surface-header dark:text-gray-50"
               />
               <Button
                 onClick={handleManualSubmit}

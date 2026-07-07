@@ -46,7 +46,7 @@ export default async function AdminDashboardPage() {
     { count: monthOrderCount },
   ] = await Promise.all([
     supabase.from("users").select("role", { count: "exact" }),
-    supabase.from("event").select("status, title, event_id, created_at").order("created_at", { ascending: false }).limit(5),
+    supabase.from("event").select("status, title, event_id, created_at").is("deleted_at", null).order("created_at", { ascending: false }).limit(5),
     sumPaidRevenue(supabase),
     supabase.from("category").select("*", { count: "exact", head: true }),
     // 이번 달 "결제 완료(paid)" 주문만 집계. isBooked 규칙과 동일하게 결제 대기/취소/실패는 제외.
@@ -64,7 +64,7 @@ export default async function AdminDashboardPage() {
   const publishedCount = (events ?? []).filter((e) => e.status === "공개").length;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 py-8">
+    <div className="mx-auto max-w-7xl space-y-8 py-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">
           대시보드
@@ -160,7 +160,10 @@ export default async function AdminDashboardPage() {
             <ul className="space-y-1">
               {(events ?? []).map((event) => (
                 <li key={event.event_id}>
-                  <div className="flex items-center justify-between rounded-lg px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-surface-2">
+                  <Link
+                    href={`/${event.event_id}`}
+                    className="flex items-center justify-between rounded-lg px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-surface-2"
+                  >
                     <span className="truncate text-sm text-gray-800 dark:text-gray-200">
                       {event.title}
                     </span>
@@ -173,7 +176,7 @@ export default async function AdminDashboardPage() {
                     >
                       {event.status}
                     </span>
-                  </div>
+                  </Link>
                 </li>
               ))}
             </ul>

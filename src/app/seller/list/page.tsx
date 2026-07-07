@@ -12,6 +12,7 @@ export default async function Page() {
     .from("event")
     .select("*")
     .eq("seller_id", user.id)
+    .is("deleted_at", null) // 관리자가 삭제한 게시물은 판매자 목록에서 숨김
     .order("created_at", { ascending: false });
 
   if (eventsError) {

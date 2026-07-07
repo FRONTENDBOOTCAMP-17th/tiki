@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import { ChevronDown, Check } from "lucide-react";
 
 export interface SelectOption {
@@ -24,6 +29,7 @@ export default function Select({
   className = "",
 }: Props) {
   const [open, setOpen] = useState(false);
+  const listboxId = useId();
   const selected = options.find((o) => o.value === value);
 
   useEffect(() => {
@@ -35,11 +41,21 @@ export default function Select({
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  function handleTriggerKeyDown(e: ReactKeyboardEvent<HTMLButtonElement>) {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    setOpen(true);
+  }
+
   return (
     <div className={`relative ${className}`}>
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
+        onKeyDown={handleTriggerKeyDown}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={listboxId}
         className="flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800 outline-none transition-colors hover:border-gray-300 focus:border-primary-500 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-100 dark:hover:border-gray-500"
       >
         <span
@@ -55,14 +71,24 @@ export default function Select({
 
       {open && (
         <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-surface-3 dark:bg-surface-1">
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setOpen(false)}
+            aria-hidden
+          />
+          <div
+            id={listboxId}
+            className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-surface-3 dark:bg-surface-1"
+            role="listbox"
+          >
             {options.map((opt) => {
               const active = opt.value === value;
               return (
                 <button
                   key={opt.value}
                   type="button"
+                  role="option"
+                  aria-selected={active}
                   onClick={() => {
                     onChange(opt.value);
                     setOpen(false);

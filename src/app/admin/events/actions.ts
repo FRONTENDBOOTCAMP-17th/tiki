@@ -9,7 +9,7 @@ export async function hideEvent(eventId: string) {
   const supabase = getSupabaseAdmin();
   const { error } = await supabase
     .from("event")
-    .update({ status: "비공개" })
+    .update({ status: "일시정지" })
     .eq("event_id", eventId);
   if (error) return { error: error.message };
   revalidatePath("/admin/events");
@@ -28,8 +28,10 @@ export async function publishEvent(eventId: string) {
   return { success: true };
 }
 
+// 소프트 삭제: 행을 지우지 않고 deleted_at/deleted_by만 마킹한다.
+// 이미지·회차·좌석등급·리뷰가 연쇄 삭제되지 않아 기록이 보존되고 복구도 가능하다.
 export async function deleteEvent(eventId: string) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const supabase = getSupabaseAdmin();
 
   const { count } = await supabase
@@ -42,11 +44,26 @@ export async function deleteEvent(eventId: string) {
     return { error: `처리 중인 예매 ${count}건이 존재합니다. 삭제할 수 없습니다.` };
   }
 
-  await supabase.from("event_image").delete().eq("event_id", eventId);
-  await supabase.from("slot").delete().eq("event_id", eventId);
-  await supabase.from("ticket_grade").delete().eq("event_id", eventId);
+  const { error } = await supabase
+    .from("event")
+    .update({ deleted_at: new Date().toISOString(), deleted_by: admin.id })
+    .eq("event_id", eventId)
+    .is("deleted_at", null); // 이미 삭제된 건 재처리 방지
+  if (error) return { error: error.message };
+  revalidatePath("/admin/events");
+  return { success: true };
+}
 
-  const { error } = await supabase.from("event").delete().eq("event_id", eventId);
+// 삭제 복구: deleted_at/deleted_by를 비워 다시 노출시킨다.
+export async function restoreEvent(eventId: string) {
+  await requireAdmin();
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase
+    .from("event")
+    .update({ deleted_at: null, deleted_by: null })
+    .eq("event_id", eventId)
+    .not("deleted_at", "is", null);
   if (error) return { error: error.message };
   revalidatePath("/admin/events");
   return { success: true };

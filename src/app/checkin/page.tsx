@@ -1,6 +1,6 @@
 // 공용 QR 검증 - 공연 선택 (셀러 본인 공연 + 배정 스태프 공연)
 import Link from "next/link";
-import { ScanLine, TicketCheck } from "lucide-react";
+import { ScanLine, TicketCheck, ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "입장 검증" };
@@ -18,8 +18,20 @@ export default async function CheckinSelectPage() {
   const { data } = await supabase.rpc("get_checkin_events");
   const events = (data ?? []) as CheckinEvent[];
 
+  // 판매자면 판매자 페이지로, 아니면 스태프 홈으로 복귀
+  const hasSeller = events.some((e) => e.my_role === "seller");
+  const backHref = hasSeller ? "/seller" : "/staff";
+  const backLabel = hasSeller ? "판매자 페이지로" : "스태프 홈으로";
+
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-5 px-4 py-6">
+    <div className="mx-auto flex w-full max-w-md flex-col gap-5 px-4 py-6 lg:max-w-6xl">
+      <Link
+        href={backHref}
+        className="flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-gray-700 dark:hover:text-gray-300"
+      >
+        <ArrowLeft size={15} />
+        {backLabel}
+      </Link>
       <div className="flex items-center gap-2">
         <ScanLine className="text-primary-600" size={22} />
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">
@@ -39,12 +51,12 @@ export default async function CheckinSelectPage() {
           </p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-2.5">
+        <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {events.map((e) => (
             <li key={e.event_id}>
               <Link
                 href={`/checkin/${e.event_id}`}
-                className="flex items-center gap-3 rounded-2xl border border-gray-200 p-3 transition hover:border-primary-300 hover:bg-primary-50/40 dark:border-surface-3 dark:hover:bg-surface-elevated"
+                className="flex h-full items-center gap-3 rounded-2xl border border-gray-200 p-4 transition hover:border-primary-300 hover:bg-primary-50/40 dark:border-surface-3 dark:hover:bg-surface-elevated"
               >
                 <div className="flex-1">
                   <p className="font-semibold text-gray-900 dark:text-gray-50">
@@ -52,6 +64,7 @@ export default async function CheckinSelectPage() {
                   </p>
                   <p className="mt-0.5 text-sm text-gray-500">{e.venue_name}</p>
                 </div>
+
                 <span className="shrink-0 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:bg-surface-header dark:text-gray-300">
                   {e.my_role === "seller" ? "판매자" : "스태프"}
                 </span>

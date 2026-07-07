@@ -1,7 +1,12 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
-import { Search, Send, Clock, Megaphone, Ticket } from "lucide-react";
+import {
+  useRef,
+  useState,
+  useTransition,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
+import { Search, Send, Clock, Megaphone, Ticket, BadgePercent } from "lucide-react";
 import type { NotificationHistory } from "../page";
 import { sendNotification } from "../actions";
 import type { NotificationType } from "../actions";
@@ -15,6 +20,12 @@ interface Member {
   createdAt: string;
 }
 
+interface EventOption {
+  eventId: string;
+  title: string;
+  status: string;
+}
+
 const TARGET_OPTIONS = [
   { value: "all", label: "전체 회원" },
   { value: "buyer", label: "구매자" },
@@ -23,14 +34,35 @@ const TARGET_OPTIONS = [
 ] as const;
 
 const NOTIFICATION_TYPE_OPTIONS: { value: NotificationType; label: string; icon: React.ElementType; description: string }[] = [
-  { value: "ad", label: "공지/이벤트", icon: Megaphone, description: "공지사항, 프로모션, 이벤트 안내" },
+  { value: "ad", label: "공지/이벤트", icon: Megaphone, description: "공지사항, 이벤트 안내" },
   { value: "order", label: "주문/티켓", icon: Ticket, description: "예매 안내, 티켓 관련 공지" },
+  { value: "promo", label: "프로모션(광고)", icon: BadgePercent, description: "제목 앞에 '(광고)'가 자동으로 붙습니다" },
 ];
 
 const NOTIFICATION_TYPE_LABEL: Record<NotificationType, string> = {
   ad: "공지/이벤트",
   order: "주문/티켓",
+  promo: "프로모션(광고)",
 };
+
+// actions.ts의 서버 로직과 동일한 접두어. "use server" 파일에서는 함수 외 값을
+// export할 수 없어 미리보기 표시용으로 여기서 동일한 값을 별도로 둔다.
+const PROMO_PREFIX = "(광고) ";
+
+const QUICK_LINKS = [
+  { label: "마이페이지", href: "/mypage" },
+  { label: "라이브러리", href: "/mypage/library" },
+  { label: "예매내역", href: "/mypage/reservations" },
+] as const;
+
+const EVENT_LINK_RE =
+  /^\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+
+function withPromoPreview(type: NotificationType, title: string) {
+  const trimmed = title.trim();
+  if (type !== "promo" || trimmed.startsWith(PROMO_PREFIX)) return trimmed;
+  return `${PROMO_PREFIX}${trimmed}`;
+}
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString("ko-KR", {
@@ -44,9 +76,11 @@ function formatDate(iso: string) {
 export default function NotificationManager({
   members,
   history,
+  events,
 }: {
   members: Member[];
   history: NotificationHistory[];
+  events: EventOption[];
 }) {
   const [tab, setTab] = useState<"send" | "history">("send");
   const [target, setTarget] = useState<"all" | "buyer" | "seller" | "specific">("all");
@@ -55,6 +89,8 @@ export default function NotificationManager({
   const [title, setTitle] = useState("");
   const [link, setLink] = useState("");
   const [memberSearch, setMemberSearch] = useState("");
+  const [eventPickerOpen, setEventPickerOpen] = useState(false);
+  const [eventSearch, setEventSearch] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<{ success?: boolean; count?: number; error?: string } | null>(null);
@@ -65,6 +101,19 @@ export default function NotificationManager({
       m.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
       m.email.toLowerCase().includes(memberSearch.toLowerCase()),
   );
+
+  const filteredEvents = eventSearch.trim()
+    ? events.filter((e) =>
+        e.title.toLowerCase().includes(eventSearch.trim().toLowerCase()),
+      )
+    : events;
+
+  const linkedEventId = link.match(EVENT_LINK_RE)?.[1];
+  const linkedEvent = linkedEventId
+    ? events.find((e) => e.eventId === linkedEventId)
+    : undefined;
+
+  const previewTitle = withPromoPreview(notificationType, title);
 
   const recipientCount =
     target === "specific"
@@ -83,6 +132,16 @@ export default function NotificationManager({
       }
       return next;
     });
+  }
+
+  function handleMemberRowKeyDown(
+    e: ReactKeyboardEvent<HTMLTableRowElement>,
+    memberId: string,
+  ) {
+    if (e.target !== e.currentTarget) return;
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    toggleMember(memberId);
   }
 
   const canSend =
@@ -115,6 +174,8 @@ export default function NotificationManager({
           setNotificationType("ad");
           setSelectedIds(new Set());
           setMemberSearch("");
+          setEventPickerOpen(false);
+          setEventSearch("");
         }
       } finally {
         isSendingRef.current = false;
@@ -247,7 +308,11 @@ export default function NotificationManager({
                               <tr
                                 key={m.id}
                                 onClick={() => toggleMember(m.id)}
-                                className="cursor-pointer hover:bg-primary-50/40"
+                                onKeyDown={(e) => handleMemberRowKeyDown(e, m.id)}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`${m.name} 알림 대상 선택`}
+                                className="cursor-pointer hover:bg-primary-50/40 focus-visible:bg-primary-50/40"
                               >
                                 <td className="px-3 py-2.5">
                                   <input
@@ -280,7 +345,14 @@ export default function NotificationManager({
 
               {/* 알림 내용 */}
               <div>
-                <p className="mb-2 text-sm font-medium text-gray-700">알림 내용</p>
+                <div className="mb-2 flex items-center gap-2">
+                  <p className="text-sm font-medium text-gray-700">알림 내용</p>
+                  {notificationType === "promo" && (
+                    <span className="rounded-full bg-accent-100 px-2 py-0.5 text-xs font-semibold text-accent-700">
+                      &quot;{PROMO_PREFIX}&quot; 자동 추가
+                    </span>
+                  )}
+                </div>
                 <textarea
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -295,6 +367,76 @@ export default function NotificationManager({
                 <p className="mb-1 text-sm font-medium text-gray-700">
                   링크 <span className="font-normal text-gray-400">(선택)</span>
                 </p>
+
+                {/* 자주 쓰는 링크 + 게시물 검색 */}
+                <div className="mb-2 flex flex-wrap gap-2">
+                  {QUICK_LINKS.map((q) => (
+                    <button
+                      key={q.href}
+                      type="button"
+                      onClick={() => {
+                        setLink(q.href);
+                        setEventPickerOpen(false);
+                      }}
+                      className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                        link === q.href
+                          ? "bg-primary-500 text-white"
+                          : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      {q.label}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setEventPickerOpen((prev) => !prev)}
+                    className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                      eventPickerOpen
+                        ? "bg-primary-500 text-white"
+                        : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <Search size={12} />
+                    게시물 검색
+                  </button>
+                </div>
+
+                {eventPickerOpen && (
+                  <div className="mb-2 rounded-xl border border-gray-200 bg-gray-50 p-3">
+                    <input
+                      type="text"
+                      autoFocus
+                      value={eventSearch}
+                      onChange={(e) => setEventSearch(e.target.value)}
+                      placeholder="이벤트 제목으로 검색..."
+                      className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-400"
+                    />
+                    <div className="mt-2 max-h-52 overflow-y-auto rounded-lg border border-gray-200 bg-white">
+                      {filteredEvents.length === 0 ? (
+                        <p className="px-4 py-6 text-center text-xs text-gray-400">
+                          검색 결과가 없습니다
+                        </p>
+                      ) : (
+                        filteredEvents.slice(0, 30).map((ev) => (
+                          <button
+                            key={ev.eventId}
+                            type="button"
+                            onClick={() => {
+                              setLink(`/${ev.eventId}`);
+                              setEventPickerOpen(false);
+                              setEventSearch("");
+                            }}
+                            className="flex w-full items-center justify-between gap-2 border-b border-gray-50 px-3 py-2 text-left text-sm last:border-b-0 hover:bg-gray-50"
+                          >
+                            <span className="truncate text-gray-800">{ev.title}</span>
+                            <span className="shrink-0 text-xs text-gray-400">{ev.status}</span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <input
                   type="url"
                   value={link}
@@ -302,9 +444,15 @@ export default function NotificationManager({
                   placeholder="예: /category/concert"
                   className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400"
                 />
-                <p className="mt-1 text-xs text-gray-400">
-                  입력 시 알림 클릭하면 해당 페이지로 이동합니다
-                </p>
+                {linkedEvent ? (
+                  <p className="mt-1 text-xs font-medium text-primary-600">
+                    연결된 게시물: {linkedEvent.title}
+                  </p>
+                ) : (
+                  <p className="mt-1 text-xs text-gray-400">
+                    입력 시 알림 클릭하면 해당 페이지로 이동합니다
+                  </p>
+                )}
               </div>
 
               {/* 결과 메시지 */}
@@ -410,7 +558,7 @@ export default function NotificationManager({
             )}
           </div>
           <div className="rounded-xl border border-gray-200 px-4 py-3">
-            <p className="text-gray-800">{title}</p>
+            <p className="text-gray-800">{previewTitle}</p>
           </div>
           <p className="text-xs text-gray-400">발송 후에는 되돌릴 수 없습니다.</p>
         </div>

@@ -71,18 +71,16 @@ export default async function CategoryDetailPage({
       thumbnail: event.thumbnail,
     }));
 
-  // 랭킹은 실제 예매 순위 + 부족분을 나머지 공연으로 채운다. 추천/신규는 임시 데이터.
+  // 랭킹은 실제 예매 순위 + 부족분을 나머지 공연으로 채운다. 신규는 임시 데이터.
   const rankedIds = new Set(rankingCards.map((e) => e.eventId));
   const rankingFilled = [
     ...rankingCards,
     ...eventCards.filter((e) => !rankedIds.has(e.eventId)),
   ].slice(0, 10);
-  const recommended = eventCards.slice(0, 10);
   const newlyOpened = eventCards.slice(0, 10);
 
   const navSections: CategorySection[] = [
     rankingFilled.length > 0 && { id: "ranking", label: "랭킹" },
-    recommended.length > 0 && { id: "recommended", label: "추천" },
     newlyOpened.length > 0 && { id: "new", label: "신규 오픈" },
     eventCards.length > 0 && { id: "all", label: "전체" },
   ].filter(Boolean) as CategorySection[];
@@ -93,10 +91,12 @@ export default async function CategoryDetailPage({
       <main className="flex-1 bg-white pb-20 dark:bg-surface-0 min-[744px]:pb-0">
         <PosterSlider items={sliderItems} />
 
-        <div className="mx-auto w-full max-w-7xl px-4 pt-2 md:px-8 lg:px-16">
-          <h1 className="text-center text-2xl font-bold tracking-tight text-gray-950 dark:text-gray-50">
-            {category.name}
-          </h1>
+        <div className="bg-white dark:bg-surface-0">
+          <div className="mx-auto w-full max-w-[1440px] px-4 pt-2 md:px-8 lg:px-16">
+            <h1 className="text-center text-2xl font-bold tracking-tight text-gray-950 dark:text-gray-50">
+              {category.name}
+            </h1>
+          </div>
         </div>
 
         {events.length === 0 ? (
@@ -107,23 +107,13 @@ export default async function CategoryDetailPage({
           <>
             <CategorySectionNav sections={navSections} />
 
-            <div className="mx-auto w-full max-w-7xl">
+            <div className="mx-auto w-full max-w-[1440px]">
               {rankingFilled.length > 0 && (
                 <div id="ranking" className="scroll-mt-16">
                   <HorizontalCardSection
                     title="인기 랭킹"
                     events={rankingFilled}
                     showRank
-                    className="bg-white dark:bg-surface-0"
-                  />
-                </div>
-              )}
-
-              {recommended.length > 0 && (
-                <div id="recommended" className="scroll-mt-16">
-                  <HorizontalCardSection
-                    title="추천 공연"
-                    events={recommended}
                     className="bg-white dark:bg-surface-0"
                   />
                 </div>

@@ -137,7 +137,7 @@ export default async function EventDetailPage({
       {/* Header: 풀폭 (max-width 밖) */}
       <Header loggedIn={loggedIn} profile={profile} />
 
-      <main className="mx-auto w-full max-w-[1280px] px-4 pb-24 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-[1440px] px-4 pb-24 sm:px-6 lg:px-8">
         {/* 목록으로 */}
         <BackButton />
 
@@ -314,7 +314,7 @@ export default async function EventDetailPage({
                 slots={slots}
                 grades={grades}
                 seatLayout={seatLayout}
-                suspended={event.status === "비공개"}
+                suspended={event.status !== "공개" && event.status !== "closed"}
                 soldOut={event.status === "closed"}
                 loggedIn={loggedIn}
               />

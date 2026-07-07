@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Search } from "lucide-react";
+import { Search, UserX, UserCheck } from "lucide-react";
 import { banUser, unbanUser } from "../actions";
 
 interface Member {
@@ -10,26 +10,44 @@ interface Member {
   index: number;
   email: string;
   name: string;
+  phone: string | null;
   role: string;
   created_at: string;
   banned: boolean;
-  provider: string;
   partyCount: number;
 }
 
-const PROVIDER_LABELS: Record<string, string> = {
-  google: "구글",
-  kakao: "카카오",
-  github: "깃허브",
-  email: "이메일",
+const ROLE_FILTERS = [
+  { label: "전체", value: "all" },
+  { label: "구매자", value: "buyer" },
+  { label: "판매자", value: "seller" },
+  { label: "스태프", value: "staff" },
+  { label: "관리자", value: "admin" },
+];
+
+const STATUS_FILTERS = [
+  { label: "전체", value: "all" },
+  { label: "활성", value: "active" },
+  { label: "정지", value: "banned" },
+];
+
+const ROLE_LABELS: Record<string, string> = {
+  buyer: "구매자",
+  seller: "판매자",
+  staff: "스태프",
+  admin: "관리자",
 };
 
 export default function MemberTable({
   members,
   currentSearch,
+  currentRole,
+  currentStatus,
 }: {
   members: Member[];
   currentSearch: string;
+  currentRole: string;
+  currentStatus: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -37,11 +55,23 @@ export default function MemberTable({
   const [isPending, startTransition] = useTransition();
   const [actionTarget, setActionTarget] = useState<string | null>(null);
 
+  function buildUrl(overrides: Record<string, string>) {
+    const params = new URLSearchParams();
+    const merged = {
+      search: currentSearch,
+      role: currentRole,
+      status: currentStatus,
+      ...overrides,
+    };
+    if (merged.search) params.set("search", merged.search);
+    if (merged.role && merged.role !== "all") params.set("role", merged.role);
+    if (merged.status && merged.status !== "all") params.set("status", merged.status);
+    return `${pathname}?${params.toString()}`;
+  }
+
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (search) params.set("search", search);
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(buildUrl({ search }));
   }
 
   async function handleBanToggle(userId: string, isBanned: boolean) {
@@ -49,6 +79,7 @@ export default function MemberTable({
     startTransition(async () => {
       const result = isBanned ? await unbanUser(userId) : await banUser(userId);
       if (result.error) alert(result.error);
+      else router.refresh();
       setActionTarget(null);
     });
   }
@@ -69,6 +100,46 @@ export default function MemberTable({
         />
       </form>
 
+      {/* 역할별 필터 */}
+      <div>
+        <p className="mb-2 text-xs font-semibold text-gray-500">역할별 필터</p>
+        <div className="flex flex-wrap gap-2">
+          {ROLE_FILTERS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => router.push(buildUrl({ role: opt.value }))}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                currentRole === opt.value
+                  ? "bg-primary-500 text-white"
+                  : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-300 dark:hover:bg-surface-2"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 상태별 필터 */}
+      <div>
+        <p className="mb-2 text-xs font-semibold text-gray-500">상태별 필터</p>
+        <div className="flex flex-wrap gap-2">
+          {STATUS_FILTERS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => router.push(buildUrl({ status: opt.value }))}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                currentStatus === opt.value
+                  ? "bg-primary-500 text-white"
+                  : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-surface-3 dark:bg-surface-1 dark:text-gray-300 dark:hover:bg-surface-2"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-surface-3 dark:bg-surface-1">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -77,7 +148,8 @@ export default function MemberTable({
                 <th className="px-5 py-3.5 font-medium">ID</th>
                 <th className="px-5 py-3.5 font-medium">이름</th>
                 <th className="px-5 py-3.5 font-medium">이메일</th>
-                <th className="px-5 py-3.5 font-medium">소셜 로그인</th>
+                <th className="px-5 py-3.5 font-medium">전화번호</th>
+                <th className="px-5 py-3.5 font-medium">역할</th>
                 <th className="px-5 py-3.5 font-medium">가입일</th>
                 <th className="px-5 py-3.5 font-medium">참여 파티</th>
                 <th className="px-5 py-3.5 font-medium">상태</th>
@@ -87,7 +159,7 @@ export default function MemberTable({
             <tbody className="divide-y divide-gray-50 dark:divide-surface-3">
               {members.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center text-gray-400">
+                  <td colSpan={9} className="py-16 text-center text-gray-400">
                     회원이 없습니다
                   </td>
                 </tr>
@@ -104,9 +176,14 @@ export default function MemberTable({
                     <td className="px-5 py-4 text-gray-600 dark:text-gray-300">
                       {member.email}
                     </td>
+                    <td className="px-5 py-4 text-gray-600 dark:text-gray-300">
+                      {member.phone || (
+                        <span className="text-gray-400 dark:text-gray-500">비어있음</span>
+                      )}
+                    </td>
                     <td className="px-5 py-4">
-                      <span className="rounded-full bg-gray-900 px-2.5 py-1 text-xs font-medium text-white">
-                        {PROVIDER_LABELS[member.provider] ?? member.provider}
+                      <span className="rounded-full bg-primary-100 px-2.5 py-1 text-xs font-medium text-primary-700">
+                        {ROLE_LABELS[member.role] ?? member.role}
                       </span>
                     </td>
                     <td className="px-5 py-4 text-gray-500 dark:text-gray-400">
@@ -123,8 +200,8 @@ export default function MemberTable({
                       <span
                         className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                           member.banned
-                            ? "bg-red-500 text-white"
-                            : "bg-green-500 text-white"
+                            ? "bg-danger-100 text-danger-700"
+                            : "bg-emerald-100 text-emerald-700"
                         }`}
                       >
                         {member.banned ? "정지" : "활성"}
@@ -137,16 +214,22 @@ export default function MemberTable({
                           disabled={isPending && actionTarget === member.id}
                           className={`flex items-center gap-1 text-sm font-medium disabled:opacity-40 ${
                             member.banned
-                              ? "text-green-600 hover:text-green-700"
-                              : "text-red-500 hover:text-red-600"
+                              ? "text-emerald-600 hover:text-emerald-700"
+                              : "text-danger-500 hover:text-danger-600"
                           }`}
                         >
                           {isPending && actionTarget === member.id ? (
                             "처리 중..."
                           ) : member.banned ? (
-                            <>✓ 해제하기</>
+                            <>
+                              <UserCheck size={14} />
+                              해제하기
+                            </>
                           ) : (
-                            <>🚫 정지하기</>
+                            <>
+                              <UserX size={14} />
+                              정지하기
+                            </>
                           )}
                         </button>
                       )}

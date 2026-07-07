@@ -210,3 +210,45 @@ export async function PATCH(
 
   return success(null, "updated");
 }
+
+// 판매자 본인 이벤트 소프트 삭제
+// 하드 삭제가 아니라 deleted_at 마킹 → 구매자 예매내역은 보존되고 관리자가 복구 가능.
+// 활성 예매(취소 제외)가 있으면 삭제 불가.
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+
+  const ctx = await requireUserApi();
+  if ("error" in ctx) return ctx.error;
+  const { user, supabase } = ctx;
+
+  // 본인 소유 + 아직 삭제되지 않은 이벤트인지 확인
+  const { data: owned } = await supabase
+    .from("event")
+    .select("event_id")
+    .eq("event_id", id)
+    .eq("seller_id", user.id)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (!owned) return fail("not_found", 404);
+
+  // 활성 예매가 있으면 삭제 불가 (orders RLS상 판매자는 본인 이벤트 주문 전체를 볼 수 있음)
+  const { count } = await supabase
+    .from("orders")
+    .select("*", { count: "exact", head: true })
+    .eq("event_id", id)
+    .not("status", "eq", "cancelled");
+  if (count && count > 0) return fail("event_has_orders");
+
+  const { error } = await supabase
+    .from("event")
+    .update({ deleted_at: new Date().toISOString(), deleted_by: user.id })
+    .eq("event_id", id)
+    .eq("seller_id", user.id)
+    .is("deleted_at", null);
+  if (error) return fail("event_delete_failed", 500);
+
+  return success(null, "deleted");
+}

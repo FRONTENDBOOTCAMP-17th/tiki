@@ -19,7 +19,7 @@ export default function HomeSection({
 }: HomeSectionProps) {
   return (
     <section className={cn("px-4 py-7 md:px-8 lg:px-16", className)}>
-      <div className="mx-auto w-full max-w-7xl">
+      <div className="mx-auto w-full max-w-[1440px]">
         <div className="mb-4 flex items-end justify-between gap-4">
           {moreHref ? (
             <Link

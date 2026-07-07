@@ -62,6 +62,7 @@ export async function getEventDetail(
       "event_id, title, thumbnail, description, duration, intermission, start_date, end_date, status, venue_address, venue_detail_address, seller_id, category:category_id ( category_name )",
     )
     .eq("event_id", eventId)
+    .is("deleted_at", null) // 관리자가 삭제한 게시물은 상세 접근 차단 ("존재하지 않는 공연" 처리)
     .maybeSingle();
 
   if (error) throw error;
@@ -113,6 +114,8 @@ export async function getEventDetail(
 }
 
 export async function getSlots(eventId: string): Promise<Slot[]> {
+  if (!UUID_RE.test(eventId)) return [];
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("slot")
@@ -142,6 +145,8 @@ export interface SeatLayoutForBooking {
 export async function getSeatLayout(
   eventId: string,
 ): Promise<SeatLayoutForBooking | null> {
+  if (!UUID_RE.test(eventId)) return null;
+
   const supabase = await createClient();
   const { data: layout } = await supabase
     .from("seat_layout")
@@ -173,6 +178,8 @@ export async function getSeatLayout(
 }
 
 export async function getGrades(eventId: string): Promise<Grade[]> {
+  if (!UUID_RE.test(eventId)) return [];
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("ticket_grade")
@@ -192,6 +199,16 @@ export async function getGrades(eventId: string): Promise<Grade[]> {
 }
 
 export async function getReviews(eventId: string): Promise<ReviewListData> {
+  if (!UUID_RE.test(eventId)) {
+    return {
+      averageRating: 0,
+      totalCount: 0,
+      reviews: [],
+      page: 1,
+      limit: 0,
+    };
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("get_event_reviews", {
     p_event_id: eventId,

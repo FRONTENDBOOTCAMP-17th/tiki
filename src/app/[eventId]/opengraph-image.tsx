@@ -16,10 +16,13 @@ function formatPeriod(start: string, end: string) {
   return start === end ? toDot(start) : `${toDot(start)} - ${toDot(end)}`;
 }
 
-function fallbackCard() {
+function getCharacterLogoUrl() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://tiki-final.vercel.app";
-  const logoUrl = new URL("/tiki-character-readme.svg", siteUrl).toString();
+  return new URL("/tiki-character-readme.svg", siteUrl).toString();
+}
 
+function fallbackCard() {
+  const logoUrl = getCharacterLogoUrl();
   return (
     <div
       style={{
@@ -65,7 +68,7 @@ export default async function Image({
     return new ImageResponse(fallbackCard(), size);
   }
 
-  const poster = event.images[0];
+  const logoUrl = getCharacterLogoUrl();
   const period = formatPeriod(event.startDate, event.endDate);
   const venue = event.venue.address || "장소 미정";
 
@@ -87,36 +90,15 @@ export default async function Image({
             width: 360,
             height: 518,
             display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             overflow: "hidden",
             borderRadius: 28,
             background: "#F6F1FA",
             boxShadow: "0 24px 60px rgba(0,0,0,0.28)",
           }}
         >
-          {poster ? (
-            <img
-              src={poster}
-              alt={event.title}
-              width={360}
-              height={518}
-              style={{ objectFit: "cover" }}
-            />
-          ) : (
-            <div
-              style={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#9B6FC0",
-                fontSize: 54,
-                fontWeight: 800,
-              }}
-            >
-              TiKi
-            </div>
-          )}
+          <img src={logoUrl} alt="TiKi" width={260} height={260} />
         </div>
 
         <div
@@ -131,7 +113,7 @@ export default async function Image({
           <div
             style={{
               display: "flex",
-              width: "fit-content",
+              alignSelf: "flex-start",
               borderRadius: 999,
               background: "#9B6FC0",
               padding: "10px 22px",

@@ -56,7 +56,8 @@ export async function fetchCategoryEvents(
       "event_id, title, thumbnail, start_date, end_date, venue_name, ticket_grade(price), category!inner(slug)",
     )
     .eq("category.slug", slug)
-    .eq("status", "공개")
+    .in("status", ["공개", "일시정지"])
+    .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
     .order("created_at", { ascending: false });
 
   if (error) throw error;

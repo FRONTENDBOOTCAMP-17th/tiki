@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bell, UserPlus, Ticket, Megaphone, X } from "lucide-react";
+import { Bell, UserPlus, Ticket, Megaphone, BadgePercent, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   acceptFriendRequest,
@@ -30,6 +30,7 @@ const TYPE_ICON = {
   ticket_share: Ticket,
   order: Ticket,
   ad: Megaphone,
+  promo: BadgePercent,
 } as const;
 
 const TYPE_STYLE = {
@@ -38,6 +39,7 @@ const TYPE_STYLE = {
   ticket_share: "bg-primary-100 text-primary-700",
   order: "bg-primary-100 text-primary-700",
   ad: "bg-accent-100 text-accent-700",
+  promo: "bg-accent-100 text-accent-700",
 } as const;
 
 const DEFAULT_LINK: Record<string, string> = {
@@ -228,7 +230,10 @@ export default function NotificationBell({
 
       {open && (
         <>
-          <div className="fixed inset-0 z-[60]" onClick={() => setOpen(false)} />
+          <div
+            className="fixed inset-0 z-[60]"
+            onClick={() => setOpen(false)}
+          />
           <div className="absolute right-0 z-[70] mt-3 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white text-left shadow-xl dark:border-surface-3 dark:bg-surface-1">
             <div className="border-b border-gray-100 px-4 py-3 dark:border-surface-3">
               <p className="font-bold text-gray-900 dark:text-gray-50">알림</p>
@@ -276,7 +281,16 @@ export default function NotificationBell({
                     </div>
                   );
 
-                  const linkHref = item.link || DEFAULT_LINK[item.type];
+                  const baseHref = item.link || DEFAULT_LINK[item.type];
+                  // 스태프 초대 알림은 해당 초대 카드로 스크롤·강조
+                  // (type 문자열에 의존하지 않도록 링크 경로로 판별)
+                  const linkHref =
+                    baseHref &&
+                    baseHref.startsWith("/staff") &&
+                    !baseHref.includes("#") &&
+                    item.ref_id
+                      ? `/staff#invite-${item.ref_id}`
+                      : baseHref;
 
                   return (
                     <li key={item.notification_id}>

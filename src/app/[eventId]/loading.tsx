@@ -1,7 +1,7 @@
 export default function EventDetailLoading() {
   // 이벤트 상세 로딩될떄 스켈레톤 만들었습니다
   return (
-    <main className="mx-auto min-h-screen w-full max-w-[1280px] px-4 pb-24 pt-6 sm:px-6 lg:px-8">
+    <main className="mx-auto min-h-screen w-full max-w-[1440px] px-4 pb-24 pt-6 sm:px-6 lg:px-8">
       <div className="mb-6 h-5 w-24 animate-pulse rounded bg-gray-200 dark:bg-surface-2" />
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className="min-w-0 space-y-6">

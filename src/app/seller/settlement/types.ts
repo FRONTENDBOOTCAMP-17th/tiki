@@ -35,4 +35,5 @@ export type SettlementRequest = Pick<
   | "status"
   | "requested_at"
   | "approved_at"
+  | "reject_reason"
 >;

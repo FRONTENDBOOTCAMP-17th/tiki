@@ -11,7 +11,7 @@ interface SearchParams {
 // 화면 표시 상태 → DB 상태
 const DISPLAY_TO_DB: Record<string, string> = {
   승인: "공개",
-  "예매 일시중지": "비공개",
+  "예매 일시중지": "일시정지",
 };
 
 export default async function AdminEventsPage({
@@ -31,7 +31,7 @@ export default async function AdminEventsPage({
 
   let query = supabase
     .from("event")
-    .select("event_id, title, status, category_id, seller_id, start_date, created_at")
+    .select("event_id, title, status, category_id, seller_id, start_date, created_at, deleted_at")
     .order("created_at", { ascending: false });
 
   if (search) {
@@ -40,27 +40,39 @@ export default async function AdminEventsPage({
   if (matchedCategory) {
     query = query.eq("category_id", matchedCategory.category_id);
   }
-  if (status && status !== "all") {
-    const dbStatus = DISPLAY_TO_DB[status] ?? status;
-    query = query.eq("status", dbStatus);
+  // "삭제됨" 필터는 status 컬럼이 아니라 deleted_at 기준.
+  // 그 외 필터에서는 삭제된 게시물을 목록에서 제외한다.
+  if (status === "삭제됨") {
+    query = query.not("deleted_at", "is", null);
+  } else {
+    query = query.is("deleted_at", null);
+    if (status && status !== "all") {
+      const dbStatus = DISPLAY_TO_DB[status] ?? status;
+      query = query.eq("status", dbStatus);
+    }
   }
 
   const { data: events } = await query;
 
-  // 이벤트별 결제 완료 주문 수
+  // 이벤트별 결제 완료 주문 수(파티 수) + 티켓 판매 수량 합계
   const eventIds = (events ?? []).map((e) => e.event_id);
   const { data: orderRows } =
     eventIds.length > 0
       ? await supabase
           .from("orders")
-          .select("event_id")
+          .select("event_id, quantity")
           .in("event_id", eventIds)
           .eq("status", "paid")
       : { data: [] };
 
   const orderCountMap = new Map<string, number>();
+  const ticketCountMap = new Map<string, number>();
   for (const o of orderRows ?? []) {
     orderCountMap.set(o.event_id, (orderCountMap.get(o.event_id) ?? 0) + 1);
+    ticketCountMap.set(
+      o.event_id,
+      (ticketCountMap.get(o.event_id) ?? 0) + (o.quantity ?? 0),
+    );
   }
 
   // 카테고리명 매핑
@@ -73,10 +85,11 @@ export default async function AdminEventsPage({
     index: index + 1,
     categoryName: categoryNameMap.get(e.category_id) ?? "-",
     partyCount: orderCountMap.get(e.event_id) ?? 0,
+    ticketCount: ticketCountMap.get(e.event_id) ?? 0,
   }));
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 py-8">
+    <div className="mx-auto max-w-7xl space-y-6 py-8">
       <h1 className="text-2xl font-bold text-gray-900">게시물 관리</h1>
       <EventTable
         events={enriched}

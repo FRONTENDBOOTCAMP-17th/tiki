@@ -54,8 +54,10 @@ export function SearchBarInput({
     <div className={cn("flex flex-1", shell, className)}>
       <Search className="h-5 w-5 shrink-0 text-gray-400" />
       <input
+        data-search-input
         type="text"
         placeholder={SEARCH_PLACEHOLDER}
+        style={{ outline: "none" }}
         className="flex-1 border-none bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-50 dark:placeholder:text-gray-500"
         value={value}
         onChange={(e) => onChange(e.target.value)}

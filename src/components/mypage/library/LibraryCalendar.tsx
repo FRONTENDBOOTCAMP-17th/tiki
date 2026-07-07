@@ -36,19 +36,21 @@ export default function LibraryCalendar({
           return (
             <div
               key={date}
-              className="flex aspect-square flex-col rounded-xl border border-gray-200 p-2"
+              className="flex aspect-square flex-col rounded-lg border border-gray-200 p-1 sm:rounded-xl sm:p-2"
             >
-              <span className="text-sm text-gray-700">{date}</span>
+              <span className="text-[10px] leading-none text-gray-700 sm:text-sm">
+                {date}
+              </span>
               {event && (
                 <Link
                   href={`/${event.eventId}`}
-                  className="relative mt-1 flex-1 overflow-hidden rounded-md"
+                  className="relative mt-0.5 flex-1 overflow-hidden rounded sm:mt-1 sm:rounded-md"
                 >
                   <Image
                     src={event.imageUrl}
                     alt={event.title ?? "이벤트"}
                     fill
-                    sizes="120px"
+                    sizes="(max-width: 640px) 60px, 120px"
                     className="object-cover"
                   />
                 </Link>

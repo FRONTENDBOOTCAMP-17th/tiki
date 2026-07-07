@@ -9,7 +9,8 @@ export async function GET() {
   const { data, error } = await supabase
     .from("event")
     .select("event_id, status, created_at")
-    .eq("seller_id", user.id);
+    .eq("seller_id", user.id)
+    .is("deleted_at", null); // 관리자가 삭제한 게시물 제외
 
   if (error) return fail(error.message);
 

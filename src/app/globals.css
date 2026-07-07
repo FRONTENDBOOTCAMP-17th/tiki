@@ -32,6 +32,10 @@ body {
   outline-offset: 2px;
 }
 
+:where(input[data-search-input]):focus-visible {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -85,7 +89,13 @@ body {
   color: var(--app-text);
 }
 
-.dark :where(.border-gray-50, .border-gray-100, .border-gray-200, .border-gray-300) {
+.dark
+  :where(
+    .border-gray-50,
+    .border-gray-100,
+    .border-gray-200,
+    .border-gray-300
+  ) {
   border-color: var(--app-border);
 }
 
@@ -97,7 +107,12 @@ body {
   --tw-shadow-color: rgba(0, 0, 0, 0.35);
 }
 
-.dark :where(.hover\:bg-gray-50:hover, .hover\:bg-gray-100:hover, .hover\:bg-primary-50:hover) {
+.dark
+  :where(
+    .hover\:bg-gray-50:hover,
+    .hover\:bg-gray-100:hover,
+    .hover\:bg-primary-50:hover
+  ) {
   background-color: var(--color-surface-2);
 }
 
@@ -174,7 +189,7 @@ body {
   --color-danger-900: #661828;
 
   --color-warning: #f5a623;
-  
+
   --color-warning-100: #fff8eb;
   --color-warning-200: #fdecc8;
   --color-warning-300: #fbdca0;
@@ -229,6 +244,36 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* 가로 스크롤바 숨김 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  
+/* 좌우 엣지 페이드. 모바일(<768px)은 적용 안 함 */
+@media (min-width: 768px) {
+  .poster-fade {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 32px,
+      #000 calc(100% - 32px),
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 32px,
+      #000 calc(100% - 32px),
+      transparent
+    );
+  }
+}
+
 @theme {
   --animate-slide-in-from-left: slide-in-from-left 0.5s ease-out;
   --animate-slide-in-from-right: slide-in-from-right 0.5s ease-out;
@@ -367,4 +412,5 @@ body {
   summary {
     cursor: pointer;
   }
+}
 }

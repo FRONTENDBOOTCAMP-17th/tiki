@@ -1,6 +1,6 @@
 import { ComponentPropsWithRef } from "react";
 import Link from "next/link";
-import { Home } from "lucide-react";
+import { Home, ScanLine } from "lucide-react";
 import { cn } from "@/lib/cn";
 import Logo from "@/components/Logo";
 import NotificationBell from "@/components/NotificationBell";
@@ -28,7 +28,7 @@ export default function RoleHeader({
       )}
       {...props}
     >
-      <div className="mx-auto flex max-w-360 items-center gap-3 px-6 py-3 lg:px-8 lg:py-4">
+      <div className="mx-auto flex max-w-[1680px] items-center gap-3 px-5 py-3 sm:px-6 lg:px-10 lg:py-4 2xl:px-14">
         {/* 로고: 해당 영역 루트(/seller, /admin)로 이동 */}
         <Logo
           href={`/${role}`}
@@ -42,6 +42,15 @@ export default function RoleHeader({
         {/* 알림 + 메인(구매자) 홈으로 이동 */}
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggleButton />
+          {role === "seller" && (
+            <Link
+              href="/checkin"
+              className="flex items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-3.5 py-2 text-sm font-medium text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-100 dark:border-surface-3 dark:bg-surface-4 dark:text-gray-100 dark:hover:bg-surface-3"
+            >
+              <ScanLine size={16} />
+              <span className="hidden sm:inline">입장 검증</span>
+            </Link>
+          )}
           <NotificationBell className="size-9 justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-primary-700 dark:text-gray-300 dark:hover:bg-surface-4 dark:hover:text-white" />
           <Link
             href="/"
