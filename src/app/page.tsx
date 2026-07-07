@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
@@ -9,6 +10,7 @@ import TicketOpenSection from "./_components/home/TicketOpenSection";
 import HorizontalCardSection from "./_components/home/HorizontalCardSection";
 import HomeSectionLink from "./_components/home/HomeSectionLink";
 import BestReviewSection from "./_components/home/BestReviewSection";
+import BestReviewSkeleton from "./_components/home/BestReviewSkeleton";
 import RecommendedSection from "./_components/home/RecommendedSection";
 import type {
   BestReviewItem,
@@ -177,12 +179,30 @@ async function fetchBestReviews(
     .slice(0, BEST_REVIEW_SIZE);
 }
 
+// 베스트 리뷰는 나머지 홈 데이터와 의존관계가 없으므로, Promise를 상위에서 await하지
+// 않고 이 컴포넌트에 그대로 넘겨 Suspense로 스트리밍한다(다른 섹션 대기 없이 독립 렌더).
+async function BestReviewSectionAsync({
+  reviewsPromise,
+}: {
+  reviewsPromise: Promise<BestReviewItem[]>;
+}) {
+  const reviews = await reviewsPromise;
+  return <BestReviewSection reviews={reviews} />;
+}
+
 export default async function Home() {
   const supabase = await createClient();
 
+  // 베스트 리뷰는 아래 Promise.all의 나머지 조회와 무관하므로 await하지 않고 바로
+  // 실행만 시켜둔다. 결과는 <Suspense>로 감싼 컴포넌트에서 따로 기다린다.
+  const bestReviewsPromise = fetchBestReviews(supabase).catch((error) => {
+    console.error("[HOME] fetchBestReviews failed:", error);
+    return [] as BestReviewItem[];
+  });
+
   // 서로 의존성이 없는 조회(로그인 여부/이벤트 풀/카테고리)는 직렬로 기다리지 않고
   // 한 번에 병렬로 보내야 첫 응답까지의 시간(FCP/LCP)이 늘어지지 않는다.
-  const [profile, { data: eventRows, error: eventError }, categories, bestReviews] =
+  const [profile, { data: eventRows, error: eventError }, categories] =
     await Promise.all([
       getHeaderProfile(),
       supabase
@@ -194,10 +214,6 @@ export default async function Home() {
         .limit(EVENT_POOL_LIMIT),
       fetchCategories().catch((error) => {
         console.error("[HOME] fetchCategories failed:", error);
-        return [];
-      }),
-      fetchBestReviews(supabase).catch((error) => {
-        console.error("[HOME] fetchBestReviews failed:", error);
         return [];
       }),
     ]);
@@ -338,7 +354,9 @@ export default async function Home() {
             />
           ))}
         </div>
-        <BestReviewSection reviews={bestReviews} />
+        <Suspense fallback={<BestReviewSkeleton />}>
+          <BestReviewSectionAsync reviewsPromise={bestReviewsPromise} />
+        </Suspense>
         <div
           id="home-page-end"
           className="h-1 scroll-mt-24 bg-white transition-colors dark:bg-surface-0 min-[744px]:h-12"
