@@ -31,7 +31,7 @@ export default async function SellerDashboardPage() {
   const topRevenue = performance[0]?.revenue ?? 0;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 py-8">
+    <div className="mx-auto max-w-7xl space-y-8 py-8">
       <PageHeader
         title="대시보드"
         actions={

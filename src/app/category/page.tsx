@@ -42,7 +42,7 @@ export default async function CategoryPage() {
     <>
       <Header loggedIn={loggedIn} profile={profile} showCategory={false} />
       <main className="flex-1 bg-white pb-20 dark:bg-surface-0 min-[744px]:pb-0">
-        <div className="mx-auto w-full max-w-7xl">
+        <div className="mx-auto w-full max-w-[1440px]">
           <div className="px-4 pt-4 md:px-8 lg:px-16">
             <BackButton />
           </div>

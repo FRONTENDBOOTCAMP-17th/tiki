@@ -47,7 +47,7 @@ export default function CategorySectionNav({
 
   return (
     <nav className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur dark:bg-surface-1">
-      <div className="scrollbar-hide mx-auto flex max-w-7xl justify-center gap-6 overflow-x-auto px-4 md:px-8 lg:px-16">
+      <div className="scrollbar-hide mx-auto flex max-w-[1440px] justify-center gap-6 overflow-x-auto px-4 md:px-8 lg:px-16">
         {sections.map(({ id, label }) => (
           <button
             key={id}

@@ -40,7 +40,7 @@ export default function HeroSlider({ slides }: { slides: EventCardItem[] }) {
 
   return (
     <section className="w-full px-4 py-7 md:px-8 lg:px-16">
-      <div className="mx-auto w-full max-w-7xl">
+      <div className="mx-auto w-full max-w-[1440px]">
         <div className="relative h-80 w-full overflow-hidden rounded-2xl bg-mirage shadow-sm select-none md:h-96 lg:h-112 dark:bg-surface-0">
           <div
             onPointerDown={onPointerDown}
@@ -70,7 +70,7 @@ export default function HeroSlider({ slides }: { slides: EventCardItem[] }) {
                 />
                 <div className="absolute inset-0 bg-black/15" />
 
-                <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center justify-center gap-5 text-center md:flex-row md:gap-12 md:text-left">
+                <div className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col items-center justify-center gap-5 text-center md:flex-row md:gap-12 md:text-left">
                   {/* 포스터: 슬라이드 높이의 대부분을 차지하도록 크게, hover 시 살짝 확대 */}
                   <div className="relative aspect-3/4 h-48 shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/20 transition-transform duration-300 group-hover:scale-[1.02] md:h-72 lg:h-80">
                     <ThumbnailImage

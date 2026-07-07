@@ -15,7 +15,7 @@ export default function BestReviewSection({
 
   return (
     <section className="bg-gray-50 px-4 py-8 transition-colors md:px-8 lg:px-16 dark:bg-surface-0">
-      <div className="mx-auto w-full max-w-7xl">
+      <div className="mx-auto w-full max-w-[1440px]">
         <h2 className="mb-4 text-lg font-bold tracking-tight text-gray-950 md:text-xl dark:text-gray-50">
           베스트 리뷰
         </h2>

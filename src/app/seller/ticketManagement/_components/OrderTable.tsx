@@ -340,7 +340,7 @@ export default function OrderTable({
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 py-8">
+    <div className="mx-auto max-w-7xl space-y-8 py-8">
       <PageHeader
         title="예매 관리"
         description={`전체 ${totalCount.toLocaleString()}건 · ${page}/${totalPages} 페이지`}

@@ -63,7 +63,7 @@ export default async function AdminMembersPage({
   const indexed = enriched.map((u, index) => ({ ...u, index: index + 1 }));
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 py-8">
+    <div className="mx-auto max-w-7xl space-y-6 py-8">
       <h1 className="text-2xl font-bold text-gray-900">회원 관리</h1>
       <MemberTable
         members={indexed}

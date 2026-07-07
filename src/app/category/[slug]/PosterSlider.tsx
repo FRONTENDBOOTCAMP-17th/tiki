@@ -38,8 +38,8 @@ export default function PosterSlider({
 
   return (
     <section className="py-6 dark:bg-surface-1">
-      {/* 하단 '인기 랭킹'과 동일한 max-w-7xl + 좌우 패딩으로 폭을 맞춘다 */}
-      <div className="mx-auto w-full max-w-7xl px-4 md:px-8 lg:px-16">
+      {/* 하단 '인기 랭킹'과 동일한 폭 + 좌우 패딩으로 맞춘다 */}
+      <div className="mx-auto w-full max-w-[1440px] px-4 md:px-8 lg:px-16">
         {title && (
           <h2 className="mb-4 text-lg font-bold tracking-tight text-gray-950 dark:text-gray-50 md:text-xl">
             {title}

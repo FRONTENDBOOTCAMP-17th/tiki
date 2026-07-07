@@ -64,7 +64,7 @@ export default async function AdminDashboardPage() {
   const publishedCount = (events ?? []).filter((e) => e.status === "공개").length;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 py-8">
+    <div className="mx-auto max-w-7xl space-y-8 py-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">
           대시보드

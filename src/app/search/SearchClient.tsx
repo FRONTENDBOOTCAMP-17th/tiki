@@ -209,7 +209,7 @@ export default function SearchClient({
         </div>
       </header>
 
-      <main className="pb-6 lg:mx-auto lg:max-w-6xl lg:px-8 lg:py-8">
+      <main className="pb-6 lg:mx-auto lg:max-w-7xl lg:px-8 lg:py-8">
         {trimmed.length === 0 ? (
           // ── 검색 전: 최근 검색어 + 인기공연 ──
           <div className="lg:grid lg:grid-cols-[300px_1fr] lg:items-start lg:gap-6 lg:pt-2">

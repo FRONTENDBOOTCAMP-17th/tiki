@@ -92,7 +92,7 @@ export default async function CategoryDetailPage({
         <PosterSlider items={sliderItems} />
 
         <div className="bg-white dark:bg-surface-0">
-          <div className="mx-auto w-full max-w-7xl px-4 pt-2 md:px-8 lg:px-16">
+          <div className="mx-auto w-full max-w-[1440px] px-4 pt-2 md:px-8 lg:px-16">
             <h1 className="text-center text-2xl font-bold tracking-tight text-gray-950 dark:text-gray-50">
               {category.name}
             </h1>
@@ -107,7 +107,7 @@ export default async function CategoryDetailPage({
           <>
             <CategorySectionNav sections={navSections} />
 
-            <div className="mx-auto w-full max-w-7xl">
+            <div className="mx-auto w-full max-w-[1440px]">
               {rankingFilled.length > 0 && (
                 <div id="ranking" className="scroll-mt-16">
                   <HorizontalCardSection

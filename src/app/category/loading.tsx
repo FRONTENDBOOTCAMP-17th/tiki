@@ -2,7 +2,7 @@ export default function CategoryLoading() {
   // 카테고리 스켈레톤 추가했습니다
   return (
     <main className="min-h-screen bg-white pb-20 dark:bg-surface-0">
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 md:px-8 lg:px-16">
+      <div className="mx-auto w-full max-w-[1440px] px-4 py-6 md:px-8 lg:px-16">
         <div className="mx-auto mb-8 h-8 w-36 animate-pulse rounded-lg bg-gray-200 dark:bg-surface-2" />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {Array.from({ length: 10 }).map((_, index) => (

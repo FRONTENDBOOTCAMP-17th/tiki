@@ -150,7 +150,7 @@ export default function SellerReviewList({ reviews, events }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 py-6">
+    <div className="mx-auto max-w-7xl space-y-6 py-6">
       <PageHeader
         title="리뷰 관리"
         description="내 공연 후기를 확인하고, 부적절한 후기는 관리자에게 삭제 요청할 수 있습니다."
