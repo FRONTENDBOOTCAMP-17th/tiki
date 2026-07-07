@@ -21,10 +21,11 @@ type EventRow = {
   ticket_grade: { price: number }[] | null;
 };
 
-const PUBLISHED_STATUS = "공개";
+// 비공개(판매자 미공개 초안)만 제외. 일시정지(관리자 예매 중단)는 노출.
+const VISIBLE_STATUSES = ["공개", "일시정지"];
 
 /**
- * status='공개' + start_date > today 인 공연을 시작일 오름차순으로 반환한다.
+ * status가 공개/일시정지 + start_date > today 인 공연을 시작일 오름차순으로 반환한다.
  * - 페이지 단위 ISR(revalidate)로 캐싱 — createClient()가 cookies()를 쓰므로 unstable_cache 불가
  */
 export async function fetchUpcoming(options?: {
@@ -43,7 +44,8 @@ export async function fetchUpcoming(options?: {
       "event_id, title, thumbnail, start_date, end_date, venue_name, ticket_grade ( price )" +
         (slug ? ", category:category_id!inner ( slug )" : ""),
     )
-    .eq("status", PUBLISHED_STATUS)
+    .in("status", VISIBLE_STATUSES)
+    .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
     .gt("start_date", today)
     .order("start_date", { ascending: true })
     .limit(limit);

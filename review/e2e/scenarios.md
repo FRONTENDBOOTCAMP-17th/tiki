@@ -158,3 +158,28 @@ dev 3201. `tests/tiki-role.spec.ts`(신규). 캡처 `review/images/2026-06-25/ti
 - [제안] CSV 내보내기(방효진/lllillly) 수식 인젝션 방어 없음(`= + - @` 시작 셀). [제안] `NEXT_PUBLIC_SITE_URL` 끝 슬래시→OAuth 콜백 `//auth/callback` 이중슬래시. [사소] login `data!.role` non-null 단언.
 - 이월 [필수] 아님(운영/발표): README 라이브 데모 링크 부재 + Vercel 배포 stale(sitemap 07-01·구 `/support` 경로·`//` — **현재 소스는 정상**, 재배포만 필요) + 팀원표 "작성 예정" 4명.
 - 정적: tsc 0(.next 캐시 정리 후)·eslint 0(앱)·build 성공(84라우트)·vitest 6파일 19테스트 pass.
+
+---
+
+## 2026-07-07 (20차) — 공용 입장검증(/checkin) 통합·8자리 입장코드·결제 안내·좌석 등급변경
+
+| ID | 시나리오 | 절차 | 기대결과 | 최근결과(2026-07-07) |
+|----|----------|------|----------|----------------------|
+| S01 | 홈(데스크톱) | `/` | 200 | pass |
+| S02 | 홈(모바일 390) | `/` | 200 | pass |
+| S03 | 카테고리 + 상세 진입 | `/category` → 카드 | 200 | pass |
+| S04 | 비로그인 `/checkin` 가드(신규) | `/checkin` 비로그인 | `/login` 리다이렉트 | **pass** |
+| S05 | 판매자→공용 입장검증 목록(신규) | 로그인(sellertest)→`/checkin` | 200, 내 공연+배정 스태프 공연 목록·역할 배지 | **pass**("입장 검증" 렌더) |
+| S06 | 입장검증 스캔 화면(신규) | 공연 선택→`/checkin/[eventId]` | 스캐너+8자리 코드 입력 폴백 | **pass**(헤드리스 카메라 불가→코드 입력 폴백 정상) |
+| S07 | 예매관리 CSV | `/seller/ticketManagement` | 200, 필터/CSV 버튼 | pass |
+| S08 | 결제 상태별 안내(신규) | 없는 주문 `/payment/{bogus-uuid}` | 404 아님·"잘못된 주문입니다" 안내 | **pass**(홈·예매내역 버튼) |
+| S09 | sitemap/robots freshness | `/sitemap.xml`·`/robots.txt` | 200·`//` 없음 | pass(로컬 200, 라이브 `//` 사라짐) |
+
+라이브 실측: `tiki-final.vercel.app` 홈 200 · `/checkin` 307(비로그인 로그인 유도) · sitemap `//` 이중슬래시 없음(재배포 반영됨).
+
+발견(20차):
+- **신규 [필수] 없음.** 8자리 입장코드+공용 입장검증 통합(harilog/김연수) 인가 견고: `ticket_entry_code` RLS 정책0+SECURITY DEFINER RPC only, 혼동제외 알파벳, unique per subject, can_checkin_event/get_checkin_events가 checkin_ticket 인가 미러, verify 2단계(토큰 HMAC / 코드 resolve→checkin_ticket 최종인가).
+- 결제 404→상태별 안내(zzz664/이선우, E2E 화면확인). 좌석 등급변경 이전좌석 초기화로 등급혼합 방지.
+- 19차 지적 해결: README 데모링크·팀원표·CSV 수식인젝션([제안])·정산 원문에러([사소])·재배포 stale(거의).
+- [사소] issue_entry_code returning 대신 재select·verify 코드 rate-limit 없음(본체 방어=RPC 인가). `/example` robots disallow 미반영.
+- 정적: tsc 0(.next 캐시 정리 후)·eslint 앱0(경고 e2e 2건). 첫 tsc 시 삭제된 seller/checkin·staff/checkin/[eventId] validator 잔재=stale 캐시.

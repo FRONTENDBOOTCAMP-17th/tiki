@@ -23,7 +23,8 @@ export default async function TicketManagementPage({
   const { data: eventRows } = await supabase
     .from("event")
     .select("event_id, title")
-    .eq("seller_id", user.id);
+    .eq("seller_id", user.id)
+    .is("deleted_at", null); // 관리자가 삭제한 게시물 제외
 
   const events = eventRows ?? [];
   const eventIds = events.map((event) => event.event_id);

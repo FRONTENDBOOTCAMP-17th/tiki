@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bell, UserPlus, Ticket, Megaphone, X } from "lucide-react";
+import { Bell, UserPlus, Ticket, Megaphone, BadgePercent, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   acceptFriendRequest,
@@ -30,6 +30,7 @@ const TYPE_ICON = {
   ticket_share: Ticket,
   order: Ticket,
   ad: Megaphone,
+  promo: BadgePercent,
 } as const;
 
 const TYPE_STYLE = {
@@ -38,6 +39,7 @@ const TYPE_STYLE = {
   ticket_share: "bg-primary-100 text-primary-700",
   order: "bg-primary-100 text-primary-700",
   ad: "bg-accent-100 text-accent-700",
+  promo: "bg-accent-100 text-accent-700",
 } as const;
 
 const DEFAULT_LINK: Record<string, string> = {

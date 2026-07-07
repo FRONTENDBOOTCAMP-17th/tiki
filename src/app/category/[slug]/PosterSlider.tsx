@@ -37,17 +37,21 @@ export default function PosterSlider({
   const duration = items.length * SECONDS_PER_CARD;
 
   return (
-    <section className="overflow-hidden py-6 dark:bg-surface-1">
-      {title && (
-        <h2 className="mb-4 px-4 text-lg font-bold tracking-tight text-gray-950 dark:text-gray-50 md:px-8 md:text-xl lg:px-16">
-          {title}
-        </h2>
-      )}
-      <ul
-        className="flex w-max animate-marquee hover:[animation-play-state:paused] motion-reduce:animate-none"
-        style={{ animationDuration: `${duration}s` }}
-      >
-        {loop.map((item, i) => (
+    <section className="py-6 dark:bg-surface-1">
+      {/* 하단 '인기 랭킹'과 동일한 max-w-7xl + 좌우 패딩으로 폭을 맞춘다 */}
+      <div className="mx-auto w-full max-w-7xl px-4 md:px-8 lg:px-16">
+        {title && (
+          <h2 className="mb-4 text-lg font-bold tracking-tight text-gray-950 dark:text-gray-50 md:text-xl">
+            {title}
+          </h2>
+        )}
+        {/* 좌우 가장자리 페이드 마스크 (md 이상에서만, 모바일 제외 — globals.css .poster-fade) */}
+        <div className="overflow-hidden poster-fade">
+          <ul
+            className="flex w-max animate-marquee hover:[animation-play-state:paused] motion-reduce:animate-none"
+            style={{ animationDuration: `${duration}s` }}
+          >
+            {loop.map((item, i) => (
           <li
             key={`${item.eventId}-${i}`}
             className="mr-4 w-48 shrink-0 md:mr-5 md:w-60"
@@ -90,8 +94,10 @@ export default function PosterSlider({
               </div>
             </Link>
           </li>
-        ))}
-      </ul>
+            ))}
+          </ul>
+        </div>
+      </div>
     </section>
   );
 }

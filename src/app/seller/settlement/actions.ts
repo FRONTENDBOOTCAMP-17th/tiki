@@ -40,11 +40,12 @@ export async function requestSettlement() {
     monthlyGross.set(month, (monthlyGross.get(month) ?? 0) + order.total_price);
   }
 
-  // 이미 신청/승인된 달 집합
+  // 이미 신청/승인된 달 집합. 반려(rejected)된 건은 재신청 가능해야 하므로 제외한다.
   const { data: existing } = await supabase
     .from("settlement_request")
     .select("period_start, period_end")
-    .eq("seller_id", user.id);
+    .eq("seller_id", user.id)
+    .neq("status", "rejected");
 
   const covered = new Set<string>();
   for (const req of existing ?? []) {

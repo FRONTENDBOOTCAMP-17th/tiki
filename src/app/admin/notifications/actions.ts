@@ -5,7 +5,10 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/auth";
 
 type NotificationTarget = "all" | "buyer" | "seller" | "specific";
-export type NotificationType = "ad" | "order";
+export type NotificationType = "ad" | "order" | "promo";
+
+// 프로모션(광고)은 제목 앞에 "(광고)"를 강제로 붙인다.
+const PROMO_PREFIX = "(광고) ";
 
 export async function sendNotification({
   target,
@@ -43,10 +46,16 @@ export async function sendNotification({
 
   if (targetIds.length === 0) return { error: "발송 대상이 없습니다" };
 
+  const trimmedTitle = title.trim();
+  const finalTitle =
+    notificationType === "promo" && !trimmedTitle.startsWith(PROMO_PREFIX)
+      ? `${PROMO_PREFIX}${trimmedTitle}`
+      : trimmedTitle;
+
   const rows = targetIds.map((userId) => ({
     user_id: userId,
     type: notificationType,
-    title: title.trim(),
+    title: finalTitle,
     link: link?.trim() || null,
     is_read: false,
   }));

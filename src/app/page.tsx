@@ -15,7 +15,8 @@ import type {
   HomeEventCardItem,
 } from "./_components/home/types";
 
-const PUBLISHED_STATUS = "공개";
+// 비공개(판매자 미공개 초안)만 제외. 일시정지(관리자 예매 중단)는 노출.
+const VISIBLE_STATUSES = ["공개", "일시정지"];
 const EVENT_POOL_LIMIT = 36; // 랭킹/티켓오픈/히어로 섹션이 고를 후보 풀 크기
 const HERO_SLIDE_SIZE = 5;
 const RANKING_SIZE = 10;
@@ -102,6 +103,7 @@ async function fetchBestReviews(
   const { data: reviewRows } = await supabase
     .from("review")
     .select("review_id, event_id, user_id, rating, memo, created_at")
+    .is("deleted_at", null) // 삭제된 리뷰는 베스트 리뷰에서 제외
     .not("memo", "is", null)
     .order("created_at", { ascending: false })
     .limit(REVIEW_POOL_LIMIT);
@@ -123,6 +125,7 @@ async function fetchBestReviews(
     supabase
       .from("event")
       .select("event_id, title, thumbnail, status")
+      .is("deleted_at", null) // 삭제된 게시물의 리뷰는 노출하지 않음
       .in("event_id", eventIds),
     supabase.from("users").select("id, name").in("id", userIds),
     supabase.from("review_like").select("review_id").in("review_id", reviewIds),
@@ -130,7 +133,7 @@ async function fetchBestReviews(
 
   const eventMap = new Map(
     (eventRows ?? [])
-      .filter((event) => event.status === PUBLISHED_STATUS)
+      .filter((event) => VISIBLE_STATUSES.includes(event.status))
       .map((event) => [event.event_id, event]),
   );
   const nameMap = new Map(
@@ -185,7 +188,8 @@ export default async function Home() {
       supabase
         .from("event")
         .select("event_id, title, thumbnail, start_date, end_date, venue_name, created_at")
-        .eq("status", PUBLISHED_STATUS)
+        .in("status", VISIBLE_STATUSES)
+        .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
         .order("created_at", { ascending: false })
         .limit(EVENT_POOL_LIMIT),
       fetchCategories().catch((error) => {
@@ -210,7 +214,8 @@ export default async function Home() {
     ? await supabase
         .from("event")
         .select("event_id, title, thumbnail, start_date, end_date, venue_name, created_at, category_id")
-        .eq("status", PUBLISHED_STATUS)
+        .in("status", VISIBLE_STATUSES)
+        .is("deleted_at", null) // 관리자가 삭제한 게시물 제외
         .in("category_id", categoryIds)
         .order("created_at", { ascending: false })
     : { data: [] as CategoryEventRow[], error: null };

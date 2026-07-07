@@ -2,9 +2,11 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Search } from "lucide-react";
+import { Search, CirclePause, CirclePlay, Trash2, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
 import type { CategoryRow } from "@/lib/api/categories";
-import { hideEvent, publishEvent, deleteEvent } from "../actions";
+import Dialog from "@/components/modal/Dialog";
+import { hideEvent, publishEvent, deleteEvent, restoreEvent } from "../actions";
 
 interface Event {
   event_id: string;
@@ -14,6 +16,8 @@ interface Event {
   categoryName: string;
   start_date: string;
   partyCount: number;
+  ticketCount: number;
+  deleted_at: string | null;
 }
 
 interface EventTableProps {
@@ -24,23 +28,24 @@ interface EventTableProps {
   currentStatus: string;
 }
 
-// DB 상태 → 화면 표시
+// DB 상태 → 화면 표시 (프로젝트 테마 컬러 사용)
 const DB_TO_DISPLAY: Record<string, { label: string; className: string }> = {
-  공개: { label: "승인", className: "bg-green-500 text-white" },
-  비공개: { label: "예매 일시중지", className: "bg-orange-500 text-white" },
+  공개: { label: "승인", className: "bg-emerald-100 text-emerald-700" },
+  일시정지: { label: "예매 일시중지", className: "bg-warning-100 text-warning-700" },
+  비공개: { label: "비공개", className: "bg-gray-100 text-gray-600" },
 };
 
 function getStatusDisplay(dbStatus: string) {
   return (
     DB_TO_DISPLAY[dbStatus] ?? {
       label: dbStatus,
-      className: "bg-yellow-400 text-white",
+      className: "bg-primary-100 text-primary-700",
     }
   );
 }
 
 // 화면 상태 필터 목록
-const STATUS_FILTERS = ["전체", "승인", "대기", "신고", "예매 일시중지"];
+const STATUS_FILTERS = ["전체", "승인", "대기", "신고", "예매 일시중지", "삭제됨"];
 
 // 화면 상태 → URL param
 const DISPLAY_TO_PARAM: Record<string, string> = {
@@ -49,6 +54,7 @@ const DISPLAY_TO_PARAM: Record<string, string> = {
   대기: "대기",
   신고: "신고",
   "예매 일시중지": "예매 일시중지",
+  삭제됨: "삭제됨",
 };
 
 export default function EventTable({
@@ -63,6 +69,8 @@ export default function EventTable({
   const [search, setSearch] = useState(currentSearch);
   const [isPending, startTransition] = useTransition();
   const [actionTarget, setActionTarget] = useState<string | null>(null);
+  // 삭제 확인 모달 대상 (브라우저 기본 confirm 대신 프로젝트 Dialog 사용)
+  const [deleteTarget, setDeleteTarget] = useState<Event | null>(null);
 
   function buildUrl(overrides: Record<string, string>) {
     const params = new URLSearchParams();
@@ -87,7 +95,8 @@ export default function EventTable({
     setActionTarget(eventId);
     startTransition(async () => {
       const result = await hideEvent(eventId);
-      if (result.error) alert(result.error);
+      if (result.error) toast.error(result.error);
+      else router.refresh();
       setActionTarget(null);
     });
   }
@@ -96,17 +105,35 @@ export default function EventTable({
     setActionTarget(eventId);
     startTransition(async () => {
       const result = await publishEvent(eventId);
-      if (result.error) alert(result.error);
+      if (result.error) toast.error(result.error);
+      else router.refresh();
       setActionTarget(null);
     });
   }
 
-  async function handleDelete(eventId: string) {
-    if (!confirm("이벤트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) return;
+  // 삭제 확인 모달에서 "삭제"를 누르면 실제 삭제 실행
+  function confirmDelete() {
+    const target = deleteTarget;
+    if (!target) return;
+    setActionTarget(target.event_id);
+    startTransition(async () => {
+      const result = await deleteEvent(target.event_id);
+      if (result.error) toast.error(result.error);
+      else {
+        toast.success("게시물을 삭제했습니다");
+        router.refresh();
+      }
+      setActionTarget(null);
+      setDeleteTarget(null);
+    });
+  }
+
+  async function handleRestore(eventId: string) {
     setActionTarget(eventId);
     startTransition(async () => {
-      const result = await deleteEvent(eventId);
-      if (result.error) alert(result.error);
+      const result = await restoreEvent(eventId);
+      if (result.error) toast.error(result.error);
+      else router.refresh();
       setActionTarget(null);
     });
   }
@@ -186,6 +213,7 @@ export default function EventTable({
                 <th className="px-5 py-3.5 font-medium">카테고리</th>
                 <th className="px-5 py-3.5 font-medium">시작일</th>
                 <th className="px-5 py-3.5 font-medium">파티 수</th>
+                <th className="px-5 py-3.5 font-medium">티켓 판매량</th>
                 <th className="px-5 py-3.5 font-medium">상태</th>
                 <th className="px-5 py-3.5 font-medium">관리</th>
               </tr>
@@ -193,15 +221,18 @@ export default function EventTable({
             <tbody className="divide-y divide-gray-50 dark:divide-surface-3">
               {events.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center text-gray-400">
+                  <td colSpan={8} className="py-16 text-center text-gray-400">
                     이벤트가 없습니다
                   </td>
                 </tr>
               ) : (
                 events.map((event) => {
-                  const display = getStatusDisplay(event.status);
-                  const isPublic = event.status === "공개";
-                  const isSuspended = event.status === "비공개";
+                  const isDeleted = !!event.deleted_at;
+                  const display = isDeleted
+                    ? { label: "삭제됨", className: "bg-danger-100 text-danger-700" }
+                    : getStatusDisplay(event.status);
+                  const isPublic = !isDeleted && event.status === "공개";
+                  const isSuspended = !isDeleted && event.status === "일시정지";
                   const processing = isProcessing(event.event_id);
 
                   return (
@@ -224,6 +255,9 @@ export default function EventTable({
                       <td className="px-5 py-4 text-gray-600 dark:text-gray-300">
                         {event.partyCount}개
                       </td>
+                      <td className="px-5 py-4 text-gray-600 dark:text-gray-300">
+                        {event.ticketCount.toLocaleString()}장
+                      </td>
                       <td className="px-5 py-4">
                         <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${display.className}`}>
                           {display.label}
@@ -231,31 +265,46 @@ export default function EventTable({
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-4">
+                          {isDeleted && (
+                            <button
+                              onClick={() => handleRestore(event.event_id)}
+                              disabled={processing}
+                              className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700 disabled:opacity-40"
+                            >
+                              <RotateCcw size={14} />
+                              복구
+                            </button>
+                          )}
                           {isPublic && (
                             <button
                               onClick={() => handleHide(event.event_id)}
                               disabled={processing}
-                              className="flex items-center gap-1 text-sm font-medium text-orange-500 hover:text-orange-700 disabled:opacity-40"
+                              className="flex items-center gap-1 text-sm font-medium text-warning-600 hover:text-warning-700 disabled:opacity-40"
                             >
-                              🛑 예매 일시정지
+                              <CirclePause size={14} />
+                              예매 일시정지
                             </button>
                           )}
                           {isSuspended && (
                             <button
                               onClick={() => handlePublish(event.event_id)}
                               disabled={processing}
-                              className="flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-700 disabled:opacity-40"
+                              className="flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 disabled:opacity-40"
                             >
-                              ▶ 일시정지 해제
+                              <CirclePlay size={14} />
+                              일시정지 해제
                             </button>
                           )}
-                          <button
-                            onClick={() => handleDelete(event.event_id)}
-                            disabled={processing}
-                            className="flex items-center gap-1 text-sm font-medium text-red-500 hover:text-red-700 disabled:opacity-40"
-                          >
-                            🗑️ 삭제
-                          </button>
+                          {!isDeleted && (
+                            <button
+                              onClick={() => setDeleteTarget(event)}
+                              disabled={processing}
+                              className="flex items-center gap-1 text-sm font-medium text-danger-500 hover:text-danger-600 disabled:opacity-40"
+                            >
+                              <Trash2 size={14} />
+                              삭제
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -269,6 +318,34 @@ export default function EventTable({
           총 {events.length}개
         </div>
       </div>
+
+      {/* 삭제 확인 모달 (브라우저 기본 confirm 대체) */}
+      <Dialog
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        title="게시물 삭제"
+        confirmText={
+          deleteTarget && isProcessing(deleteTarget.event_id) ? "삭제 중..." : "삭제"
+        }
+        confirmVariant="danger"
+        cancelText="취소"
+        onConfirm={confirmDelete}
+        confirmDisabled={
+          !!deleteTarget && isProcessing(deleteTarget.event_id)
+        }
+      >
+        <div className="space-y-2 text-sm">
+          <p className="text-gray-700 dark:text-gray-200">
+            <span className="font-semibold">{deleteTarget?.title}</span> 게시물을
+            삭제하시겠습니까?
+          </p>
+          <p className="text-gray-500 dark:text-gray-400">
+            삭제된 게시물은 목록에서 숨겨지며,{" "}
+            <span className="font-medium">&apos;삭제됨&apos; 필터</span>에서 확인하고 복구할
+            수 있습니다.
+          </p>
+        </div>
+      </Dialog>
     </div>
   );
 }

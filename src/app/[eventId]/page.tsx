@@ -314,7 +314,7 @@ export default async function EventDetailPage({
                 slots={slots}
                 grades={grades}
                 seatLayout={seatLayout}
-                suspended={event.status === "비공개"}
+                suspended={event.status !== "공개" && event.status !== "closed"}
                 soldOut={event.status === "closed"}
                 loggedIn={loggedIn}
               />

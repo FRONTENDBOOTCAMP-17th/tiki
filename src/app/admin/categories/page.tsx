@@ -16,6 +16,7 @@ export default async function AdminCategoriesPage() {
       ? await supabase
           .from("event")
           .select("category_id")
+          .is("deleted_at", null)
           .in("category_id", categoryIds)
       : { data: [] };
 

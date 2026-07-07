@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Check, CircleCheck } from "lucide-react";
+import { Check, CircleCheck, X, CircleX } from "lucide-react";
 import { toast } from "sonner";
 import Button from "@/components/Button";
-import { approveSettlement } from "../actions";
+import Dialog from "@/components/modal/Dialog";
+import { approveSettlement, rejectSettlement } from "../actions";
 
 interface SettlementRow {
   settlement_id: string;
@@ -18,6 +19,7 @@ interface SettlementRow {
   status: string;
   requested_at: string;
   approved_at: string | null;
+  reject_reason: string | null;
 }
 
 function periodLabel(start: string, end: string) {
@@ -32,6 +34,8 @@ export default function SettlementApproval({
 }) {
   const [requests, setRequests] = useState(initialRequests);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
   const [, startTransition] = useTransition();
 
   function handleApprove(id: string) {
@@ -53,6 +57,30 @@ export default function SettlementApproval({
               : r,
           ),
         );
+      }
+      setPendingId(null);
+    });
+  }
+
+  function handleReject() {
+    const id = rejectTarget;
+    if (!id || !rejectReason.trim()) return;
+    setPendingId(id);
+    startTransition(async () => {
+      const result = await rejectSettlement(id, rejectReason);
+      if (result?.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("정산을 반려했습니다");
+        setRequests((prev) =>
+          prev.map((r) =>
+            r.settlement_id === id
+              ? { ...r, status: "rejected", reject_reason: rejectReason.trim() }
+              : r,
+          ),
+        );
+        setRejectTarget(null);
+        setRejectReason("");
       }
       setPendingId(null);
     });
@@ -109,21 +137,43 @@ export default function SettlementApproval({
                 </td>
                 <td className="px-4 py-3 text-center">
                   {r.status === "approved" ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 dark:bg-green-500/10 dark:text-green-400">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
                       <CircleCheck size={13} />
                       승인완료
                     </span>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      onClick={() => handleApprove(r.settlement_id)}
-                      loading={pendingId === r.settlement_id}
-                      disabled={pendingId === r.settlement_id}
+                  ) : r.status === "rejected" ? (
+                    <span
+                      className="inline-flex items-center gap-1 rounded-full bg-danger-100 px-2.5 py-1 text-xs font-medium text-danger-700 dark:bg-danger-500/10 dark:text-danger-400"
+                      title={r.reject_reason ?? undefined}
                     >
-                      <Check size={14} />
-                      승인
-                    </Button>
+                      <CircleX size={13} />
+                      반려됨
+                    </span>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => handleApprove(r.settlement_id)}
+                        loading={pendingId === r.settlement_id}
+                        disabled={pendingId === r.settlement_id}
+                      >
+                        <Check size={14} />
+                        승인
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => {
+                          setRejectTarget(r.settlement_id);
+                          setRejectReason("");
+                        }}
+                        disabled={pendingId === r.settlement_id}
+                      >
+                        <X size={14} />
+                        반려
+                      </Button>
+                    </div>
                   )}
                 </td>
               </tr>
@@ -131,6 +181,31 @@ export default function SettlementApproval({
           </tbody>
         </table>
       </div>
+
+      <Dialog
+        open={rejectTarget !== null}
+        onClose={() => setRejectTarget(null)}
+        title="정산 반려"
+        confirmText={pendingId === rejectTarget ? "반려 중..." : "반려하기"}
+        confirmVariant="danger"
+        cancelText="취소"
+        onConfirm={handleReject}
+        confirmDisabled={!rejectReason.trim() || pendingId === rejectTarget}
+      >
+        <div className="space-y-2">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            반려 사유를 입력해주세요. 판매자는 이 사유를 확인하고 다시 신청할 수 있습니다.
+          </p>
+          <textarea
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            placeholder="예: 계좌 정보가 확인되지 않습니다"
+            rows={3}
+            autoFocus
+            className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400 dark:border-surface-3 dark:bg-surface-2 dark:text-gray-100"
+          />
+        </div>
+      </Dialog>
     </div>
   );
 }
