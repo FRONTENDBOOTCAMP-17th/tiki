@@ -1,6 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import {
+  useState,
+  useTransition,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import {
   Banknote,
   ChevronDown,
@@ -64,6 +68,15 @@ export default function SettlementView({ orders, bank, requests }: Props) {
         toast.success(`${result.count}개월치 정산을 신청했습니다`);
       }
     });
+  }
+
+  function handleMonthRowKeyDown(
+    e: ReactKeyboardEvent<HTMLTableRowElement>,
+    month: string,
+  ) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    setSelected(month);
   }
 
   // 월 → 정산 상태. 우선순위: 승인 > 신청 중 > 반려됨
@@ -274,10 +287,14 @@ export default function SettlementView({ orders, bank, requests }: Props) {
                     <tr
                       key={row.month}
                       onClick={() => setSelected(row.month)}
+                      onKeyDown={(e) => handleMonthRowKeyDown(e, row.month)}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`${formatMonth(row.month)} 정산 내역 선택`}
                       className={`cursor-pointer transition-colors ${
                         row.month === selected
                           ? "bg-primary-100/60 dark:bg-surface-4"
-                          : "hover:bg-gray-50 dark:hover:bg-surface-2"
+                          : "hover:bg-gray-50 focus-visible:bg-gray-50 dark:hover:bg-surface-2 dark:focus-visible:bg-surface-2"
                       }`}
                     >
                       <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-50">

@@ -114,6 +114,8 @@ export async function getEventDetail(
 }
 
 export async function getSlots(eventId: string): Promise<Slot[]> {
+  if (!UUID_RE.test(eventId)) return [];
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("slot")
@@ -143,6 +145,8 @@ export interface SeatLayoutForBooking {
 export async function getSeatLayout(
   eventId: string,
 ): Promise<SeatLayoutForBooking | null> {
+  if (!UUID_RE.test(eventId)) return null;
+
   const supabase = await createClient();
   const { data: layout } = await supabase
     .from("seat_layout")
@@ -174,6 +178,8 @@ export async function getSeatLayout(
 }
 
 export async function getGrades(eventId: string): Promise<Grade[]> {
+  if (!UUID_RE.test(eventId)) return [];
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("ticket_grade")
@@ -193,6 +199,16 @@ export async function getGrades(eventId: string): Promise<Grade[]> {
 }
 
 export async function getReviews(eventId: string): Promise<ReviewListData> {
+  if (!UUID_RE.test(eventId)) {
+    return {
+      averageRating: 0,
+      totalCount: 0,
+      reviews: [],
+      page: 1,
+      limit: 0,
+    };
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("get_event_reviews", {
     p_event_id: eventId,

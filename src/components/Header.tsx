@@ -79,7 +79,7 @@ export default function Header({
       )}
       {...props}
     >
-      <div className="mx-auto flex max-w-360 items-center gap-3 px-6 py-3 lg:gap-4 lg:px-8 lg:py-4">
+      <div className="mx-auto flex max-w-[1680px] items-center gap-3 px-5 py-3 sm:px-6 lg:gap-4 lg:px-10 lg:py-4 2xl:px-14">
         {/* 검색바 시작 위치를 검색화면 헤더와 맞추기 위한 고정폭 슬롯 (로고는 왼쪽으로 당김) */}
         <div className="flex w-17 shrink-0 items-center">
           <span className="min-[744px]:-ml-2">
@@ -114,7 +114,7 @@ export default function Header({
             <Link
               href="/login"
               aria-label="로그인"
-              className="hidden h-9 items-center gap-1.5 rounded-full bg-white px-3.5 text-sm font-semibold text-primary-700 shadow-sm transition hover:bg-white/90 hover:text-primary-800 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-white min-[744px]:flex"
+              className="hidden h-9 items-center gap-1.5 rounded-full bg-white px-3.5 text-sm font-semibold text-primary-700 shadow-sm transition hover:bg-white/90 hover:text-primary-800 dark:bg-white/10 dark:text-white dark:ring-1 dark:ring-white/15 dark:hover:bg-white/15 min-[744px]:flex"
             >
               <LogIn size={20} strokeWidth={2.25} />
               <span>로그인</span>
@@ -129,7 +129,7 @@ export default function Header({
 
       {showCategory && (
         <div className="border-b border-gray-100 bg-white transition-colors dark:border-surface-3 dark:bg-surface-header">
-          <nav className="scrollbar-hide mx-auto flex h-11 max-w-360 items-center gap-5 overflow-x-auto px-7 lg:px-8">
+          <nav className="scrollbar-hide mx-auto flex h-11 max-w-[1680px] items-center gap-5 overflow-x-auto px-6 sm:px-7 lg:px-10 2xl:px-14">
             {categories.map((cat) => {
               const active = path === cat.href;
 

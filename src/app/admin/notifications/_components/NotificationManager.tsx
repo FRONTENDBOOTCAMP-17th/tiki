@@ -1,6 +1,11 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import {
+  useRef,
+  useState,
+  useTransition,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import { Search, Send, Clock, Megaphone, Ticket, BadgePercent } from "lucide-react";
 import type { NotificationHistory } from "../page";
 import { sendNotification } from "../actions";
@@ -127,6 +132,16 @@ export default function NotificationManager({
       }
       return next;
     });
+  }
+
+  function handleMemberRowKeyDown(
+    e: ReactKeyboardEvent<HTMLTableRowElement>,
+    memberId: string,
+  ) {
+    if (e.target !== e.currentTarget) return;
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    toggleMember(memberId);
   }
 
   const canSend =
@@ -293,7 +308,11 @@ export default function NotificationManager({
                               <tr
                                 key={m.id}
                                 onClick={() => toggleMember(m.id)}
-                                className="cursor-pointer hover:bg-primary-50/40"
+                                onKeyDown={(e) => handleMemberRowKeyDown(e, m.id)}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`${m.name} 알림 대상 선택`}
+                                className="cursor-pointer hover:bg-primary-50/40 focus-visible:bg-primary-50/40"
                               >
                                 <td className="px-3 py-2.5">
                                   <input
