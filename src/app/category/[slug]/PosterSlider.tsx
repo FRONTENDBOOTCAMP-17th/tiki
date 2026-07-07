@@ -45,16 +45,8 @@ export default function PosterSlider({
             {title}
           </h2>
         )}
-        {/* 좌우 가장자리 페이드 마스크 — 폭 안에서 포스터가 자연스럽게 나타나고 사라지도록 */}
-        <div
-          className="overflow-hidden"
-          style={{
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent)",
-            maskImage:
-              "linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent)",
-          }}
-        >
+        {/* 좌우 가장자리 페이드 마스크 (md 이상에서만, 모바일 제외 — globals.css .poster-fade) */}
+        <div className="overflow-hidden poster-fade">
           <ul
             className="flex w-max animate-marquee hover:[animation-play-state:paused] motion-reduce:animate-none"
             style={{ animationDuration: `${duration}s` }}
