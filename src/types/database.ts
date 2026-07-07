@@ -48,6 +48,8 @@ export type Database = {
         Row: {
           category_id: string
           created_at: string
+          deleted_at: string | null
+          deleted_by: string | null
           description: string | null
           duration: number | null
           end_date: string
@@ -67,6 +69,8 @@ export type Database = {
         Insert: {
           category_id: string
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           description?: string | null
           duration?: number | null
           end_date: string
@@ -86,6 +90,8 @@ export type Database = {
         Update: {
           category_id?: string
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           description?: string | null
           duration?: number | null
           end_date?: string
@@ -407,6 +413,7 @@ export type Database = {
       review: {
         Row: {
           created_at: string
+          deleted_at: string | null
           event_id: string
           memo: string
           order_id: string
@@ -417,6 +424,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           event_id: string
           memo: string
           order_id: string
@@ -427,6 +435,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           event_id?: string
           memo?: string
           order_id?: string
@@ -703,6 +712,7 @@ export type Database = {
           net: number
           period_end: string
           period_start: string
+          reject_reason: string | null
           requested_at: string
           seller_id: string
           settlement_id: string
@@ -715,6 +725,7 @@ export type Database = {
           net?: number
           period_end: string
           period_start: string
+          reject_reason?: string | null
           requested_at?: string
           seller_id: string
           settlement_id?: string
@@ -727,6 +738,7 @@ export type Database = {
           net?: number
           period_end?: string
           period_start?: string
+          reject_reason?: string | null
           requested_at?: string
           seller_id?: string
           settlement_id?: string
@@ -971,11 +983,11 @@ export type Database = {
       accept_friend_request: { Args: { p_friend_id: string }; Returns: Json }
       accept_staff_invite: { Args: { p_staff_id: string }; Returns: Json }
       accept_ticket_share: { Args: { p_share_id: string }; Returns: Json }
+      can_checkin_event: { Args: { p_event_id: string }; Returns: boolean }
       can_write_review: {
         Args: { p_event_id: string; p_order_id: string; p_user_id: string }
         Returns: boolean
       }
-      can_checkin_event: { Args: { p_event_id: string }; Returns: boolean }
       cancel_order: { Args: { p_order_id: string }; Returns: boolean }
       cancel_stale_orders: { Args: { p_ttl_minutes?: number }; Returns: number }
       checkin_ticket: {

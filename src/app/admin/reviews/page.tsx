@@ -23,12 +23,12 @@ export default async function AdminReviewsPage() {
 
   const requests = requestRows ?? [];
 
-  // 대상 리뷰
+  // 대상 리뷰 (소프트 삭제된 리뷰도 포함 — 승인된 요청 카드에 원문을 계속 보여준다)
   const reviewIds = [...new Set(requests.map((r) => r.review_id))];
   const { data: reviewRows } = reviewIds.length
     ? await supabase
         .from("review")
-        .select("review_id, event_id, user_id, rating, memo")
+        .select("review_id, event_id, user_id, rating, memo, deleted_at")
         .in("review_id", reviewIds)
     : { data: [] };
   const reviewMap = new Map((reviewRows ?? []).map((r) => [r.review_id, r]));
@@ -84,6 +84,7 @@ export default async function AdminReviewsPage() {
       author: maskName(review ? (userMap.get(review.user_id) ?? "") : ""),
       rating: review?.rating ?? 0,
       memo: review?.memo ?? "",
+      reviewDeleted: !!review?.deleted_at,
     };
   });
 

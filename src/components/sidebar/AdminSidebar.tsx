@@ -2,7 +2,7 @@
 
 import {
   LayoutGrid,
-  Plus,
+  CalendarDays,
   BarChart2,
   Folder,
   Bell,
@@ -17,7 +17,7 @@ import { logout } from "@/app/action";
 
 const ADMIN_MENU: SidebarItem[] = [
   { label: "대시보드", href: "/admin", icon: LayoutGrid },
-  { label: "게시물 관리", href: "/admin/events", icon: Plus },
+  { label: "게시물 관리", href: "/admin/events", icon: CalendarDays },
   { label: "회원 관리", href: "/admin/members", icon: BarChart2 },
   { label: "카테고리 관리", href: "/admin/categories", icon: Folder },
   { label: "정산 관리", href: "/admin/settlement", icon: Wallet },

@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
+  Trash2,
 } from "lucide-react";
 import Button from "@/components/Button";
 import Dialog from "@/components/modal/Dialog";
@@ -39,6 +40,8 @@ export default function EventDetailView({
   const router = useRouter();
   const toast = useToast();
   const [statusOpen, setStatusOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   function scrollByDir(dir: 1 | -1) {
@@ -71,6 +74,28 @@ export default function EventDetailView({
     router.refresh();
   }
 
+  async function onDeleteConfirm() {
+    if (deleting) return;
+    setDeleting(true);
+    const res = await fetch(`/api/seller/event/${event.event_id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      const message =
+        body?.message === "event_has_orders"
+          ? "예매 내역이 있어 삭제할 수 없습니다"
+          : "삭제에 실패했습니다";
+      toast.error(message);
+      setDeleting(false);
+      setDeleteOpen(false);
+      return;
+    }
+    toast.success("게시물을 삭제했습니다");
+    // 삭제된 이벤트는 본인 목록에서도 사라지므로 목록으로 이동
+    router.push("/seller/list");
+  }
+
   return (
     <div className="mx-auto max-w-4xl space-y-6 py-6">
       <div className="flex items-start justify-between">
@@ -100,6 +125,14 @@ export default function EventDetailView({
           >
             <Pencil className="h-4 w-4" />
             수정
+          </Button>
+          <Button
+            size="sm"
+            variant="outlineDanger"
+            onClick={() => setDeleteOpen(true)}
+          >
+            <Trash2 className="h-4 w-4" />
+            삭제
           </Button>
         </div>
       </div>
@@ -292,6 +325,28 @@ export default function EventDetailView({
         confirmText="전환하기"
         onConfirm={onStatusConfirm}
       />
+
+      <Dialog
+        open={deleteOpen}
+        onClose={() => !deleting && setDeleteOpen(false)}
+        title="게시물 삭제"
+        confirmText={deleting ? "삭제 중..." : "삭제"}
+        confirmVariant="danger"
+        cancelText="취소"
+        onConfirm={onDeleteConfirm}
+        confirmDisabled={deleting}
+      >
+        <div className="space-y-2 text-sm">
+          <p className="text-gray-700 dark:text-gray-200">
+            <span className="font-semibold">{event.title}</span> 공연을
+            삭제하시겠습니까?
+          </p>
+          <p className="text-gray-500 dark:text-gray-400">
+            삭제하면 목록에서 사라지고 구매자에게 노출되지 않습니다. 예매 내역이 있는
+            공연은 삭제할 수 없습니다.
+          </p>
+        </div>
+      </Dialog>
     </div>
   );
 }

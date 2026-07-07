@@ -71,18 +71,16 @@ export default async function CategoryDetailPage({
       thumbnail: event.thumbnail,
     }));
 
-  // 랭킹은 실제 예매 순위 + 부족분을 나머지 공연으로 채운다. 추천/신규는 임시 데이터.
+  // 랭킹은 실제 예매 순위 + 부족분을 나머지 공연으로 채운다. 신규는 임시 데이터.
   const rankedIds = new Set(rankingCards.map((e) => e.eventId));
   const rankingFilled = [
     ...rankingCards,
     ...eventCards.filter((e) => !rankedIds.has(e.eventId)),
   ].slice(0, 10);
-  const recommended = eventCards.slice(0, 10);
   const newlyOpened = eventCards.slice(0, 10);
 
   const navSections: CategorySection[] = [
     rankingFilled.length > 0 && { id: "ranking", label: "랭킹" },
-    recommended.length > 0 && { id: "recommended", label: "추천" },
     newlyOpened.length > 0 && { id: "new", label: "신규 오픈" },
     eventCards.length > 0 && { id: "all", label: "전체" },
   ].filter(Boolean) as CategorySection[];
@@ -116,16 +114,6 @@ export default async function CategoryDetailPage({
                     title="인기 랭킹"
                     events={rankingFilled}
                     showRank
-                    className="bg-white dark:bg-surface-0"
-                  />
-                </div>
-              )}
-
-              {recommended.length > 0 && (
-                <div id="recommended" className="scroll-mt-16">
-                  <HorizontalCardSection
-                    title="추천 공연"
-                    events={recommended}
                     className="bg-white dark:bg-surface-0"
                   />
                 </div>

@@ -41,7 +41,7 @@ export default async function SettlementPage() {
   const { data: requestRows } = await supabase
     .from("settlement_request")
     .select(
-      "settlement_id, period_start, period_end, gross, fee, net, status, requested_at, approved_at",
+      "settlement_id, period_start, period_end, gross, fee, net, status, requested_at, approved_at, reject_reason",
     )
     .eq("seller_id", user.id)
     .order("requested_at", { ascending: false });

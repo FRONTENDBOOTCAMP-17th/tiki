@@ -62,6 +62,7 @@ export async function getEventDetail(
       "event_id, title, thumbnail, description, duration, intermission, start_date, end_date, status, venue_address, venue_detail_address, seller_id, category:category_id ( category_name )",
     )
     .eq("event_id", eventId)
+    .is("deleted_at", null) // 관리자가 삭제한 게시물은 상세 접근 차단 ("존재하지 않는 공연" 처리)
     .maybeSingle();
 
   if (error) throw error;

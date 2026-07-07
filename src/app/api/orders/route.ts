@@ -46,11 +46,14 @@ export async function POST(req: NextRequest) {
 
   const { data: event, error: eventError } = await supabase
     .from("event")
-    .select("status")
+    .select("status, deleted_at")
     .eq("event_id", eventId)
     .single();
   if (eventError || !event) return fail("event not found", 404);
-  if (event.status !== "공개") return fail("event not available", 400);
+  // 삭제(soft delete)됐거나 공개 상태가 아니면 예매 불가
+  if (event.deleted_at || event.status !== "공개") {
+    return fail("event not available", 400);
+  }
 
   const { data: grade, error: gradeError } = await supabase
     .from("ticket_grade")

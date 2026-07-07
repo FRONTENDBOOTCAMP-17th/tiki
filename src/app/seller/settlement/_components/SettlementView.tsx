@@ -8,6 +8,7 @@ import {
   Receipt,
   Pencil,
   Send,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -65,14 +66,23 @@ export default function SettlementView({ orders, bank, requests }: Props) {
     });
   }
 
-  // 월 → 정산 상태 (승인이 신청보다 우선)
-  const monthStatus = new Map<string, "approved" | "requested">();
+  // 월 → 정산 상태. 우선순위: 승인 > 신청 중 > 반려됨
+  // (반려 후 재신청하면 같은 달에 반려 건과 신청 건이 함께 존재할 수 있다)
+  const STATUS_PRIORITY = { rejected: 0, requested: 1, approved: 2 } as const;
+  type MonthStatus = keyof typeof STATUS_PRIORITY;
+
+  const monthStatus = new Map<string, MonthStatus>();
+  const monthRejectReason = new Map<string, string>();
   for (const req of requests) {
+    const status = req.status as MonthStatus;
+    if (!(status in STATUS_PRIORITY)) continue;
     for (const month of monthsInRange(req.period_start, req.period_end)) {
-      if (req.status === "approved") {
-        monthStatus.set(month, "approved");
-      } else if (monthStatus.get(month) !== "approved") {
-        monthStatus.set(month, "requested");
+      const current = monthStatus.get(month);
+      if (!current || STATUS_PRIORITY[status] > STATUS_PRIORITY[current]) {
+        monthStatus.set(month, status);
+      }
+      if (status === "rejected" && req.reject_reason) {
+        monthRejectReason.set(month, req.reject_reason);
       }
     }
   }
@@ -120,16 +130,35 @@ export default function SettlementView({ orders, bank, requests }: Props) {
   function monthStatusBadge(month: string) {
     const status = monthStatus.get(month);
     if (status === "approved") {
-      return { label: "정산완료", className: "bg-green-50 text-green-700" };
+      return { label: "정산완료", className: "bg-emerald-100 text-emerald-700" };
     }
     if (status === "requested") {
-      return { label: "승인대기", className: "bg-blue-50 text-blue-600" };
+      return { label: "승인대기", className: "bg-primary-100 text-primary-700" };
+    }
+    if (status === "rejected") {
+      return {
+        label: "반려됨",
+        className: "bg-danger-100 text-danger-700",
+        title: monthRejectReason.get(month),
+      };
     }
     if (month >= thisMonth) {
-      return { label: "정산예정", className: "bg-amber-50 text-amber-600" };
+      return { label: "정산예정", className: "bg-warning-100 text-warning-700" };
     }
     return { label: "미신청", className: "bg-gray-100 text-gray-500" };
   }
+
+  // 아직 처리되지 않은(재신청으로 대체되지 않은) 반려 사유 목록.
+  // monthStatus가 이미 우선순위(승인>신청중>반려)를 반영하므로, 재신청하면
+  // 해당 월이 "신청중"으로 바뀌어 이 목록에서 자연히 빠진다. (별도 상태 불필요)
+  const activeRejectReasons = [
+    ...new Set(
+      [...monthStatus.entries()]
+        .filter(([, status]) => status === "rejected")
+        .map(([month]) => monthRejectReason.get(month))
+        .filter((reason): reason is string => !!reason),
+    ),
+  ];
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 py-6">
@@ -158,6 +187,31 @@ export default function SettlementView({ orders, bank, requests }: Props) {
           </div>
         )}
       </header>
+
+      {activeRejectReasons.length > 0 && (
+        <div className="flex items-start gap-3 rounded-xl border border-danger-200 bg-danger-100 px-4 py-3 dark:border-danger-500/40 dark:bg-danger-500/10">
+          <AlertTriangle
+            size={18}
+            className="mt-0.5 shrink-0 text-danger-600 dark:text-danger-400"
+          />
+          <div className="min-w-0 text-sm">
+            <p className="font-semibold text-danger-700 dark:text-danger-300">
+              정산 신청이 반려되었습니다
+            </p>
+            {activeRejectReasons.map((reason, i) => (
+              <p
+                key={i}
+                className="mt-0.5 whitespace-pre-line text-danger-700/90 dark:text-danger-300/90"
+              >
+                사유: {reason}
+              </p>
+            ))}
+            <p className="mt-1 text-xs text-danger-600/80 dark:text-danger-400/80">
+              사유를 확인한 뒤 다시 정산을 신청해 주세요.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
@@ -243,6 +297,7 @@ export default function SettlementView({ orders, bank, requests }: Props) {
                           const badge = monthStatusBadge(row.month);
                           return (
                             <span
+                              title={badge.title}
                               className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${badge.className}`}
                             >
                               {badge.label}

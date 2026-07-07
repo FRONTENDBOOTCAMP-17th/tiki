@@ -18,7 +18,8 @@ export default async function SellerReviewsPage() {
   const { data: eventRows } = await supabase
     .from("event")
     .select("event_id, title, thumbnail")
-    .eq("seller_id", user.id);
+    .eq("seller_id", user.id)
+    .is("deleted_at", null); // 관리자가 삭제한 게시물 제외
   const events = eventRows ?? [];
   const eventIds = events.map((e) => e.event_id);
   const titleMap = new Map(events.map((e) => [e.event_id, e.title]));
@@ -29,6 +30,7 @@ export default async function SellerReviewsPage() {
         .from("review")
         .select("review_id, event_id, user_id, rating, memo, created_at")
         .in("event_id", eventIds)
+        .is("deleted_at", null) // 삭제 승인된 리뷰는 판매자 목록에서 제외
         .order("created_at", { ascending: false })
     : { data: [] };
 

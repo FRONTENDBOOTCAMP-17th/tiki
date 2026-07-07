@@ -2,15 +2,19 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { Check, X, Ban } from "lucide-react";
+import { Check, X, Ban, Trash2, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import Button from "@/components/Button";
 import ReviewRating from "@/components/reviews/ReviewRating";
 import ReviewBody from "@/components/reviews/ReviewBody";
 import { formatDotDate } from "@/lib/format";
-import { approveReviewDeletion, rejectReviewDeletion } from "../actions";
+import {
+  approveReviewDeletion,
+  rejectReviewDeletion,
+  restoreReview,
+} from "../actions";
 
-// 관리자 리뷰 삭제요청 목록 UI (승인/거절 버튼 + 상태 필터 탭)
+// 관리자 리뷰 삭제요청 목록 UI (승인/거절/복구 버튼 + 상태 필터 탭)
 export interface AdminReviewRequest {
   requestId: string;
   reviewId: string;
@@ -23,16 +27,18 @@ export interface AdminReviewRequest {
   author: string;
   rating: number;
   memo: string;
+  reviewDeleted: boolean;
 }
 
-type Pending = { id: string; action: "approve" | "reject" } | null;
+type Pending = { id: string; action: "approve" | "reject" | "restore" } | null;
 
-// 상단 필터 탭
-type Filter = "all" | "pending" | "rejected";
+// 상단 필터 탭 (approved = 삭제 승인되어 소프트 삭제된 리뷰)
+type Filter = "all" | "pending" | "rejected" | "approved";
 const TABS: { value: Filter; label: string }[] = [
   { value: "all", label: "전체" },
   { value: "pending", label: "처리 대기" },
   { value: "rejected", label: "거절됨" },
+  { value: "approved", label: "삭제됨" },
 ];
 
 export default function ReviewDeleteRequests({
@@ -45,7 +51,7 @@ export default function ReviewDeleteRequests({
   const [filter, setFilter] = useState<Filter>("all");
   const [, startTransition] = useTransition();
 
-  // 승인 = 리뷰 삭제 → 목록에서 제거
+  // 승인 = 리뷰 소프트 삭제 → 카드는 '삭제됨' 상태로 남긴다 (기록 보존)
   function handleApprove(id: string) {
     setPending({ id, action: "approve" });
     startTransition(async () => {
@@ -53,8 +59,35 @@ export default function ReviewDeleteRequests({
       if (result?.error) {
         toast.error(result.error);
       } else {
-        toast.success("리뷰를 삭제했습니다");
-        setRequests((prev) => prev.filter((r) => r.requestId !== id));
+        toast.success("리뷰를 삭제했습니다 (삭제됨 탭에서 확인·복구 가능)");
+        setRequests((prev) =>
+          prev.map((r) =>
+            r.requestId === id
+              ? { ...r, status: "approved", reviewDeleted: true }
+              : r,
+          ),
+        );
+      }
+      setPending(null);
+    });
+  }
+
+  // 복구 = 리뷰 되살리고 요청은 거절됨으로 되돌림
+  function handleRestore(id: string) {
+    setPending({ id, action: "restore" });
+    startTransition(async () => {
+      const result = await restoreReview(id);
+      if (result?.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("리뷰를 복구했습니다");
+        setRequests((prev) =>
+          prev.map((r) =>
+            r.requestId === id
+              ? { ...r, status: "rejected", reviewDeleted: false }
+              : r,
+          ),
+        );
       }
       setPending(null);
     });
@@ -91,6 +124,7 @@ export default function ReviewDeleteRequests({
     all: requests.length,
     pending: requests.filter((r) => r.status === "pending").length,
     rejected: requests.filter((r) => r.status === "rejected").length,
+    approved: requests.filter((r) => r.status === "approved").length,
   };
   const visible =
     filter === "all" ? requests : requests.filter((r) => r.status === filter);
@@ -123,7 +157,9 @@ export default function ReviewDeleteRequests({
             ? "거절된 요청이 없습니다"
             : filter === "pending"
               ? "처리 대기 중인 요청이 없습니다"
-              : "리뷰 삭제 요청이 없습니다"}
+              : filter === "approved"
+                ? "삭제된 리뷰가 없습니다"
+                : "리뷰 삭제 요청이 없습니다"}
         </div>
       ) : (
         <ul className="flex flex-col gap-3">
@@ -172,7 +208,26 @@ export default function ReviewDeleteRequests({
               </div>
 
               <div className="mt-3 flex items-center justify-end gap-2">
-                {r.status === "rejected" ? (
+                {r.status === "approved" ? (
+                  <>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-danger-100 px-2.5 py-1 text-xs font-medium text-danger-700 dark:bg-danger-500/10 dark:text-danger-400">
+                      <Trash2 size={13} />
+                      삭제됨
+                    </span>
+                    {r.reviewDeleted && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRestore(r.requestId)}
+                        loading={isRowPending && pending?.action === "restore"}
+                        disabled={isRowPending}
+                      >
+                        <RotateCcw size={14} />
+                        복구
+                      </Button>
+                    )}
+                  </>
+                ) : r.status === "rejected" ? (
                   <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500 dark:bg-surface-2 dark:text-gray-400">
                     <Ban size={13} />
                     거절됨
